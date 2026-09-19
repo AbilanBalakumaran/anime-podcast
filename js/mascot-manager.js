@@ -134,6 +134,8 @@ export class MascotManager {
       .replace(/[^a-z0-9]/g, ' ');
 
     const rules = [
+      { id: 'bonjour', keywords: ['bonjour', 'salut', 'hello', 'coucou', 'wave', 'hi', 'welcome', 'intro', 'accueil', 'salutation'] },
+      { id: 'au_revoir', keywords: ['aurevoir', 'au revoir', 'bye', 'outro', 'farewell', 'cya', 'peace', 'fin', 'conclusion', 'merci'] },
       { id: 'enthousiaste', keywords: ['enthousiaste', 'enthusiastic', 'excited', 'sparkle', 'hype', 'victory', 'cheer', 'energy', 'dynamique', 'super'] },
       { id: 'explicative', keywords: ['explicative', 'explaining', 'explain', 'point', 'teach', 'present', 'hand', 'demo', 'tuto', 'index'] },
       { id: 'pensive', keywords: ['pensive', 'thinking', 'thoughtful', 'think', 'wonder', 'question', 'curious', 'doubt', 'ponder', 'songeur'] },

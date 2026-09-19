@@ -1,6 +1,7 @@
 /* ==========================================================================
-   RESPONSIVE DESIGN - ANIME PODCAST STUDIO
+   RESPONSIVE DESIGN & ERGONOMIE MOBILE - ANIME PODCAST STUDIO
    Adaptabilité mobile, tablette et grand écran
+   Optimisation des cibles tactiles (Tap Targets min 44-48px) pour un confort absolu
    ========================================================================== */
 
 @media (max-width: 1080px) {
@@ -19,59 +20,194 @@
   }
 }
 
+/* ==========================================================================
+   SMARTPHONE & TABLETTE TACTILE (< 768px)
+   ========================================================================== */
 @media (max-width: 768px) {
   .app-header {
     padding: 0 16px;
-    height: 60px;
+    height: 64px;
   }
 
   .brand-title {
-    font-size: 1.05rem;
+    font-size: 1.1rem;
   }
 
   .brand-badge {
     display: none;
   }
 
+  .studio-main {
+    padding: 12px;
+    gap: 16px;
+  }
+
   .studio-card {
+    padding: 16px;
+    border-radius: var(--radius-md);
+  }
+
+  /* Cibles tactiles agrandies pour boutons principaux (min 48px) */
+  .btn {
+    min-height: 48px;
+    font-size: 0.95rem;
+    padding: 12px 18px;
+  }
+
+  .btn-sm {
+    min-height: 42px;
+    padding: 8px 14px;
+    font-size: 0.85rem;
+  }
+
+  .tab-btn {
+    min-height: 46px;
+    font-size: 0.88rem;
+  }
+
+  /* Pills d'attitudes tactiles et espacées */
+  .poses-preview-bar {
+    gap: 10px;
+    max-height: 220px;
+  }
+
+  .pose-pill {
+    min-height: 44px;
+    padding: 8px 14px;
+    font-size: 0.84rem;
+  }
+
+  /* Sélecteur de mascottes en 2 colonnes confortables */
+  .mascot-picker {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .mascot-card {
+    padding: 14px 10px;
+    min-height: 140px;
+  }
+
+  .mascot-thumbnail {
+    width: 80px;
+    height: 80px;
+  }
+
+  /* Entrées de formulaire adaptées au toucher (16px évite le zoom auto sur iOS) */
+  .form-input,
+  .form-select,
+  .form-textarea {
+    min-height: 48px;
+    font-size: 16px;
+    padding: 12px 14px;
+  }
+
+  .form-textarea {
+    min-height: 120px;
+  }
+
+  /* Contrôles de lecture Canvas */
+  .canvas-controls-bar {
+    flex-direction: column;
+    gap: 14px;
+    align-items: stretch;
     padding: 14px;
   }
 
-  .mascot-picker {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .canvas-controls-bar {
-    flex-direction: column;
-    gap: 10px;
-    align-items: stretch;
-  }
-
   .playback-controls {
-    justify-content: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .btn-play {
+    width: 52px;
+    height: 52px;
+  }
+
+  /* Bouton d'export plein écran mobile */
+  #btn-export-video {
+    width: 100%;
+    min-height: 52px;
+    font-size: 1rem;
+  }
+
+  /* Timeline & Segments adaptés aux doigts */
+  .waveform-box {
+    height: 70px;
   }
 
   .segment-card {
-    grid-template-columns: 70px 1fr 110px;
-    gap: 8px;
-    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .segment-card > div:last-child {
+    display: grid !important;
+    grid-template-columns: 1fr 90px !important;
+    gap: 8px !important;
+    width: 100%;
+  }
+
+  .segment-pose-select {
+    min-height: 44px;
+    font-size: 0.9rem;
+    padding: 8px 10px;
+  }
+
+  /* Modale pleine largeur mobile */
+  .modal-backdrop {
+    padding: 10px;
   }
 
   .modal-card {
-    padding: 16px;
-    max-height: 95vh;
+    padding: 18px 14px;
+    max-height: 96vh;
+    border-radius: var(--radius-md);
   }
 
-  .pose-upload-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .bulk-upload-dropzone {
+    padding: 24px 14px;
+  }
+
+  .bulk-dropzone-title {
+    font-size: 0.95rem;
+  }
+
+  .bulk-review-grid {
+    grid-template-columns: 1fr;
+    max-height: 300px;
+  }
+
+  .bulk-review-card {
+    padding: 12px;
+  }
+
+  .bulk-select-emotion {
+    min-height: 44px;
+    font-size: 0.9rem;
+  }
+
+  .custom-emotion-adder {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .custom-emotion-adder button {
+    width: 100%;
+    min-height: 46px;
   }
 }
 
-/* Support PWA Standalone Notch / Safe Area */
+/* ==========================================================================
+   SUPPORT PWA NOTCH & SAFE AREA (iPhone, Android)
+   ========================================================================== */
 @supports (padding-top: env(safe-area-inset-top)) {
   .app-header {
     padding-top: env(safe-area-inset-top);
-    height: calc(68px + env(safe-area-inset-top));
+    height: calc(64px + env(safe-area-inset-top));
   }
   .app-footer {
     padding-bottom: calc(16px + env(safe-area-inset-bottom));

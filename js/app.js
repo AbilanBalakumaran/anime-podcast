@@ -36,6 +36,7 @@ class AnimePodcastApp {
     this.audioFileInput = document.getElementById('audio-file-input');
     this.audioDropzone = document.getElementById('audio-dropzone');
     this.btnGenerateTts = document.getElementById('btn-generate-tts');
+    this.btnLoadTestScript = document.getElementById('btn-load-test-script');
     this.textareaTts = document.getElementById('textarea-tts');
     this.selectVoice = document.getElementById('select-tts-voice');
     this.sliderRate = document.getElementById('slider-tts-rate');
@@ -173,6 +174,12 @@ class AnimePodcastApp {
         if (e.dataTransfer.files && e.dataTransfer.files[0]) {
           await this.processAudioFile(e.dataTransfer.files[0]);
         }
+      });
+    }
+
+    if (this.btnLoadTestScript && this.textareaTts) {
+      this.btnLoadTestScript.addEventListener('click', () => {
+        this.textareaTts.value = "Bonjour à tous et bienvenue dans ce nouvel épisode d'Anime Podcast ! Aujourd'hui, nous explorons le secret de l'animation japonaise et des mascottes expressives. Avez-vous remarqué comment les transitions de poses rendent un discours captivant ? C'est absolument incroyable et immersif ! Merci d'avoir partagé ce moment avec nous, et à très bientôt pour le prochain épisode !";
       });
     }
 

@@ -1,11 +1,14 @@
 /**
  * DEFAULT MASCOTS - ANIME PODCAST STUDIO
- * Catalogue étendu de 12 émotions de base avec multiples variantes de poses par émotion.
+ * Catalogue étendu de 14 émotions de base (incluant Bonjour/Salutation et Au revoir/Outro)
+ * avec multiples variantes de poses par émotion.
  * Mascottes : Aiko (Podcasteuse Anime) & Ren (Chroniqueur Pop-Culture)
  * Charte : Bleu sombre profond (#070b14, #0b1329), accents or (#f59e0b, #fbbf24). ZÉRO ROSE.
  */
 
 export const BASE_EMOTIONS = [
+  { id: 'bonjour', label: 'Bonjour / Salutation', icon: '👋', hint: 'Coucou de la main, accueil chaleureux et intro' },
+  { id: 'au_revoir', label: 'Au revoir / Outro', icon: '✌️', hint: 'Geste d\'adieu, signe de la main ou V en conclusion' },
   { id: 'neutre', label: 'Neutre', icon: '🙂', hint: 'Calme, écoute attentive, posture de repos' },
   { id: 'enthousiaste', label: 'Enthousiaste', icon: '✨', hint: 'Dynamique, grands gestes, énergie communicative' },
   { id: 'explicative', label: 'Explicative', icon: '💡', hint: 'Pédagogique, index pointé, paumes ouvertes' },
@@ -32,13 +35,33 @@ function createAikoSVG(emotion = 'neutre', variant = 0, mouthOpen = 0) {
   let sparkles = '';
 
   switch (emotion) {
+    case 'bonjour':
+      // Geste de coucou de la main levée avec sourire chaleureux
+      armRight = `<path d="M 275 350 Q 315 280 295 195" fill="none" stroke="#111d38" stroke-width="26" stroke-linecap="round" />
+                  <circle cx="295" cy="190" r="16" fill="#fde8d7" />
+                  <!-- Doigts qui saluent -->
+                  <path d="M 290 190 Q 305 165 315 175" stroke="#fde8d7" stroke-width="8" stroke-linecap="round" />
+                  <path d="M 298 185 Q 315 168 322 182" stroke="#fde8d7" stroke-width="7" stroke-linecap="round" />`;
+      mouthPath = `<path d="M 188 268 Q 200 ${286 + mouthOpen * 8} 212 268 Z" fill="#78350f" /><ellipse cx="200" cy="272" rx="9" ry="4" fill="#ffffff" />`;
+      sparkles = `<text x="310" y="155" font-family="sans-serif" font-weight="900" font-size="28" fill="#fbbf24">👋</text>`;
+      break;
+
+    case 'au_revoir':
+      // Geste d'au revoir / V de la main
+      armRight = `<path d="M 275 350 Q 320 280 300 200" fill="none" stroke="#111d38" stroke-width="26" stroke-linecap="round" />
+                  <circle cx="300" cy="195" r="16" fill="#fde8d7" />
+                  <line x1="295" y1="195" x2="285" y2="165" stroke="#fde8d7" stroke-width="8" stroke-linecap="round" />
+                  <line x1="305" y1="195" x2="315" y2="165" stroke="#fde8d7" stroke-width="8" stroke-linecap="round" />`;
+      mouthPath = `<path d="M 190 270 Q 200 ${284 + mouthOpen * 8} 212 270 Z" fill="#78350f" /><path d="M 192 271 Q 200 276 210 271" fill="#ffffff" />`;
+      sparkles = `<text x="310" y="155" font-family="sans-serif" font-weight="900" font-size="28" fill="#fbbf24">✨</text>`;
+      break;
+
     case 'neutre':
       if (variant === 0) {
         mouthPath = mouthOpen > 0.3
           ? `<ellipse cx="200" cy="${276 + mouthOpen * 4}" rx="${8 + mouthOpen * 4}" ry="${6 + mouthOpen * 8}" fill="#78350f" /><path d="M 194 ${273 + mouthOpen * 3} Q 200 ${276 + mouthOpen * 3} 206 ${273 + mouthOpen * 3}" fill="#ffffff" />`
           : `<path d="M 190 274 Q 200 282 210 274" fill="none" stroke="#92400e" stroke-width="3.5" stroke-linecap="round" />`;
       } else {
-        // Variante 1 : Léger sourire avec tête un peu penchée
         mouthPath = mouthOpen > 0.3
           ? `<ellipse cx="201" cy="${275 + mouthOpen * 4}" rx="${9 + mouthOpen * 3}" ry="${7 + mouthOpen * 7}" fill="#78350f" />`
           : `<path d="M 192 273 Q 201 283 212 275" fill="none" stroke="#92400e" stroke-width="3.5" stroke-linecap="round" />`;
@@ -50,11 +73,9 @@ function createAikoSVG(emotion = 'neutre', variant = 0, mouthOpen = 0) {
       eyebrowLeft = `<path d="M 150 192 Q 165 186 182 194" fill="none" stroke="#0f172a" stroke-width="4.5" stroke-linecap="round" />`;
       eyebrowRight = `<path d="M 218 194 Q 235 186 250 192" fill="none" stroke="#0f172a" stroke-width="4.5" stroke-linecap="round" />`;
       if (variant === 0) {
-        // Variante 0 : Deux bras levés
         armLeft = `<path d="M 125 350 Q 80 340 75 290" fill="none" stroke="#111d38" stroke-width="26" stroke-linecap="round" /><circle cx="75" cy="285" r="15" fill="#fde8d7" />`;
         armRight = `<path d="M 275 350 Q 320 340 325 290" fill="none" stroke="#111d38" stroke-width="26" stroke-linecap="round" /><circle cx="325" cy="285" r="15" fill="#fde8d7" />`;
       } else {
-        // Variante 1 : Poing levé et main sur la hanche
         armLeft = `<path d="M 125 350 Q 75 310 90 260" fill="none" stroke="#111d38" stroke-width="26" stroke-linecap="round" /><circle cx="90" cy="255" r="16" fill="#fde8d7" />`;
         armRight = `<path d="M 275 350 Q 315 390 295 430" fill="none" stroke="#111d38" stroke-width="26" stroke-linecap="round" /><circle cx="295" cy="430" r="15" fill="#fde8d7" />`;
       }
@@ -65,11 +86,9 @@ function createAikoSVG(emotion = 'neutre', variant = 0, mouthOpen = 0) {
 
     case 'explicative':
       if (variant === 0) {
-        // Variante 0 : Index pointé
         armRight = `<path d="M 275 350 Q 310 330 310 270" fill="none" stroke="#111d38" stroke-width="26" stroke-linecap="round" />
                     <circle cx="310" cy="265" r="14" fill="#fde8d7" /><path d="M 310 265 L 315 235" stroke="#fde8d7" stroke-width="9" stroke-linecap="round" />`;
       } else {
-        // Variante 1 : Deux mains ouvertes vers l'avant (geste de présentation)
         armLeft = `<path d="M 125 350 Q 95 330 115 285" fill="none" stroke="#111d38" stroke-width="26" stroke-linecap="round" /><circle cx="115" cy="280" r="15" fill="#fde8d7" />`;
         armRight = `<path d="M 275 350 Q 305 330 285 285" fill="none" stroke="#111d38" stroke-width="26" stroke-linecap="round" /><circle cx="285" cy="280" r="15" fill="#fde8d7" />`;
       }
@@ -94,7 +113,6 @@ function createAikoSVG(emotion = 'neutre', variant = 0, mouthOpen = 0) {
       break;
 
     case 'confiante':
-      // Bras croisés, sourire assuré
       armLeft = `<path d="M 125 350 Q 150 400 210 390" fill="none" stroke="#111d38" stroke-width="26" stroke-linecap="round" />`;
       armRight = `<path d="M 275 350 Q 250 400 190 390" fill="none" stroke="#111d38" stroke-width="26" stroke-linecap="round" />`;
       mouthPath = `<path d="M 190 272 Q 200 282 214 270" fill="none" stroke="#92400e" stroke-width="4" stroke-linecap="round" />`;
@@ -102,7 +120,6 @@ function createAikoSVG(emotion = 'neutre', variant = 0, mouthOpen = 0) {
       break;
 
     case 'joyeuse':
-      // Yeux plissés rieurs en arcs
       eyeLeft = `<path d="M 152 225 Q 165 210 178 225" fill="none" stroke="#1e293b" stroke-width="5" stroke-linecap="round" />`;
       eyeRight = `<path d="M 222 225 Q 235 210 248 225" fill="none" stroke="#1e293b" stroke-width="5" stroke-linecap="round" />`;
       mouthPath = `<path d="M 188 266 Q 200 ${288 + mouthOpen * 8} 212 266 Z" fill="#78350f" /><ellipse cx="200" cy="272" rx="9" ry="4" fill="#ffffff" />`;
@@ -190,6 +207,25 @@ function createRenSVG(emotion = 'neutre', variant = 0, mouthOpen = 0) {
   let sparkles = '';
 
   switch (emotion) {
+    case 'bonjour':
+      // Geste d'accueil de la main levée
+      armRight = `<path d="M 280 350 Q 320 280 300 195" fill="none" stroke="#0b1329" stroke-width="28" stroke-linecap="round" />
+                  <circle cx="300" cy="190" r="16" fill="#fcd5b8" />
+                  <path d="M 295 190 Q 310 165 320 175" stroke="#fcd5b8" stroke-width="9" stroke-linecap="round" />`;
+      mouthPath = `<path d="M 188 268 Q 200 ${288 + mouthOpen * 8} 212 268 Z" fill="#78350f" /><path d="M 190 269 Q 200 274 210 269" fill="#ffffff" />`;
+      sparkles = `<text x="315" y="155" font-family="sans-serif" font-weight="900" font-size="28" fill="#fbbf24">👋</text>`;
+      break;
+
+    case 'au_revoir':
+      // Geste d'adieu V de la victoire
+      armRight = `<path d="M 280 350 Q 320 280 305 200" fill="none" stroke="#0b1329" stroke-width="28" stroke-linecap="round" />
+                  <circle cx="305" cy="195" r="16" fill="#fcd5b8" />
+                  <line x1="300" y1="195" x2="290" y2="165" stroke="#fcd5b8" stroke-width="8" stroke-linecap="round" />
+                  <line x1="310" y1="195" x2="320" y2="165" stroke="#fcd5b8" stroke-width="8" stroke-linecap="round" />`;
+      mouthPath = `<path d="M 190 272 Q 200 ${284 + mouthOpen * 8} 212 272 Z" fill="#78350f" />`;
+      sparkles = `<text x="315" y="155" font-family="sans-serif" font-weight="900" font-size="28" fill="#fbbf24">✌️</text>`;
+      break;
+
     case 'neutre':
       mouthPath = mouthOpen > 0.3
         ? `<ellipse cx="200" cy="${275 + mouthOpen * 4}" rx="${8 + mouthOpen * 4}" ry="${6 + mouthOpen * 8}" fill="#78350f" />`
@@ -301,11 +337,10 @@ function createRenSVG(emotion = 'neutre', variant = 0, mouthOpen = 0) {
   </svg>`;
 }
 
-// Construction de l'objet d'émotions pour Aiko (avec multiples variantes de poses)
+// Construction des émotions pour Aiko
 const aikoEmotions = {};
 BASE_EMOTIONS.forEach(emo => {
   if (['neutre', 'enthousiaste', 'explicative', 'pensive'].includes(emo.id)) {
-    // 2 variantes de poses par émotion
     aikoEmotions[emo.id] = [
       createAikoSVG(emo.id, 0, 0),
       createAikoSVG(emo.id, 1, 0)
@@ -317,7 +352,7 @@ BASE_EMOTIONS.forEach(emo => {
   }
 });
 
-// Construction de l'objet d'émotions pour Ren
+// Construction des émotions pour Ren
 const renEmotions = {};
 BASE_EMOTIONS.forEach(emo => {
   if (['neutre', 'enthousiaste', 'explicative'].includes(emo.id)) {

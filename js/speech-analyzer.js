@@ -192,9 +192,17 @@ export class SpeechAnalyzer {
     return refinedSegments.map((seg, index) => {
       let chosenEmotion = 'neutre';
       const text = seg.origText;
+      const lowerText = text.toLowerCase();
+
+      const isGreeting = /bonjour|salut|bienvenue|hello|coucou|yo\b|bonsoir/i.test(lowerText);
+      const isFarewell = /au revoir|à bientôt|a bientot|à la prochaine|a la prochaine|bye|ciao|see you|merci d'avoir|à plus|a plus/i.test(lowerText);
 
       // Heuristiques intelligentes basées sur le contexte
-      if (text.includes('?')) {
+      if (isGreeting && availableEmotions.includes('bonjour')) {
+        chosenEmotion = 'bonjour';
+      } else if (isFarewell && availableEmotions.includes('au_revoir')) {
+        chosenEmotion = 'au_revoir';
+      } else if (text.includes('?')) {
         chosenEmotion = (lastEmotion === 'pensive') ? 'surprise' : 'pensive';
       } else if (text.includes('!')) {
         const excitePool = ['enthousiaste', 'joyeuse', 'determinee', 'enervee'].filter(e => availableEmotions.includes(e));
@@ -203,9 +211,13 @@ export class SpeechAnalyzer {
         const explainPool = ['explicative', 'confiante', 'serieuse'].filter(e => availableEmotions.includes(e));
         chosenEmotion = explainPool.find(e => e !== lastEmotion) || 'explicative';
       } else if (index === 0) {
-        chosenEmotion = availableEmotions.includes('enthousiaste') ? 'enthousiaste' : availableEmotions[0];
+        chosenEmotion = availableEmotions.includes('bonjour') 
+          ? 'bonjour' 
+          : (availableEmotions.includes('enthousiaste') ? 'enthousiaste' : availableEmotions[0]);
+      } else if (index === refinedSegments.length - 1 && availableEmotions.includes('au_revoir')) {
+        chosenEmotion = 'au_revoir';
       } else {
-        // Sélection aléatoire parmi les émotions disponibles différentes de la précédente
+        // Sélection dynamique parmi les émotions différentes de la précédente
         const candidatePool = availableEmotions.filter(e => e !== lastEmotion);
         chosenEmotion = candidatePool[Math.floor(Math.random() * candidatePool.length)] || availableEmotions[0];
       }
