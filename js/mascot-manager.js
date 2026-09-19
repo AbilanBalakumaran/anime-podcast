@@ -89,10 +89,23 @@ export class MascotManager {
     try {
       const customMascots = await dbManager.getAllMascots();
       this.mascots = [...DEFAULT_MASCOTS, ...customMascots];
-      if (!this.activeMascot && this.mascots.length > 0) {
-        this.activeMascot = this.mascots[0];
-      } else if (this.activeMascot && !this.mascots.some(m => m.id === this.activeMascot.id)) {
-        this.activeMascot = this.mascots[0] || null;
+
+      // Récupérer la dernière mascotte ouverte enregistrée dans localStorage
+      const lastMascotId = localStorage.getItem('last_active_mascot_id');
+      let targetMascot = null;
+
+      if (lastMascotId) {
+        targetMascot = this.mascots.find(m => m.id === lastMascotId);
+      }
+
+      // S'il n'y a pas de dernière mascotte mémorisée mais qu'il y a des mascottes, ouvrir la seule/première
+      if (!targetMascot && this.mascots.length > 0) {
+        targetMascot = this.mascots[0];
+      }
+
+      this.activeMascot = targetMascot || null;
+      if (this.activeMascot) {
+        localStorage.setItem('last_active_mascot_id', this.activeMascot.id);
       }
     } catch (err) {
       console.warn('[MascotManager] Impossible de charger les mascottes depuis IndexedDB:', err);
@@ -117,6 +130,7 @@ export class MascotManager {
       this.activeMascot = found;
       this.activeEmotion = 'neutre';
       this.activeVariantIndex = 0;
+      localStorage.setItem('last_active_mascot_id', found.id);
       this.renderPicker();
       this.renderFullGrid();
       this.renderEmotionPills();
@@ -543,7 +557,7 @@ export class MascotManager {
 
   openTuneModal(mascot) {
     if (!this.modalTune || !mascot) return;
-    this.activeMascot = mascot;
+    this.setActiveMascot(mascot.id);
 
     if (this.tuneMascotName) {
       this.tuneMascotName.textContent = mascot.name;
@@ -870,8 +884,19 @@ export class MascotManager {
     try {
       await dbManager.deleteMascot(id);
       this.mascots = this.mascots.filter(m => m.id !== id);
-      if (this.activeMascot.id === id) {
-        this.setActiveMascot(this.mascots[0].id);
+      if (this.activeMascot && this.activeMascot.id === id) {
+        if (this.mascots.length > 0) {
+          this.setActiveMascot(this.mascots[0].id);
+        } else {
+          this.activeMascot = null;
+          localStorage.removeItem('last_active_mascot_id');
+          this.renderPicker();
+          this.renderFullGrid();
+          this.renderEmotionPills();
+          if (this.onMascotChange) {
+            this.onMascotChange(null, 'neutre', 0);
+          }
+        }
       } else {
         this.renderPicker();
         this.renderFullGrid();
