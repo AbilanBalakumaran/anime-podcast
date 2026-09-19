@@ -910,8 +910,9 @@ input, textarea, select, button {
    ========================================================================== */
 .topic-detail-header {
   display: flex;
+  flex-direction: column;
   align-items: flex-start;
-  gap: 14px;
+  gap: 10px;
   padding: 0 24px 16px;
 }
 
@@ -925,7 +926,6 @@ input, textarea, select, button {
   font-weight: 800;
   color: var(--text-white);
   margin: 0;
-  padding-top: 6px;
 }
 
 .topic-brief-view-full {
