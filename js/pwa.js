@@ -21,7 +21,7 @@ export class PWAManager {
     if ('caches' in window) {
       caches.keys().then((keys) => {
         keys.forEach((key) => {
-          if (key !== 'autopod-v1.5.3') {
+          if (key !== 'autopod-v1.5.4') {
             console.log('[PWA] Purge du cache obsolète:', key);
             caches.delete(key);
           }
@@ -36,19 +36,15 @@ export class PWAManager {
       return;
     }
 
-    let isRefreshing = false;
-
-    // Détection immédiate du changement de contrôleur (mise à jour du Service Worker)
+    // Éviter tout rechargement brutal pendant l'ouverture ou le chargement initial de l'application
+    let hadController = Boolean(navigator.serviceWorker.controller);
     navigator.serviceWorker.addEventListener('controllerchange', () => {
-      if (!isRefreshing) {
-        isRefreshing = true;
-        console.log('[PWA] Nouvelle version détectée et activée ! Rechargement immédiat...');
-        window.location.reload();
-      }
+      console.log('[PWA] Nouveau Service Worker activé.');
+      // Pas de rechargement automatique agressif pendant le splash screen
     });
 
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js?v=1.5.3')
+      navigator.serviceWorker.register('./sw.js?v=1.5.4')
         .then((registration) => {
           console.log('[PWA] Service Worker enregistré avec succès:', registration.scope);
           registration.update().catch(() => {});
