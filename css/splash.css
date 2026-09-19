@@ -27,7 +27,7 @@
   pointer-events: none;
 }
 
-/* Contenu central du splash : uniquement l'icône, centrage absolu */
+/* Contenu central du splash : uniquement l'icône, remontée pour centrage optique */
 .splash-content {
   display: flex;
   align-items: center;
@@ -36,11 +36,12 @@
   margin: 0;
   width: auto;
   height: auto;
+  transform: translateY(-32px);
 }
 
 .splash-logo-icon {
-  width: clamp(220px, 50vw, 300px);
-  height: clamp(220px, 50vw, 300px);
+  width: clamp(165px, 38vw, 225px);
+  height: clamp(165px, 38vw, 225px);
   object-fit: contain;
   display: block;
   margin: 0 auto;
