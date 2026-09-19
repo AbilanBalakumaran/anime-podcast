@@ -340,23 +340,6 @@
               <button type="button" id="btn-wizard-generate-script" class="btn btn-gold" style="width: 100%;">
                 Générer le script
               </button>
-              <button type="button" id="btn-wizard-toggle-import" class="btn btn-outline-gold btn-sm" style="width: 100%; margin-top: 8px;">
-                ou importer un fichier audio existant
-              </button>
-              <div id="wizard-import-zone" style="display: none; margin-top: 10px;">
-                <input type="file" id="audio-file-input" accept="audio/*" style="display: none;">
-                <div id="audio-dropzone" class="audio-dropzone">
-                  <svg class="dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                    <polyline points="14 2 14 8 20 8"></polyline>
-                    <line x1="12" y1="18" x2="12" y2="12"></line>
-                    <line x1="9" y1="15" x2="12" y2="12"></line>
-                    <line x1="15" y1="15" x2="12" y2="12"></line>
-                  </svg>
-                  <div class="dropzone-text">Glissez-déposez un fichier audio ici</div>
-                  <div class="dropzone-sub">Formats acceptés : MP3, WAV, AAC, OGG, WebM</div>
-                </div>
-              </div>
             </section>
 
             <!-- ÉTAPE 2 : SCRIPT -->
@@ -433,49 +416,24 @@
                 </h2>
               </div>
               <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 14px;">
-                Script, voix off et illustrations sont prêts. Utilisez le bouton "Exporter Vidéo" dans la prévisualisation à droite pour générer le fichier final.
+                Script, voix off et illustrations sont prêts.
               </p>
-              <button type="button" id="btn-wizard-restart" class="btn btn-secondary btn-sm" style="width: 100%;">
-                Recommencer avec un nouveau sujet
-              </button>
-            </section>
 
-          </aside>
-
-          <!-- COLONNE DROITE : PRÉVISUALISATION & ILLUSTRATIONS -->
-          <section class="preview-panel">
-
-            <!-- Canevas Vidéo -->
-            <div class="studio-card">
-              <div class="card-header">
-                <h2 class="card-title">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
-                    <line x1="7" y1="2" x2="7" y2="22"></line>
-                    <line x1="17" y1="2" x2="17" y2="22"></line>
-                    <line x1="2" y1="12" x2="22" y2="12"></line>
+              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px;">
+                <div class="format-badge-fixed" title="Résolution fixe 1920x1080 paysage (FHD)">
+                  <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;">
+                    <rect x="2" y="4" width="20" height="14" rx="1"></rect>
+                    <line x1="8" y1="21" x2="16" y2="21"></line>
+                    <line x1="12" y1="18" x2="12" y2="21"></line>
                   </svg>
-                  Prévisualisation
-                </h2>
-
-                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                  <div class="format-badge-fixed" title="Résolution fixe 1920x1080 paysage (FHD)">
-                    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;">
-                      <rect x="2" y="4" width="20" height="14" rx="1"></rect>
-                      <line x1="8" y1="21" x2="16" y2="21"></line>
-                      <line x1="12" y1="18" x2="12" y2="21"></line>
-                    </svg>
-                    1920×1080 FHD (16:9)
-                  </div>
-
-                  <button type="button" id="btn-toggle-subtitles" class="btn btn-secondary btn-sm active" title="Activer / Désactiver les sous-titres incrustés">
-                    Sous-titres ON
-                  </button>
-
-                  <button id="btn-toggle-bg" class="btn btn-secondary btn-sm" title="Basculer entre le fond noir et le damier alpha">
-                    Damier (Alpha)
-                  </button>
+                  1920×1080 FHD (16:9)
                 </div>
+                <button type="button" id="btn-toggle-subtitles" class="btn btn-secondary btn-sm active" title="Activer / Désactiver les sous-titres incrustés">
+                  Sous-titres ON
+                </button>
+                <button id="btn-toggle-bg" class="btn btn-secondary btn-sm" title="Basculer entre le fond noir et le damier alpha">
+                  Damier (Alpha)
+                </button>
               </div>
 
               <div class="canvas-wrapper format-16-9 checkerboard">
@@ -486,7 +444,6 @@
                 </div>
               </div>
 
-              <!-- Barre de contrôles de lecture et d'export -->
               <div class="canvas-controls-bar">
                 <div class="playback-controls">
                   <button id="btn-play" class="btn btn-gold btn-play" title="Lecture">
@@ -498,19 +455,25 @@
                     <span id="time-current">00:00</span>
                   </div>
                 </div>
-
-                <div style="display: flex; gap: 10px;">
-                  <button id="btn-export-video" class="btn btn-gold">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                      <polyline points="7 10 12 15 17 10"></polyline>
-                      <line x1="12" y1="15" x2="12" y2="3"></line>
-                    </svg>
-                    Exporter Vidéo (WebM)
-                  </button>
-                </div>
+                <button id="btn-export-video" class="btn btn-gold">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                  </svg>
+                  Exporter Vidéo (WebM)
+                </button>
               </div>
-            </div>
+
+              <button type="button" id="btn-wizard-restart" class="btn btn-secondary btn-sm" style="width: 100%; margin-top: 12px;">
+                Recommencer avec un nouveau sujet
+              </button>
+            </section>
+
+          </aside>
+
+          <!-- COLONNE DROITE : ILLUSTRATIONS -->
+          <section class="preview-panel">
 
             <!-- ÉTAPE 4 (suite) : Illustrations & ordre d'apparition -->
             <div class="studio-card wizard-step" id="wizard-step-images" style="display: none;">

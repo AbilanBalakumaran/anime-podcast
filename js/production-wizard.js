@@ -35,8 +35,6 @@ export class ProductionWizard {
     this.imagesStatus = document.getElementById('wizard-images-status');
 
     this.btnGenerateScript = document.getElementById('btn-wizard-generate-script');
-    this.btnToggleImport = document.getElementById('btn-wizard-toggle-import');
-    this.importZone = document.getElementById('wizard-import-zone');
     this.btnBackToBrief = document.getElementById('btn-wizard-back-to-brief');
     this.btnGenerateAudio = document.getElementById('btn-wizard-generate-audio');
     this.btnGotoImages = document.getElementById('btn-wizard-goto-images');
@@ -47,12 +45,6 @@ export class ProductionWizard {
   }
 
   setupEvents() {
-    this.btnToggleImport?.addEventListener('click', () => {
-      if (!this.importZone) return;
-      const hidden = this.importZone.style.display === 'none' || !this.importZone.style.display;
-      this.importZone.style.display = hidden ? 'block' : 'none';
-    });
-
     this.btnGenerateScript?.addEventListener('click', () => this.handleGenerateScript());
     this.btnBackToBrief?.addEventListener('click', () => this.goToStep(1));
     this.btnGenerateAudio?.addEventListener('click', () => this.goToStep(3));
@@ -210,21 +202,6 @@ Requirements:
     } finally {
       this.isBusy = false;
       this.setButtonBusy(this.btnGotoImages, false, 'Choisir les illustrations');
-    }
-  }
-
-  /** Déclenché quand un fichier audio est importé directement (sans passer par brief/script). */
-  async onAudioReadyExternally() {
-    if (this.isBusy) return;
-    this.isBusy = true;
-    this.goToStep(4);
-    try {
-      await this.generateAllSceneImages();
-    } catch (err) {
-      console.error('[ProductionWizard] Échec génération images (import direct):', err);
-      alert('Erreur lors de la génération des illustrations : ' + err.message);
-    } finally {
-      this.isBusy = false;
     }
   }
 

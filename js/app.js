@@ -35,8 +35,6 @@ class AnimePodcastApp {
     this.splashStatusText = document.getElementById('splash-status-text');
 
     // UI Audio
-    this.audioFileInput = document.getElementById('audio-file-input');
-    this.audioDropzone = document.getElementById('audio-dropzone');
     this.selectVoice = document.getElementById('select-tts-voice');
     this.sliderRate = document.getElementById('slider-tts-rate');
     this.sliderPitch = document.getElementById('slider-tts-pitch');
@@ -261,34 +259,6 @@ class AnimePodcastApp {
   // ==================== UI EVENTS ====================
 
   setupUIEvents() {
-    if (this.audioDropzone && this.audioFileInput) {
-      this.audioDropzone.addEventListener('click', () => {
-        this.audioFileInput.click();
-      });
-
-      this.audioFileInput.addEventListener('change', async (e) => {
-        const file = e.target.files[0];
-        if (file) await this.processAudioFile(file);
-      });
-
-      this.audioDropzone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        this.audioDropzone.classList.add('dragover');
-      });
-
-      this.audioDropzone.addEventListener('dragleave', () => {
-        this.audioDropzone.classList.remove('dragover');
-      });
-
-      this.audioDropzone.addEventListener('drop', async (e) => {
-        e.preventDefault();
-        this.audioDropzone.classList.remove('dragover');
-        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-          await this.processAudioFile(e.dataTransfer.files[0]);
-        }
-      });
-    }
-
     // Bouton de toggle des sous-titres incrustés
     const btnToggleSubs = document.getElementById('btn-toggle-subtitles');
     if (btnToggleSubs) {
@@ -479,24 +449,6 @@ class AnimePodcastApp {
     } catch (err) {
       console.error('[History] Erreur de chargement:', err);
       container.innerHTML = '<div class="empty-state"><p>Erreur de chargement de l\'historique.</p></div>';
-    }
-  }
-
-  // ==================== AUDIO ====================
-
-  async processAudioFile(file) {
-    try {
-      this.audioDropzone.querySelector('.dropzone-text').textContent = 'Décodage audio en cours...';
-      const audioBuffer = await this.audioManager.loadAudioFile(file);
-      this.speechAnalyzer.analyzeAudioBuffer(audioBuffer);
-      this.audioDropzone.querySelector('.dropzone-text').textContent = file.name;
-      if (this.productionWizard) {
-        await this.productionWizard.onAudioReadyExternally();
-      }
-    } catch (err) {
-      console.error('[App] Erreur chargement audio:', err);
-      alert('Impossible de décoder ce fichier audio.');
-      this.audioDropzone.querySelector('.dropzone-text').textContent = 'Glissez-déposez un fichier audio ici';
     }
   }
 
