@@ -54,6 +54,36 @@ function jsonError(message, status, origin) {
   });
 }
 
+// ==================== RATE LIMITING (best-effort, via Cache API) ====================
+// Pas de KV liée à ce Worker (permission absente du token utilisé au déploiement),
+// donc on s'appuie sur la Cache API (gratuite, aucune permission supplémentaire).
+// Limite : compteur par IP et par heure, stocké comme une "réponse" en cache avec
+// expiration automatique. C'est best-effort (par datacenter Cloudflare, pas de
+// verrou atomique global) : ça ne stoppe pas un attaquant déterminé et distribué,
+// mais ça bloque efficacement le scraping/abus basique d'un même client.
+const MAX_REQUESTS_PER_HOUR = 40;
+
+async function checkRateLimit(request) {
+  const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+  const hourBucket = Math.floor(Date.now() / 3600000);
+  const cacheKey = new Request(`https://rate-limit.internal/${ip}/${hourBucket}`);
+  const cache = caches.default;
+
+  let count = 0;
+  const cached = await cache.match(cacheKey);
+  if (cached) {
+    count = parseInt(await cached.text(), 10) || 0;
+  }
+  count++;
+
+  await cache.put(
+    cacheKey,
+    new Response(String(count), { headers: { 'Cache-Control': 'max-age=3600' } })
+  );
+
+  return count <= MAX_REQUESTS_PER_HOUR;
+}
+
 export default {
   async fetch(request, env) {
     const origin = request.headers.get('Origin');
@@ -70,6 +100,11 @@ export default {
 
     if (request.method !== 'POST') {
       return jsonError('Méthode non supportée.', 405, origin);
+    }
+
+    const withinLimit = await checkRateLimit(request);
+    if (!withinLimit) {
+      return jsonError(`Trop de requêtes depuis cette adresse IP (limite : ${MAX_REQUESTS_PER_HOUR}/heure). Réessaie plus tard.`, 429, origin);
     }
 
     try {
