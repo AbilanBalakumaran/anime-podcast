@@ -15,6 +15,7 @@ import { SpeechAnalyzer } from './speech-analyzer.js';
 import { CanvasRenderer } from './canvas-renderer.js';
 import { VideoExporter } from './video-exporter.js';
 import { TopicsManager } from './topics-manager.js';
+import { ProductionWizard } from './production-wizard.js';
 import { dbManager } from './db.js';
 
 class AnimePodcastApp {
@@ -26,6 +27,7 @@ class AnimePodcastApp {
     this.canvasRenderer = null;
     this.videoExporter = null;
     this.topicsManager = null;
+    this.productionWizard = null;
 
     // Splash Screen
     this.splashScreen = document.getElementById('app-splash-screen');
@@ -33,16 +35,8 @@ class AnimePodcastApp {
     this.splashStatusText = document.getElementById('splash-status-text');
 
     // UI Audio
-    this.tabImport = document.getElementById('tab-audio-import');
-    this.tabTts = document.getElementById('tab-audio-tts');
-    this.viewImport = document.getElementById('view-audio-import');
-    this.viewTts = document.getElementById('view-audio-tts');
-
     this.audioFileInput = document.getElementById('audio-file-input');
     this.audioDropzone = document.getElementById('audio-dropzone');
-    this.btnGenerateTts = document.getElementById('btn-generate-tts');
-    this.btnLoadTestScript = document.getElementById('btn-load-test-script');
-    this.textareaTts = document.getElementById('textarea-tts');
     this.selectVoice = document.getElementById('select-tts-voice');
     this.sliderRate = document.getElementById('slider-tts-rate');
     this.sliderPitch = document.getElementById('slider-tts-pitch');
@@ -137,6 +131,9 @@ class AnimePodcastApp {
     // Sujets Vidéo (génération automatique)
     this.topicsManager = new TopicsManager(this);
 
+    // Assistant de production étape par étape (page Production)
+    this.productionWizard = new ProductionWizard(this);
+
     this.setupUIEvents();
     this.setupNavigation();
     this.setupSettingsPage();
@@ -170,10 +167,6 @@ class AnimePodcastApp {
    */
   async prepareDefaultAudio() {
     const defaultText = "Welcome everyone to this new episode of Autopod! Today, we explore the secret of anime animation and expressive mascots. Have you noticed how smooth pose transitions make a story come alive? It is absolutely incredible and immersive! Thank you for joining us today, and see you very soon in our next episode!";
-
-    if (this.textareaTts) {
-      this.textareaTts.value = defaultText;
-    }
 
     try {
       const voiceId = this.selectVoice?.value || localStorage.getItem('autopod_default_voice') || 'gemini-Orbit';
@@ -254,12 +247,11 @@ class AnimePodcastApp {
     // Actions spéciales par page
     if (pageId === 'page-topics') {
       this.topicsManager.renderGrid();
-    } else if (pageId === 'page-mascots') {
-      this.mascotManager.renderFullGrid();
     } else if (pageId === 'page-history') {
       this.renderHistoryPage();
     } else if (pageId === 'page-settings') {
       this.populateSettingsVoices();
+      this.mascotManager.renderFullGrid();
     }
 
     // Scroll en haut de la page
@@ -269,23 +261,6 @@ class AnimePodcastApp {
   // ==================== UI EVENTS ====================
 
   setupUIEvents() {
-    if (this.tabImport && this.tabTts) {
-      this.tabImport.addEventListener('click', () => {
-        this.tabImport.classList.add('active');
-        this.tabTts.classList.remove('active');
-        this.viewImport.style.display = 'block';
-        this.viewTts.style.display = 'none';
-      });
-
-      this.tabTts.addEventListener('click', () => {
-        this.tabTts.classList.add('active');
-        this.tabImport.classList.remove('active');
-        this.viewTts.style.display = 'block';
-        this.viewImport.style.display = 'none';
-        this.populateTtsVoices();
-      });
-    }
-
     if (this.audioDropzone && this.audioFileInput) {
       this.audioDropzone.addEventListener('click', () => {
         this.audioFileInput.click();
@@ -314,53 +289,13 @@ class AnimePodcastApp {
       });
     }
 
-    if (this.btnLoadTestScript && this.textareaTts) {
-      this.btnLoadTestScript.addEventListener('click', () => {
-        if (document.activeElement && typeof document.activeElement.blur === 'function') {
-          document.activeElement.blur();
-        }
-        this.textareaTts.value = "Welcome everyone to this new episode of Autopod! Today, we explore the secret of anime animation and expressive mascots. Have you noticed how smooth pose transitions make a story come alive? It is absolutely incredible and immersive! Thank you for joining us today, and see you very soon in our next episode!";
-      });
-    }
-
-    // Gestion des modèles de sujets de vidéos anime
-    const selectTopic = document.getElementById('select-topic-template');
-    if (selectTopic && this.textareaTts) {
-      const TOPIC_SCRIPTS = {
-        'one-piece': "Welcome to our anime breakdown! Today, we dive deep into the ultimate mystery of One Piece: the Void Century and Joy Boy. What if the treasure was not gold, but a story that united the world? Let us uncover every hidden clue left behind by Gol D. Roger! Subscribe and share your theories in the comments below!",
-        'jjk': "Welcome back Jujutsu sorcerers! Satoru Gojo's Domain Expansion, Unlimited Void, is considered the peak of sorcery. But what really happens inside an opponent's brain when infinite information floods their senses? Today, we break down the physics and cursed energy mechanics of Gojo versus Sukuna! Stay tuned for more cursed revelations!",
-        'snk': "Was Eren Jaeger truly a villain, or the tragic victim of a predetermined fate? In Attack on Titan, freedom comes at the heaviest cost imaginable. From the basement reveal to the Rumbling, every decision led to one inevitable conclusion. Let us analyze the psychological depth of Eren's final choice!",
-        'solo-leveling': "From the weakest E-rank hunter to the almighty Shadow Monarch! Sung Jinwoo's evolution redefined modern action manhwa and anime. But what makes his journey so deeply satisfying to watch? Arise, and let us dissect the secrets behind Jinwoo's unstoppable rise to power!",
-        'demon-slayer': "Demon Slayer shattered every animation benchmark in anime history! Studio Ufotable merged 3D environments with traditional hand-drawn action like never before. From Hinokami Kagura to the Entertainment District, here is how they achieved visual perfection!",
-        'death-note': "Light Yagami thought he was a god, but his hubris was his ultimate downfall. From the Lind L. Tailor broadcast to the final warehouse showdown, what was Light's single most fatal error? Let us examine the psychological chess match between Kira and L!"
-      };
-
-      selectTopic.addEventListener('change', () => {
-        const script = TOPIC_SCRIPTS[selectTopic.value];
-        if (script) {
-          this.textareaTts.value = script;
-          console.log(`[App] Sujet de vidéo chargé: ${selectTopic.value}`);
-        }
-      });
-    }
-
     // Bouton de toggle des sous-titres incrustés
     const btnToggleSubs = document.getElementById('btn-toggle-subtitles');
     if (btnToggleSubs) {
       btnToggleSubs.addEventListener('click', () => {
         const isShown = this.canvasRenderer.toggleSubtitles();
         btnToggleSubs.classList.toggle('active', isShown);
-        btnToggleSubs.textContent = isShown ? '💬 Sous-titres ON' : '💬 Sous-titres OFF';
-      });
-    }
-
-    if (this.btnGenerateTts) {
-      this.btnGenerateTts.addEventListener('click', async () => {
-        // Enlever le focus actif pour empêcher tout auto-zoom iOS Safari
-        if (document.activeElement && typeof document.activeElement.blur === 'function') {
-          document.activeElement.blur();
-        }
-        await this.processTtsGeneration();
+        btnToggleSubs.textContent = isShown ? 'Sous-titres ON' : 'Sous-titres OFF';
       });
     }
 
@@ -555,42 +490,13 @@ class AnimePodcastApp {
       const audioBuffer = await this.audioManager.loadAudioFile(file);
       this.speechAnalyzer.analyzeAudioBuffer(audioBuffer);
       this.audioDropzone.querySelector('.dropzone-text').textContent = file.name;
+      if (this.productionWizard) {
+        await this.productionWizard.onAudioReadyExternally();
+      }
     } catch (err) {
       console.error('[App] Erreur chargement audio:', err);
       alert('Impossible de décoder ce fichier audio.');
       this.audioDropzone.querySelector('.dropzone-text').textContent = 'Glissez-déposez un fichier audio ici';
-    }
-  }
-
-  async processTtsGeneration() {
-    const text = this.textareaTts.value.trim();
-    if (!text) {
-      alert('Veuillez saisir un texte de podcast.');
-      return;
-    }
-
-    this.btnGenerateTts.disabled = true;
-    this.btnGenerateTts.textContent = 'Génération vocale...';
-
-    try {
-      const voiceId = this.selectVoice?.value || localStorage.getItem('autopod_default_voice') || 'gemini-Orbit';
-      const rate = parseFloat(this.sliderRate.value) || 1.0;
-      const pitch = parseFloat(this.sliderPitch.value) || 1.0;
-
-      const result = await this.audioManager.synthesizeSpeech(text, voiceId, rate, pitch);
-      this.speechAnalyzer.analyzeAudioBuffer(result.buffer, result.sentences);
-    } catch (err) {
-      console.error('[App] Erreur TTS:', err);
-      alert('Erreur lors de la génération vocale : ' + err.message);
-    } finally {
-      this.btnGenerateTts.disabled = false;
-      this.btnGenerateTts.innerHTML = `
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-          <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-        </svg>
-        Générer la Voix &amp; Segmenter les Phrases
-      `;
     }
   }
 

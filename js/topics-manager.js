@@ -2,20 +2,17 @@
  * TOPICS MANAGER - AUTOPOD STUDIO
  * Panneau "Sujets Vidéo" : liste dynamique de sujets anime tirée d'AniList
  * (image de couverture réelle, score, statut de diffusion, tendance), triée
- * par tendance du moment (nouvelle saison en cours = signal fort). Flux :
- * clic sur un sujet -> script écrit par Gemini, informé par des faits/articles
- * réels trouvés via Tavily -> aperçu éditable -> validation -> voix off
- * (ElevenLabs/Gemini TTS) -> segmentation & alternance de poses (existant) ->
- * regroupement en scènes + illustrations par scène (Gemini image) -> export
- * vidéo (existant).
+ * par tendance du moment (nouvelle saison en cours = signal fort). Un clic
+ * sur "Aperçu" génère un brief structuré (Gemini, informé par des faits/
+ * articles réels trouvés via Tavily) : thème, durée, cible, objectif, plan
+ * chronologique, sources. "Générer en vidéo" transmet ce brief à l'assistant
+ * étape par étape de la page Production (js/production-wizard.js), qui
+ * gère script -> audio -> illustrations -> export.
  */
 
-import { PRESET_ENGLISH_VOICES } from './audio-manager.js';
 import { WORKER_BASE_URL } from './worker-config.js';
 
 const GEMINI_TEXT_MODEL = 'gemini-2.5-flash';
-const GEMINI_IMAGE_MODEL = 'gemini-2.5-flash-image';
-const SCENE_TARGET_DURATION = 40; // secondes visées par scène/illustration
 const ANILIST_ENDPOINT = 'https://graphql.anilist.co';
 const ANILIST_PAGE_SIZE = 20;
 
@@ -109,13 +106,13 @@ export class TopicsManager {
 
     this.previewModal = document.getElementById('modal-topic-preview');
     this.previewTitleEl = document.getElementById('topic-preview-title');
-    this.previewScriptEl = document.getElementById('topic-preview-script');
     this.btnPreviewGenerate = document.getElementById('btn-topic-preview-generate');
     this.btnPreviewCancel = document.getElementById('btn-topic-preview-cancel');
     this.previewCloseBtn = document.getElementById('modal-topic-preview-close-btn');
 
     this.topics = [];
     this.currentPreviewTopic = null;
+    this.currentBrief = null;
     this.isGenerating = false;
     this.isLoadingTopics = false;
 
@@ -299,7 +296,7 @@ export class TopicsManager {
     const btnPreview = document.createElement('button');
     btnPreview.type = 'button';
     btnPreview.className = 'btn btn-gold btn-sm';
-    btnPreview.textContent = 'Aperçu du script';
+    btnPreview.textContent = 'Aperçu';
     btnPreview.addEventListener('click', (e) => {
       e.stopPropagation();
       this.openTopicPreview(topic);
@@ -325,7 +322,7 @@ export class TopicsManager {
       : `${iconSvg(ICON_PERSON, 14)} Aucune mascotte sélectionnée.`;
   }
 
-  // ==================== ÉTAPE 1 : APERÇU DU SCRIPT ====================
+  // ==================== ÉTAPE 1 : APERÇU (BRIEF STRUCTURÉ) ====================
 
   async openTopicPreview(topic) {
     if (this.isGenerating) {
@@ -335,141 +332,151 @@ export class TopicsManager {
 
     const geminiKey = this.app.audioManager.getGeminiKey();
     if (!geminiKey && !WORKER_BASE_URL) {
-      alert("Veuillez renseigner votre clé API Gemini dans Paramètres avant de générer un script (script et illustrations en dépendent).");
+      alert("Veuillez renseigner votre clé API Gemini dans Paramètres avant de générer un aperçu.");
       this.app.navigateTo('page-settings');
       return;
     }
 
     this.isGenerating = true;
-    this.showPipelineModal('Écriture du script...');
+    this.showPipelineModal('Analyse du sujet...');
 
     try {
-      const script = await this.generateScript(topic);
+      const brief = await this.generateBrief(topic);
       this.hidePipelineModal();
       this.currentPreviewTopic = topic;
-      this.openPreviewModal(topic, script);
+      this.currentBrief = brief;
+      this.openPreviewModal(topic, brief);
     } catch (err) {
-      console.error('[TopicsManager] Échec de la génération du script:', err);
-      alert("Erreur lors de l'écriture du script : " + err.message);
+      console.error('[TopicsManager] Échec de la génération du brief:', err);
+      alert("Erreur lors de la génération de l'aperçu : " + err.message);
       this.hidePipelineModal();
     } finally {
       this.isGenerating = false;
     }
   }
 
-  openPreviewModal(topic, script) {
+  openPreviewModal(topic, brief) {
     if (!this.previewModal) this.previewModal = document.getElementById('modal-topic-preview');
     if (!this.previewTitleEl) this.previewTitleEl = document.getElementById('topic-preview-title');
-    if (!this.previewScriptEl) this.previewScriptEl = document.getElementById('topic-preview-script');
 
     if (this.previewTitleEl) this.previewTitleEl.textContent = topic.title;
-    if (this.previewScriptEl) this.previewScriptEl.value = script;
+    this.renderBriefView(brief);
     this.previewModal?.classList.add('open');
+  }
+
+  renderBriefView(brief) {
+    const container = document.getElementById('topic-preview-brief');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const addSection = (label, valueEl) => {
+      const wrap = document.createElement('div');
+      const labelEl = document.createElement('div');
+      labelEl.className = 'topic-brief-section-label';
+      labelEl.textContent = label;
+      wrap.appendChild(labelEl);
+      wrap.appendChild(valueEl);
+      container.appendChild(wrap);
+    };
+
+    const textVal = (text) => {
+      const d = document.createElement('div');
+      d.className = 'topic-brief-section-value';
+      d.textContent = text || '—';
+      return d;
+    };
+
+    addSection('Thème', textVal(brief.theme));
+    addSection('Durée visée', textVal(`${brief.duration_minutes || '5-10'} minutes`));
+    addSection('Public cible', textVal(brief.target_audience));
+    addSection('Objectif', textVal(`${brief.objective || ''}${brief.objective_reason ? ' — ' + brief.objective_reason : ''}`));
+
+    const outlineList = document.createElement('ol');
+    outlineList.className = 'topic-brief-outline';
+    (brief.outline || []).forEach(item => {
+      const li = document.createElement('li');
+      li.textContent = item;
+      outlineList.appendChild(li);
+    });
+    addSection('Plan chronologique', outlineList);
+
+    const sourcesWrap = document.createElement('div');
+    sourcesWrap.className = 'topic-brief-sources';
+    (brief.sources || []).forEach(src => {
+      const line = document.createElement('div');
+      line.textContent = `• ${src}`;
+      sourcesWrap.appendChild(line);
+    });
+    addSection('Sources', sourcesWrap);
   }
 
   closePreviewModal() {
     this.previewModal?.classList.remove('open');
     this.currentPreviewTopic = null;
+    this.currentBrief = null;
   }
 
-  // ==================== ÉTAPE 2 : GÉNÉRATION COMPLÈTE (depuis l'aperçu) ====================
+  // ==================== ÉTAPE 2 : TRANSMISSION À L'ASSISTANT PRODUCTION ====================
 
-  async confirmGenerateFromPreview() {
-    if (this.isGenerating) return;
+  confirmGenerateFromPreview() {
     const topic = this.currentPreviewTopic;
-    const script = this.previewScriptEl?.value?.trim();
+    const brief = this.currentBrief;
 
-    if (!topic || !script) {
-      alert('Aucun script à générer.');
+    if (!topic || !brief) {
+      alert('Aucun brief à transmettre.');
       return;
     }
 
+    const briefText = this.composeBriefText(topic, brief);
     this.closePreviewModal();
-    await this.generateFullVideo(topic, script);
+    this.app.productionWizard.startFromBrief(briefText);
+    this.app.navigateTo('page-production');
   }
 
-  async generateFullVideo(topic, script) {
-    if (this.isGenerating) {
-      alert('Une génération est déjà en cours, merci de patienter.');
-      return;
-    }
-
-    this.isGenerating = true;
-    this.showPipelineModal('Préparation de la voix off...');
-
-    try {
-      if (this.app.textareaTts) {
-        this.app.textareaTts.value = script;
-      }
-      document.getElementById('tab-audio-tts')?.click();
-
-      this.updatePipelineStatus('Synthèse de la voix off...');
-      const voiceId = this.pickVoiceId();
-      const result = await this.app.audioManager.synthesizeSpeech(script, voiceId, 1.0, 1.0);
-
-      this.app.speechAnalyzer.analyzeAudioBuffer(result.buffer, result.sentences);
-      const segments = this.app.speechAnalyzer.segments;
-      const scenes = this.buildScenes(segments);
-
-      for (let i = 0; i < scenes.length; i++) {
-        this.updatePipelineStatus(`Génération des illustrations (${i + 1}/${scenes.length})...`);
-        try {
-          const dataUrl = await this.generateSceneImage(scenes[i], topic);
-          await this.app.speechAnalyzer.assignImageToSegments(scenes[i].segmentIds, dataUrl);
-        } catch (imgErr) {
-          console.warn(`[TopicsManager] Échec illustration scène ${i + 1}:`, imgErr);
-        }
-      }
-
-      this.app.speechAnalyzer.renderSegmentsList();
-      this.hidePipelineModal();
-
-      this.app.navigateTo('page-production');
-      await this.app.videoExporter.startExport();
-    } catch (err) {
-      console.error('[TopicsManager] Échec de la génération automatique:', err);
-      alert('Erreur lors de la génération automatique : ' + err.message);
-      this.hidePipelineModal();
-    } finally {
-      this.isGenerating = false;
-    }
+  composeBriefText(topic, brief) {
+    const lines = [];
+    lines.push(`Sujet : ${topic.title}`);
+    lines.push('');
+    lines.push(`Thème : ${brief.theme || ''}`);
+    lines.push(`Durée visée : ${brief.duration_minutes || '5-10'} minutes`);
+    lines.push(`Public cible : ${brief.target_audience || ''}`);
+    lines.push(`Objectif : ${brief.objective || ''}${brief.objective_reason ? ' — ' + brief.objective_reason : ''}`);
+    lines.push('');
+    lines.push('Plan chronologique :');
+    (brief.outline || []).forEach((item, i) => lines.push(`${i + 1}. ${item}`));
+    lines.push('');
+    lines.push('Sources / faits de référence :');
+    (brief.sources || []).forEach(src => lines.push(`- ${src}`));
+    return lines.join('\n');
   }
 
-  pickVoiceId() {
-    const elKey = this.app.audioManager.getElevenLabsKey();
-    if (elKey) {
-      const preset = PRESET_ENGLISH_VOICES.find(v => v.provider === 'ElevenLabs');
-      if (preset) return preset.id;
-    }
-    return 'gemini-Orbit';
-  }
+  // ==================== GÉNÉRATION DU BRIEF (GEMINI TEXTE, JSON) ====================
 
-  // ==================== GÉNÉRATION DU SCRIPT (GEMINI TEXTE) ====================
-
-  async generateScript(topic) {
+  async generateBrief(topic) {
     const apiKey = this.app.audioManager.getGeminiKey();
     const useWorker = !apiKey && !!WORKER_BASE_URL;
-    const mascotName = this.app.mascotManager?.activeMascot?.name || 'the host';
 
     const groundingContext = WORKER_BASE_URL ? await this.fetchGroundingContext(topic) : '';
     const groundingBlock = groundingContext
-      ? `\nHere is real reference context gathered from articles about this topic to keep facts accurate (weave it naturally into the narration, never read it out as a list):\n${groundingContext}\n`
+      ? `\nReal reference material found online about this topic:\n${groundingContext}\n`
       : '';
 
-    const prompt = `You are writing a spoken-word narration script for an anime & pop-culture video essay hosted by a mascot named ${mascotName}.
+    const prompt = `You are a content strategist preparing a brief for an anime & pop-culture video essay.
 
 Topic: ${topic.title}
 Angle: ${topic.angle}
 ${groundingBlock}
-Write ONLY the narration text the host will speak out loud — no markdown, no headers, no stage directions, no bullet points, just flowing spoken sentences.
-Requirements:
-- Length: approximately 1200 to 1450 words (about 8 minutes of natural spoken pace).
-- Open with a warm, energetic greeting to the audience (e.g. "Welcome back..." / "Hey everyone...").
-- Close with a friendly sign-off inviting the audience to come back (e.g. "...see you next time!").
-- Vary sentence rhythm throughout: mix short punchy statements, a few rhetorical questions, and several exclamations to keep an enthusiastic, engaging tone.
-- Structure the content into clear thematic beats (roughly one new idea every 3-5 sentences) so a video editor could naturally cut to a new illustration at each beat.
-- Written entirely in English, aimed at an enthusiastic anime/pop-culture fan audience.
-- Do not use any markdown formatting, asterisks, or headers — plain narration text only.`;
+Return a JSON object with exactly these fields:
+{
+  "theme": "one clear sentence describing what the video is about",
+  "duration_minutes": "a range like '7-9'",
+  "target_audience": "who this video is for",
+  "objective": "one of: nostalgic, opinion/claim-driven, theoretical/analytical, informative, entertainment — pick the single best fit for this topic",
+  "objective_reason": "one sentence justifying that choice",
+  "sources": ["2 to 4 short references to real facts or articles used, drawn from the reference material above if provided"],
+  "outline": ["5 to 8 short chronological beats/themes the video will cover, in presentation order"]
+}
+Return ONLY the JSON object, no markdown, no code fences.`;
 
     const url = useWorker
       ? `${WORKER_BASE_URL}/proxy/gemini/${GEMINI_TEXT_MODEL}`
@@ -478,13 +485,14 @@ Requirements:
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }]
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { responseMimeType: 'application/json' }
       })
     });
 
     if (!response.ok) {
       const errData = await response.json().catch(() => ({}));
-      throw new Error(errData.error?.message || `Erreur HTTP ${response.status} (script)`);
+      throw new Error(errData.error?.message || `Erreur HTTP ${response.status} (brief)`);
     }
 
     const json = await response.json();
@@ -493,10 +501,14 @@ Requirements:
       .join('');
 
     if (!rawText.trim()) {
-      throw new Error("Gemini n'a retourné aucun texte de script.");
+      throw new Error("Gemini n'a retourné aucun brief.");
     }
 
-    return this.cleanScriptText(rawText);
+    try {
+      return JSON.parse(rawText);
+    } catch (err) {
+      throw new Error('Le brief généré est invalide (JSON mal formé).');
+    }
   }
 
   /**
@@ -524,79 +536,6 @@ Requirements:
       console.warn('[TopicsManager] Contexte Tavily indisponible, poursuite sans grounding:', err);
       return '';
     }
-  }
-
-  cleanScriptText(text) {
-    return text
-      .replace(/\*\*/g, '')
-      .replace(/^#+\s*/gm, '')
-      .replace(/^[-*]\s+/gm, '')
-      .trim();
-  }
-
-  // ==================== SCÈNES : REGROUPEMENT POUR LES ILLUSTRATIONS ====================
-
-  buildScenes(segments) {
-    const scenes = [];
-    let current = null;
-
-    segments.forEach(seg => {
-      if (!current) {
-        current = { segmentIds: [], texts: [], duration: 0 };
-      }
-      current.segmentIds.push(seg.id);
-      current.texts.push(seg.origText || seg.text || '');
-      current.duration += seg.duration || 0;
-
-      if (current.duration >= SCENE_TARGET_DURATION) {
-        scenes.push(current);
-        current = null;
-      }
-    });
-
-    if (current && current.segmentIds.length) {
-      scenes.push(current);
-    }
-
-    return scenes;
-  }
-
-  // ==================== GÉNÉRATION D'ILLUSTRATION PAR SCÈNE (GEMINI IMAGE) ====================
-
-  async generateSceneImage(scene, topic) {
-    const apiKey = this.app.audioManager.getGeminiKey();
-    const useWorker = !apiKey && !!WORKER_BASE_URL;
-    const excerpt = scene.texts.join(' ').slice(0, 300);
-
-    const prompt = `Cinematic anime-style digital illustration for a video essay about "${topic.title}" (${topic.angle}). Scene context: ${excerpt}. Style: dramatic anime key visual, deep navy blue and gold accent lighting, dynamic composition, high detail, no text, no watermark, no logo, 16:9 widescreen.`;
-
-    const url = useWorker
-      ? `${WORKER_BASE_URL}/proxy/gemini/${GEMINI_IMAGE_MODEL}`
-      : `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_IMAGE_MODEL}:generateContent?key=${apiKey}`;
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { responseModalities: ['IMAGE'] }
-      })
-    });
-
-    if (!response.ok) {
-      const errData = await response.json().catch(() => ({}));
-      throw new Error(errData.error?.message || `Erreur HTTP ${response.status} (image)`);
-    }
-
-    const json = await response.json();
-    const parts = json.candidates?.[0]?.content?.parts || [];
-    const imgPart = parts.find(p => p.inlineData && p.inlineData.data);
-
-    if (!imgPart) {
-      throw new Error("Gemini n'a retourné aucune image.");
-    }
-
-    const mimeType = imgPart.inlineData.mimeType || 'image/png';
-    return `data:${mimeType};base64,${imgPart.inlineData.data}`;
   }
 
   // ==================== MODAL DE STATUT (PIPELINE) ====================

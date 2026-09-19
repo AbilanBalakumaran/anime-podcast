@@ -149,7 +149,7 @@ input, textarea, select, button {
   font-family: var(--font-display);
   font-weight: 400;
   font-size: 1.5rem;
-  letter-spacing: 0.02em;
+  letter-spacing: 0;
   color: var(--text-white);
   display: flex;
   align-items: center;
@@ -160,9 +160,9 @@ input, textarea, select, button {
 }
 
 .brand-title span {
-  color: var(--gold-primary);
+  color: var(--text-white);
   -webkit-text-stroke: 1px #070b14;
-  text-shadow: 1.5px 1.5px 0 #070b14, 0 0 14px var(--gold-glow);
+  text-shadow: 1.5px 1.5px 0 #070b14;
 }
 
 .brand-badge {
@@ -344,7 +344,7 @@ input, textarea, select, button {
   font-family: var(--font-display);
   font-weight: 400;
   font-size: 1.6rem;
-  letter-spacing: 0.02em;
+  letter-spacing: 0;
   color: var(--text-white);
   line-height: 1;
   text-transform: uppercase;
@@ -353,9 +353,9 @@ input, textarea, select, button {
 }
 
 .header-title .gold-text {
-  color: var(--gold-primary);
+  color: var(--text-white);
   -webkit-text-stroke: 1px #070b14;
-  text-shadow: 1.5px 1.5px 0 #070b14, 0 0 12px var(--gold-glow);
+  text-shadow: 1.5px 1.5px 0 #070b14;
 }
 
 .header-badge {
@@ -436,6 +436,181 @@ input, textarea, select, button {
   display: flex;
   flex-direction: column;
   gap: 20px;
+}
+
+/* ==========================================================================
+   ASSISTANT ÉTAPE PAR ÉTAPE (Page Production)
+   ========================================================================== */
+.wizard-stepper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 4px;
+}
+
+.wizard-step-dot {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  flex: 1;
+  justify-content: center;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--border-subtle);
+  transition: all var(--transition-fast);
+}
+
+.wizard-step-dot.active {
+  color: var(--gold-primary);
+  border-bottom-color: var(--gold-primary);
+}
+
+.wizard-step-dot.done {
+  color: var(--accent-emerald);
+  border-bottom-color: var(--accent-emerald);
+}
+
+.wizard-step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  border: 1px solid currentColor;
+  font-size: 0.68rem;
+}
+
+.wizard-scenes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 460px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.wizard-scene-row {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 10px;
+}
+
+.wizard-scene-text {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.wizard-scene-body {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wizard-scene-candidates {
+  display: flex;
+  gap: 6px;
+  flex: 1;
+}
+
+.wizard-candidate-thumb {
+  width: 64px;
+  height: 36px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--border-subtle);
+  cursor: pointer;
+  transition: border-color var(--transition-fast);
+  flex-shrink: 0;
+  background: var(--bg-abyss);
+}
+
+.wizard-candidate-thumb.selected {
+  border-color: var(--gold-primary);
+  box-shadow: 0 0 10px var(--gold-glow);
+}
+
+.wizard-scene-reorder {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.wizard-scene-reorder button {
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-card);
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wizard-scene-reorder button:hover {
+  border-color: var(--gold-primary);
+  color: var(--gold-primary);
+}
+
+.wizard-scene-reorder button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* ==========================================================================
+   BRIEF STRUCTURÉ (Modale d'aperçu Sujets Vidéo)
+   ========================================================================== */
+.topic-brief-view {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 55vh;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.topic-brief-section-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--gold-primary);
+  margin-bottom: 4px;
+}
+
+.topic-brief-section-value {
+  font-size: 0.85rem;
+  color: var(--text-white);
+  line-height: 1.5;
+}
+
+.topic-brief-outline {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 0.85rem;
+  color: var(--text-white);
+  line-height: 1.6;
+}
+
+.topic-brief-sources {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
 }
 
 /* Cartes CRM AutoShort */

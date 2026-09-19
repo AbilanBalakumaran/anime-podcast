@@ -99,13 +99,22 @@ input, textarea, select {
   }
 
   .app-top-header .header-title {
-    font-family: var(--font-main) !important;
-    font-weight: 800 !important;
-    font-size: 1.5rem !important;
-    letter-spacing: -0.01em;
+    font-family: var(--font-display) !important;
+    font-weight: 400 !important;
+    font-size: 1.4rem !important;
+    letter-spacing: 0;
     white-space: nowrap;
     line-height: 1;
-    text-transform: none !important;
+    text-transform: uppercase !important;
+    color: var(--text-white);
+    -webkit-text-stroke: 1px #070b14;
+    text-shadow: 1.5px 1.5px 0 #070b14;
+  }
+
+  .app-top-header .header-title .gold-text {
+    color: var(--text-white);
+    -webkit-text-stroke: 1px #070b14;
+    text-shadow: 1.5px 1.5px 0 #070b14;
   }
 
   .app-top-header .header-badge,

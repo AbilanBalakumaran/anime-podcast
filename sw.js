@@ -1,4 +1,4 @@
-const CACHE_NAME = 'autopod-v1.9.0';
+const CACHE_NAME = 'autopod-v2.0.0';
 
 const ASSETS_TO_CACHE = [
   './',
@@ -19,6 +19,7 @@ const ASSETS_TO_CACHE = [
   './js/canvas-renderer.js',
   './js/video-exporter.js',
   './js/topics-manager.js',
+  './js/production-wizard.js',
   './js/worker-config.js',
   './assets/icons/favicon.svg',
   './assets/icons/favicon-32.png',
