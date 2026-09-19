@@ -79,6 +79,8 @@ export class AudioManager {
     this.stop();
 
     this.audioFileName = file.name;
+    this.isTts = false;
+    this.ttsText = null;
     const arrayBuffer = await file.arrayBuffer();
     this.audioBuffer = await this.audioCtx.decodeAudioData(arrayBuffer);
     this.duration = this.audioBuffer.duration;
@@ -179,17 +181,27 @@ export class AudioManager {
         });
       }
 
-      // Déclenchement de la parole réelle via speechSynthesis si disponible pour un rendu immersif
-      const utterance = new SpeechSynthesisUtterance(text);
-      if (selectedVoice) utterance.voice = selectedVoice;
-      utterance.rate = rate;
-      utterance.pitch = pitch;
+      this.isTts = true;
+      this.ttsText = text;
+      this.ttsVoice = selectedVoice;
+      this.ttsRate = rate;
+      this.ttsPitch = pitch;
+
+      // Écoute immédiate de la première phrase pour retour audio instantané
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const preview = new SpeechSynthesisUtterance(sentences[0] || text);
+        if (selectedVoice) preview.voice = selectedVoice;
+        preview.rate = rate;
+        preview.pitch = pitch;
+        preview.lang = selectedVoice ? selectedVoice.lang : 'fr-FR';
+        window.speechSynthesis.speak(preview);
+      }
 
       resolve({
         buffer: this.audioBuffer,
         sentences: sentences,
-        duration: this.duration,
-        utterance: utterance
+        duration: this.duration
       });
     });
   }
@@ -205,6 +217,22 @@ export class AudioManager {
     this.sourceNode.connect(this.analyserNode);
     this.analyserNode.connect(this.gainNode);
 
+    // Si c'est du TTS, couper le bip synthétique vers les haut-parleurs et jouer la vraie voix
+    if (this.isTts) {
+      this.gainNode.gain.value = 0.0;
+      if ('speechSynthesis' in window && this.ttsText) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(this.ttsText);
+        if (this.ttsVoice) utterance.voice = this.ttsVoice;
+        utterance.rate = this.ttsRate || 1.0;
+        utterance.pitch = this.ttsPitch || 1.0;
+        utterance.lang = this.ttsVoice ? this.ttsVoice.lang : 'fr-FR';
+        window.speechSynthesis.speak(utterance);
+      }
+    } else {
+      this.gainNode.gain.value = 1.0;
+    }
+
     this.startTime = this.audioCtx.currentTime - this.pauseOffset;
     this.sourceNode.start(0, this.pauseOffset);
     this.isPlaying = true;
@@ -214,6 +242,9 @@ export class AudioManager {
         // Fin naturelle du morceau
         this.isPlaying = false;
         this.pauseOffset = 0;
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+        }
         this.notifyState();
       }
     };
@@ -228,6 +259,9 @@ export class AudioManager {
       this.sourceNode.stop();
       this.sourceNode.disconnect();
       this.sourceNode = null;
+    }
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
     }
     this.pauseOffset = this.audioCtx.currentTime - this.startTime;
     if (this.pauseOffset >= this.duration) {
@@ -245,6 +279,9 @@ export class AudioManager {
         this.sourceNode.disconnect();
       } catch (e) {}
       this.sourceNode = null;
+    }
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
     }
     this.isPlaying = false;
     this.pauseOffset = 0;

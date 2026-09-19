@@ -198,31 +198,7 @@ export class CanvasRenderer {
       }
     }
 
-    // 3. Mesure de l'énergie vocale pour le flap buccal et micro-mouvements
-    const mouthAperture = this.audioManager ? this.audioManager.getMouthAperture() : 0;
-    const isSpeaking = mouthAperture > 0.05;
-
-    // 4. Moteur de Marionnette Vivante (Puppet VTuber)
-    const timeSec = timestamp * 0.001;
-
-    // A) Balancement pendulaire composé (effet marionnette souple et visible)
-    const swayAngle = Math.sin(timeSec * 1.8) * 0.028
-                    + Math.cos(timeSec * 0.9) * 0.014
-                    + Math.sin(timeSec * 3.1) * 0.006;
-
-    // B) Respiration vivante en squash & stretch (cage thoracique qui respire)
-    const breathScaleY = 1 + Math.sin(timeSec * 2.2) * 0.025;
-    const breathScaleX = 1 - Math.sin(timeSec * 2.2) * 0.018;
-
-    // C) Micro-dérive aléatoire (petit mouvement de tête idle pour éviter l'immobilité)
-    const microDriftX = Math.sin(timeSec * 0.7 + 1.3) * 3;
-    const microDriftY = Math.cos(timeSec * 0.5 + 0.7) * 2;
-
-    // D) Réactivité vocale : hochement de tête et micro-rebonds d'énergie
-    const speechBounce = isSpeaking ? (Math.sin(timestamp * 0.022) * 12 * mouthAperture + mouthAperture * 16) : 0;
-    const speechNod = isSpeaking ? (Math.sin(timestamp * 0.018) * 0.02 * mouthAperture) : 0;
-
-    // E) Détection de changement de pose pour transition fluide (Cross-fade & Pop)
+    // 3. Détection de changement de pose pour transition fluide (Cross-fade doux)
     const currentKey = `${this.currentMascot.id}_${this.currentEmotion}_${this.currentVariantIndex}`;
     if (this.lastRenderKey && this.lastRenderKey !== currentKey) {
       this.prevPoseImg = this.lastRenderImg;
@@ -233,24 +209,8 @@ export class CanvasRenderer {
     const transitionElapsed = timestamp - this.transitionStartTime;
     const transitionProgress = Math.min(1.0, transitionElapsed / this.transitionDuration);
 
-    // Rebond d'anticipation lors d'un changement de pose (pop VTuber)
-    const popScale = transitionProgress < 1.0 
-      ? (1.0 + Math.sin(transitionProgress * Math.PI) * 0.05)
-      : 1.0;
-
-    // 5. Calcul des proportions réelles de l'image (préservation intégrale du ratio sans étirement)
-    let imgRatio = 1.0; // Ratio par défaut carré, sera recalculé avec les dimensions réelles
+    // 4. Récupération de l'image préchargée depuis le cache (zéro bug de chargement dynamique)
     let imgToDraw = this.imageCache.get(currentKey);
-
-    // Si mascotte par défaut avec flap buccal dynamique SVG
-    if (this.currentMascot.getSvgWithMouth && isSpeaking) {
-      const dynamicSvg = this.currentMascot.getSvgWithMouth(this.currentEmotion, this.currentVariantIndex, mouthAperture);
-      const dynamicImg = new Image();
-      const blob = new Blob([dynamicSvg], { type: 'image/svg+xml;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      dynamicImg.src = url;
-      imgToDraw = dynamicImg;
-    }
 
     if (!imgToDraw) {
       const fallbackKey1 = `${this.currentMascot.id}_${this.currentEmotion}_0`;
@@ -260,6 +220,8 @@ export class CanvasRenderer {
 
     this.lastRenderImg = imgToDraw;
 
+    // 5. Calcul des proportions réelles pour un personnage grand, majestueux et net
+    let imgRatio = 1.0;
     if (imgToDraw) {
       const nw = imgToDraw.naturalWidth || imgToDraw.width;
       const nh = imgToDraw.naturalHeight || imgToDraw.height;
@@ -268,39 +230,41 @@ export class CanvasRenderer {
       }
     }
 
-    const maxH = height * 0.90;
-    const maxW = width * 0.92;
-
-    let targetHeight = maxH;
-    let targetWidth = targetHeight * imgRatio;
-
-    if (targetWidth > maxW) {
-      targetWidth = maxW;
-      targetHeight = targetWidth / imgRatio;
+    // Le personnage occupe généreusement le cadre (fini le personnage "tout petit")
+    let targetHeight, targetWidth;
+    if (this.currentFormat === '9:16') {
+      // En vertical (Shorts), le personnage occupe ~90% de la hauteur
+      targetHeight = height * 0.90;
+      targetWidth = targetHeight * imgRatio;
+      if (targetWidth > width * 1.15) {
+        targetWidth = width * 1.15;
+        targetHeight = targetWidth / imgRatio;
+      }
+    } else {
+      // En horizontal (16:9), le personnage occupe ~95% de la hauteur
+      targetHeight = height * 0.95;
+      targetWidth = targetHeight * imgRatio;
+      if (targetWidth > width * 0.75) {
+        targetWidth = width * 0.75;
+        targetHeight = targetWidth / imgRatio;
+      }
     }
 
-    const posX = (width - targetWidth) / 2 + microDriftX;
-    const posY = height - targetHeight + speechBounce + microDriftY;
+    // Position stable ancrée au bas de l'écran (zéro secousse, zéro balancement)
+    const posX = (width - targetWidth) / 2;
+    const posY = height - targetHeight;
 
     ctx.save();
 
-    // Point pivot au bas de la mascotte pour la marionnette
-    const pivotX = width / 2;
-    const pivotY = height;
-    ctx.translate(pivotX, pivotY);
-    ctx.rotate(swayAngle + speechNod);
-    ctx.scale(breathScaleX * popScale, breathScaleY * popScale);
-    ctx.translate(-pivotX, -pivotY);
-
-    // 6. Rendu fluide avec fondu enchaîné (Cross-fade) entre les poses
+    // 6. Rendu propre et stable avec fondu enchaîné doux lors des changements de pose
     if (transitionProgress < 1.0 && this.prevPoseImg && this.prevPoseImg.complete && this.prevPoseImg !== imgToDraw) {
-      // Dessiner l'ancienne pose en fondu sortant
+      // Ancienne pose en fondu sortant
       ctx.save();
       ctx.globalAlpha = 1.0 - transitionProgress;
       ctx.drawImage(this.prevPoseImg, posX, posY, targetWidth, targetHeight);
       ctx.restore();
 
-      // Dessiner la nouvelle pose en fondu entrant
+      // Nouvelle pose en fondu entrant
       ctx.save();
       ctx.globalAlpha = transitionProgress;
       if (imgToDraw && imgToDraw.complete && (imgToDraw.naturalWidth > 0 || imgToDraw.width > 0)) {
@@ -308,7 +272,7 @@ export class CanvasRenderer {
       }
       ctx.restore();
     } else {
-      // Rendu direct à 100% d'opacité
+      // Rendu direct stable
       if (imgToDraw && imgToDraw.complete && (imgToDraw.naturalWidth > 0 || imgToDraw.width > 0)) {
         ctx.drawImage(imgToDraw, posX, posY, targetWidth, targetHeight);
       }
