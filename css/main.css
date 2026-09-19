@@ -58,11 +58,12 @@
   --transition-slow: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Reset & Base */
+/* Reset, Base & Protection Anti-Zoom Mobile */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  touch-action: manipulation;
 }
 
 html, body {
@@ -75,53 +76,59 @@ html, body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  touch-action: manipulation;
 }
 
-/* App Container */
-.app-container {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  background: radial-gradient(circle at 50% 0%, rgba(250, 204, 21, 0.04) 0%, rgba(13, 13, 17, 0.98) 50%, var(--bg-abyss) 100%);
+/* Protection anti-zoom iOS : 16px minimum pour tous les champs */
+input, textarea, select, button {
+  font-family: inherit;
+  touch-action: manipulation;
 }
 
 /* ==========================================================================
-   NAVBAR SUPÉRIEURE CRM / AUTOSHORT
+   STRUCTURE CRM : SIDEBAR GAUCHE (PC) + CONTENU PRINCIPAL
    ========================================================================== */
-.app-header {
-  height: 64px;
-  background-color: rgba(13, 13, 17, 0.94);
-  backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--border-subtle);
+.app-container {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 24px;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  gap: 20px;
+  min-height: 100vh;
+  width: 100%;
+  background-color: var(--bg-abyss);
 }
 
-/* Logo & Marque AutoShort */
-.brand-container {
+/* ==========================================================================
+   SIDEBAR CRM (PC / DESKTOP)
+   ========================================================================== */
+.crm-sidebar {
+  width: 260px;
+  background-color: var(--bg-darker);
+  border-right: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  padding: 24px 16px;
+  z-index: 90;
+}
+
+.crm-sidebar-brand {
   display: flex;
   align-items: center;
-  gap: 12px;
-  text-decoration: none;
-  cursor: pointer;
-  flex-shrink: 0;
+  gap: 10px;
+  margin-bottom: 28px;
+  padding: 0 8px;
 }
 
 .brand-icon {
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   border-radius: var(--radius-sm);
   box-shadow: 0 0 14px var(--gold-glow);
 }
 
 .brand-title {
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   font-weight: 800;
   letter-spacing: -0.02em;
   color: var(--text-white);
@@ -142,68 +149,75 @@ html, body {
   letter-spacing: 0.08em;
   background: var(--gold-primary);
   color: #000000;
-  padding: 2px 7px;
+  padding: 2px 6px;
   border-radius: var(--radius-sm);
-  box-shadow: 0 0 10px var(--gold-glow);
 }
 
-/* Liens de Navigation CRM (Centre) */
-.navbar-crm {
+.crm-sidebar-section-title {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  padding: 0 8px;
+}
+
+.crm-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.crm-sidebar-nav .crm-nav-link {
   display: flex;
   align-items: center;
-  gap: 6px;
-  background-color: var(--bg-surface);
-  padding: 4px;
-  border-radius: var(--radius-full);
-  border: 1px solid var(--border-subtle);
-}
-
-.crm-nav-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 14px;
-  font-size: 0.82rem;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  font-size: 0.88rem;
   font-weight: 600;
   color: var(--text-muted);
   text-decoration: none;
-  border-radius: var(--radius-full);
   transition: all var(--transition-fast);
   cursor: pointer;
 }
 
-.crm-nav-link svg {
-  width: 15px;
-  height: 15px;
+.crm-sidebar-nav .crm-nav-link svg {
+  width: 18px;
+  height: 18px;
   color: var(--text-dim);
   transition: color var(--transition-fast);
+  flex-shrink: 0;
 }
 
-.crm-nav-link:hover {
+.crm-sidebar-nav .crm-nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.05);
   color: var(--text-white);
-  background-color: rgba(255, 255, 255, 0.04);
 }
 
-.crm-nav-link:hover svg {
+.crm-sidebar-nav .crm-nav-link:hover svg {
   color: var(--gold-primary);
 }
 
-.crm-nav-link.active {
-  background-color: var(--gold-primary);
+.crm-sidebar-nav .crm-nav-link.active {
+  background: var(--gold-primary);
   color: #000000;
-  box-shadow: 0 0 12px var(--gold-glow);
+  font-weight: 700;
+  box-shadow: 0 0 16px var(--gold-glow);
 }
 
-.crm-nav-link.active svg {
+.crm-sidebar-nav .crm-nav-link.active svg {
   color: #000000;
 }
 
-/* Actions Droite Navbar */
-.header-actions {
+.crm-sidebar-footer {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 12px;
-  flex-shrink: 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-subtle);
 }
 
 .crm-status-pill {
@@ -234,8 +248,21 @@ html, body {
 }
 
 /* ==========================================================================
-   LAYOUT PRINCIPAL DU STUDIO
+   CONTENU PRINCIPAL
    ========================================================================== */
+.crm-main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: radial-gradient(circle at 50% 0%, rgba(250, 204, 21, 0.03) 0%, rgba(13, 13, 17, 0.98) 60%, var(--bg-abyss) 100%);
+}
+
+.app-header-mobile {
+  display: none; /* Caché sur PC */
+}
+
+/* Layout en grille du Studio */
 .studio-main {
   flex: 1;
   display: grid;
@@ -247,14 +274,12 @@ html, body {
   width: 100%;
 }
 
-/* Panneau de configuration (Gauche) */
 .config-sidebar {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-/* Panneau de visualisation et export (Droite) */
 .preview-panel {
   display: flex;
   flex-direction: column;
@@ -317,4 +342,9 @@ html, body {
 
 .app-footer a:hover {
   text-decoration: underline;
+}
+
+/* Barre de navigation mobile du bas (par défaut masquée sur PC) */
+.mobile-bottom-nav {
+  display: none;
 }

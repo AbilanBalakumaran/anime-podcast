@@ -28,6 +28,13 @@ export class CanvasRenderer {
     // Cache d'images préchargées : key = mascotId_emotion_variantIndex
     this.imageCache = new Map();
 
+    // État du moteur de marionnette (Puppet VTuber) et transitions de poses
+    this.lastRenderKey = null;
+    this.lastRenderImg = null;
+    this.prevPoseImg = null;
+    this.transitionStartTime = 0;
+    this.transitionDuration = 220; // 220ms pour un fondu et rebond d'anticipation parfait
+
     this.isRunning = false;
     this.animationFrameId = null;
 
@@ -195,16 +202,39 @@ export class CanvasRenderer {
     const mouthAperture = this.audioManager ? this.audioManager.getMouthAperture() : 0;
     const isSpeaking = mouthAperture > 0.05;
 
-    // 4. Animation Idle (respiration & balancement doux)
+    // 4. Moteur de Marionnette Vivante (Puppet VTuber)
     const timeSec = timestamp * 0.001;
-    const idleY = Math.sin(timeSec * 2.2) * 8;
-    const idleTilt = Math.sin(timeSec * 1.5) * 0.008;
-    const speakingBounce = isSpeaking ? (Math.sin(timestamp * 0.02) * 6 * mouthAperture) : 0;
+
+    // A) Balancement pendulaire composé (effet marionnette souple)
+    const swayAngle = Math.sin(timeSec * 1.8) * 0.016 + Math.cos(timeSec * 0.9) * 0.008;
+
+    // B) Respiration vivante en squash & stretch (cage thoracique qui respire)
+    const breathScaleY = 1 + Math.sin(timeSec * 2.2) * 0.015;
+    const breathScaleX = 1 - Math.sin(timeSec * 2.2) * 0.010;
+
+    // C) Réactivité vocale : hochement de tête et micro-rebonds d'énergie
+    const speechBounce = isSpeaking ? (Math.sin(timestamp * 0.022) * 8 * mouthAperture + mouthAperture * 10) : 0;
+    const speechNod = isSpeaking ? (Math.sin(timestamp * 0.018) * 0.012 * mouthAperture) : 0;
+
+    // D) Détection de changement de pose pour transition fluide (Cross-fade & Pop)
+    const currentKey = `${this.currentMascot.id}_${this.currentEmotion}_${this.currentVariantIndex}`;
+    if (this.lastRenderKey && this.lastRenderKey !== currentKey) {
+      this.prevPoseImg = this.lastRenderImg;
+      this.transitionStartTime = timestamp;
+    }
+    this.lastRenderKey = currentKey;
+
+    const transitionElapsed = timestamp - this.transitionStartTime;
+    const transitionProgress = Math.min(1.0, transitionElapsed / this.transitionDuration);
+
+    // Rebond d'anticipation lors d'un changement de pose (pop VTuber)
+    const popScale = transitionProgress < 1.0 
+      ? (1.0 + Math.sin(transitionProgress * Math.PI) * 0.035)
+      : 1.0;
 
     // 5. Calcul des proportions réelles de l'image (préservation intégrale du ratio sans étirement)
     let imgRatio = 400 / 500;
-    const cacheKey = `${this.currentMascot.id}_${this.currentEmotion}_${this.currentVariantIndex}`;
-    let imgToDraw = this.imageCache.get(cacheKey);
+    let imgToDraw = this.imageCache.get(currentKey);
 
     // Si mascotte par défaut avec flap buccal dynamique SVG
     if (this.currentMascot.getSvgWithMouth && isSpeaking) {
@@ -215,6 +245,14 @@ export class CanvasRenderer {
       dynamicImg.src = url;
       imgToDraw = dynamicImg;
     }
+
+    if (!imgToDraw) {
+      const fallbackKey1 = `${this.currentMascot.id}_${this.currentEmotion}_0`;
+      const fallbackKey2 = `${this.currentMascot.id}_neutre_0`;
+      imgToDraw = this.imageCache.get(fallbackKey1) || this.imageCache.get(fallbackKey2);
+    }
+
+    this.lastRenderImg = imgToDraw;
 
     if (imgToDraw) {
       const nw = imgToDraw.naturalWidth || imgToDraw.width;
@@ -236,40 +274,37 @@ export class CanvasRenderer {
     }
 
     const posX = (width - targetWidth) / 2;
-    const posY = height - targetHeight + idleY + speakingBounce;
+    const posY = height - targetHeight + speechBounce;
 
     ctx.save();
 
+    // Point pivot au bas de la mascotte pour la marionnette
     const pivotX = width / 2;
     const pivotY = height;
     ctx.translate(pivotX, pivotY);
-    ctx.rotate(idleTilt);
+    ctx.rotate(swayAngle + speechNod);
+    ctx.scale(breathScaleX * popScale, breathScaleY * popScale);
     ctx.translate(-pivotX, -pivotY);
 
-    // 6. Rendu de l'image de la mascotte
-    if (imgToDraw && imgToDraw.complete && (imgToDraw.naturalWidth > 0 || imgToDraw.width > 0)) {
-      ctx.drawImage(imgToDraw, posX, posY, targetWidth, targetHeight);
+    // 6. Rendu fluide avec fondu enchaîné (Cross-fade) entre les poses
+    if (transitionProgress < 1.0 && this.prevPoseImg && this.prevPoseImg.complete && this.prevPoseImg !== imgToDraw) {
+      // Dessiner l'ancienne pose en fondu sortant
+      ctx.save();
+      ctx.globalAlpha = 1.0 - transitionProgress;
+      ctx.drawImage(this.prevPoseImg, posX, posY, targetWidth, targetHeight);
+      ctx.restore();
+
+      // Dessiner la nouvelle pose en fondu entrant
+      ctx.save();
+      ctx.globalAlpha = transitionProgress;
+      if (imgToDraw && imgToDraw.complete && (imgToDraw.naturalWidth > 0 || imgToDraw.width > 0)) {
+        ctx.drawImage(imgToDraw, posX, posY, targetWidth, targetHeight);
+      }
+      ctx.restore();
     } else {
-      // Fallbacks gracieux
-      const fallbackKey1 = `${this.currentMascot.id}_${this.currentEmotion}_0`;
-      const fallbackKey2 = `${this.currentMascot.id}_neutre_0`;
-      const fallbackImg = this.imageCache.get(fallbackKey1) || this.imageCache.get(fallbackKey2);
-      if (fallbackImg && fallbackImg.complete) {
-        let fbRatio = imgRatio;
-        const fnw = fallbackImg.naturalWidth || fallbackImg.width;
-        const fnh = fallbackImg.naturalHeight || fallbackImg.height;
-        if (fnw && fnh && fnh > 0) {
-          fbRatio = fnw / fnh;
-        }
-        let fbH = maxH;
-        let fbW = fbH * fbRatio;
-        if (fbW > maxW) {
-          fbW = maxW;
-          fbH = fbW / fbRatio;
-        }
-        const fbX = (width - fbW) / 2;
-        const fbY = height - fbH + idleY + speakingBounce;
-        ctx.drawImage(fallbackImg, fbX, fbY, fbW, fbH);
+      // Rendu direct à 100% d'opacité
+      if (imgToDraw && imgToDraw.complete && (imgToDraw.naturalWidth > 0 || imgToDraw.width > 0)) {
+        ctx.drawImage(imgToDraw, posX, posY, targetWidth, targetHeight);
       }
     }
 

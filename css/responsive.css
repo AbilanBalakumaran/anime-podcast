@@ -1,10 +1,20 @@
 /* ==========================================================================
    RESPONSIVE DESIGN & ERGONOMIE MOBILE - ANIME PODCAST STUDIO
    Adaptabilité mobile, tablette et grand écran
-   Optimisation des cibles tactiles (Tap Targets min 44-48px) pour un confort absolu
+   Sidebar CRM sur PC & Bottom Navigation Bar sur Mobile (style application native)
+   Protection absolue contre le zoom accidentel iOS/Android
    ========================================================================== */
 
-@media (max-width: 1080px) {
+/* Fix universel du zoom mobile sur focus des formulaires */
+input, textarea, select {
+  font-size: 16px !important;
+  touch-action: manipulation;
+}
+
+/* ==========================================================================
+   TABLETTE & GRANDS ÉCRANS INTERMÉDIAIRES (< 1120px)
+   ========================================================================== */
+@media (max-width: 1120px) {
   .studio-main {
     grid-template-columns: 1fr;
     gap: 20px;
@@ -21,15 +31,33 @@
 }
 
 /* ==========================================================================
-   SMARTPHONE & TABLETTE TACTILE (< 768px)
+   MOBILE & PETITES TABLETTES (< 900px)
+   Bascule de la Sidebar CRM vers la Bottom Navigation Bar (Application Native)
    ========================================================================== */
-@media (max-width: 768px) {
-  .app-header {
-    padding: 10px 14px;
-    height: auto;
-    min-height: 60px;
-    flex-wrap: wrap;
-    gap: 8px;
+@media (max-width: 900px) {
+  .app-container {
+    flex-direction: column;
+  }
+
+  /* 1. Masquer la sidebar PC */
+  .crm-sidebar {
+    display: none !important;
+  }
+
+  /* 2. Afficher le Header Mobile compact */
+  .app-header-mobile {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    padding: 0 16px;
+    background-color: rgba(13, 13, 17, 0.96);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border-subtle);
+    position: sticky;
+    top: 0;
+    z-index: 100;
   }
 
   .brand-title {
@@ -42,34 +70,12 @@
     padding: 1px 5px;
   }
 
-  .navbar-crm {
-    order: 3;
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    white-space: nowrap;
-    justify-content: flex-start;
-    padding: 3px;
-    scrollbar-width: none;
-  }
-
-  .navbar-crm::-webkit-scrollbar {
-    display: none;
-  }
-
-  .crm-nav-link {
-    flex-shrink: 0;
-    padding: 5px 10px;
-    font-size: 0.76rem;
-  }
-
-  .crm-status-pill {
-    display: none;
-  }
-
+  /* 3. Ajuster le corps pour la barre du bas */
   .studio-main {
-    padding: 12px;
+    padding: 14px 12px;
     gap: 16px;
+    /* Dégagement pour ne jamais masquer les cartes sous la bottom bar */
+    padding-bottom: calc(75px + env(safe-area-inset-bottom, 14px)) !important;
   }
 
   .studio-card {
@@ -77,11 +83,68 @@
     border-radius: var(--radius-md);
   }
 
+  /* 4. BARRE DE NAVIGATION DU BAS (Mobile Bottom Nav) */
+  .mobile-bottom-nav {
+    display: flex !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: calc(58px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background-color: rgba(13, 13, 17, 0.96);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border-subtle);
+    z-index: 1000;
+    align-items: center;
+    justify-content: space-around;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.7);
+  }
+
+  .mobile-nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    height: 100%;
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 0.72rem;
+    font-weight: 600;
+    transition: all var(--transition-fast);
+    touch-action: manipulation;
+    user-select: none;
+  }
+
+  .mobile-nav-item svg {
+    width: 20px;
+    height: 20px;
+    transition: transform var(--transition-fast), color var(--transition-fast);
+  }
+
+  .mobile-nav-item:active {
+    transform: scale(0.92);
+  }
+
+  .mobile-nav-item.active {
+    color: var(--gold-primary);
+  }
+
+  .mobile-nav-item.active svg {
+    color: var(--gold-primary);
+    transform: translateY(-2px);
+    filter: drop-shadow(0 0 8px var(--gold-glow));
+  }
+
   /* Cibles tactiles agrandies pour boutons principaux (min 48px) */
   .btn {
     min-height: 48px;
     font-size: 0.95rem;
     padding: 12px 18px;
+    touch-action: manipulation;
   }
 
   .btn-sm {
@@ -123,12 +186,12 @@
     height: 80px;
   }
 
-  /* Entrées de formulaire adaptées au toucher (16px évite le zoom auto sur iOS) */
+  /* Entrées de formulaire adaptées au toucher */
   .form-input,
   .form-select,
   .form-textarea {
     min-height: 48px;
-    font-size: 16px;
+    font-size: 16px !important;
     padding: 12px 14px;
   }
 
@@ -190,11 +253,12 @@
   /* Modale pleine largeur mobile */
   .modal-backdrop {
     padding: 10px;
+    padding-bottom: calc(70px + env(safe-area-inset-bottom, 12px));
   }
 
   .modal-card {
     padding: 18px 14px;
-    max-height: 96vh;
+    max-height: 92vh;
     border-radius: var(--radius-md);
   }
 
@@ -208,38 +272,26 @@
 
   .bulk-review-grid {
     grid-template-columns: 1fr;
-    max-height: 300px;
-  }
-
-  .bulk-review-card {
-    padding: 12px;
-  }
-
-  .bulk-select-emotion {
-    min-height: 44px;
-    font-size: 0.9rem;
-  }
-
-  .custom-emotion-adder {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .custom-emotion-adder button {
-    width: 100%;
-    min-height: 46px;
+    gap: 12px;
   }
 }
 
-/* ==========================================================================
-   SUPPORT PWA NOTCH & SAFE AREA (iPhone, Android)
-   ========================================================================== */
-@supports (padding-top: env(safe-area-inset-top)) {
-  .app-header {
-    padding-top: env(safe-area-inset-top);
-    height: calc(64px + env(safe-area-inset-top));
+/* Écrans très étroits (< 380px) */
+@media (max-width: 380px) {
+  .mascot-picker {
+    grid-template-columns: 1fr;
   }
-  .app-footer {
-    padding-bottom: calc(16px + env(safe-area-inset-bottom));
+
+  .brand-title {
+    font-size: 0.95rem;
+  }
+
+  .btn {
+    font-size: 0.88rem;
+    padding: 10px 14px;
+  }
+
+  .mobile-nav-item span {
+    font-size: 0.68rem;
   }
 }

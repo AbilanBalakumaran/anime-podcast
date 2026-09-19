@@ -2,8 +2,8 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#0b1329">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#09090b">
   <meta name="description" content="Générateur vidéo de podcast animé avec mascottes interactives et synchronisation vocale">
   <title>Anime Podcast Studio - Mascottes Animées & Synchronisation Vocale</title>
 
@@ -53,16 +53,19 @@
        ======================================================================== -->
   <div class="app-container">
     
-    <!-- En-tête de l'application : Navbar CRM AutoShort -->
-    <header class="app-header">
-      <div class="brand-container">
+    <!-- ====================================================================
+         SIDEBAR CRM (Visible sur PC / Grand écran)
+         ==================================================================== -->
+    <aside class="crm-sidebar">
+      <div class="crm-sidebar-brand">
         <img src="./assets/icons/favicon.svg" alt="Logo" class="brand-icon">
         <div class="brand-title">ANIME<span>PODCAST</span>.AI</div>
         <div class="brand-badge">STUDIO PRO</div>
       </div>
 
-      <!-- Barre de Navigation CRM AutoShort -->
-      <nav class="navbar-crm">
+      <div class="crm-sidebar-section-title">NAVIGATION CRM</div>
+
+      <nav class="crm-sidebar-nav">
         <a href="#section-audio" class="crm-nav-link active" data-target="section-audio">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
@@ -97,21 +100,40 @@
         </a>
       </nav>
 
-      <div class="header-actions">
+      <div class="crm-sidebar-footer">
         <div class="crm-status-pill">
           <span class="status-dot"></span>
-          <span>En Ligne</span>
+          <span>Moteur Prêt & En Ligne</span>
         </div>
-        <button id="btn-pwa-install" class="btn btn-outline-gold btn-sm" style="display: none;">
+        <button id="btn-pwa-install" class="btn btn-outline-gold btn-sm" style="display: none; width: 100%;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
             <polyline points="7 10 12 15 17 10"></polyline>
             <line x1="12" y1="15" x2="12" y2="3"></line>
           </svg>
-          Installer
+          Installer l'App PWA
         </button>
       </div>
-    </header>
+    </aside>
+
+    <!-- ====================================================================
+         CONTENU PRINCIPAL DU CRM
+         ==================================================================== -->
+    <div class="crm-main-content">
+
+      <!-- Header Mobile / Topbar -->
+      <header class="app-header-mobile">
+        <div class="brand-container">
+          <img src="./assets/icons/favicon.svg" alt="Logo" class="brand-icon">
+          <div class="brand-title">ANIME<span>PODCAST</span>.AI</div>
+          <div class="brand-badge">STUDIO PRO</div>
+        </div>
+
+        <div class="crm-status-pill">
+          <span class="status-dot"></span>
+          <span>En Ligne</span>
+        </div>
+      </header>
 
     <!-- Corps du studio -->
     <main class="studio-main">
@@ -363,6 +385,45 @@
     <footer class="app-footer">
       ANIME PODCAST AI &bull; Style AutoShort Studio CRM &bull; Noir Obsidienne & Jaune Cyber
     </footer>
+    </div> <!-- Fin crm-main-content -->
+
+    <!-- ====================================================================
+         BARRE DE NAVIGATION DU BAS SUR MOBILE (Style Native App)
+         ==================================================================== -->
+    <nav class="mobile-bottom-nav">
+      <a href="#section-audio" class="mobile-nav-item active" data-target="section-audio">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+          <line x1="12" y1="19" x2="12" y2="23"></line>
+          <line x1="8" y1="23" x2="16" y2="23"></line>
+        </svg>
+        <span>Voix</span>
+      </a>
+      <a href="#section-mascot" class="mobile-nav-item" data-target="section-mascot">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="8" r="5"></circle>
+          <path d="M20 21a8 8 0 1 0-16 0"></path>
+        </svg>
+        <span>Mascotte</span>
+      </a>
+      <a href="#section-preview" class="mobile-nav-item" data-target="section-preview">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
+          <line x1="7" y1="2" x2="7" y2="22"></line>
+          <line x1="17" y1="2" x2="17" y2="22"></line>
+          <line x1="2" y1="12" x2="22" y2="12"></line>
+        </svg>
+        <span>Rendu</span>
+      </a>
+      <a href="#section-timeline" class="mobile-nav-item" data-target="section-timeline">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        <span>Timeline</span>
+      </a>
+    </nav>
   </div>
 
   <!-- ========================================================================
