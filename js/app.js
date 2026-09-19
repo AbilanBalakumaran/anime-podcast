@@ -60,6 +60,11 @@ class AnimePodcastApp {
   }
 
   async init() {
+    // Watchdog de sécurité : garantit la disparition du splash screen sous 1.2s max quoi qu'il arrive
+    const splashWatchdog = setTimeout(() => {
+      this.dismissSplashScreen();
+    }, 1200);
+
     this.updateSplashProgress(20, 'Initialisation du Service Worker PWA...');
     this.pwaManager = new PWAManager();
 
@@ -115,11 +120,8 @@ class AnimePodcastApp {
       this.canvasRenderer.setEmotion(this.mascotManager.getActiveEmotion(), this.mascotManager.getActiveVariantIndex());
     }
 
-    this.updateSplashProgress(85, 'Préparation de la piste audio par défaut...');
+    this.updateSplashProgress(90, 'Configuration du studio...');
     this.populateTtsVoices();
-    await this.prepareDefaultAudio();
-
-    this.updateSplashProgress(95, 'Configuration du moteur d\'export vidéo transparent...');
 
     // Video Exporter
     this.videoExporter = new VideoExporter(this.canvasRenderer, this.audioManager);
@@ -137,16 +139,23 @@ class AnimePodcastApp {
 
     this.updateSplashProgress(100, 'Studio Prêt !');
 
+    // Fermeture immédiate du splash screen dès que le studio est monté
+    clearTimeout(splashWatchdog);
     setTimeout(() => {
       this.dismissSplashScreen();
-    }, 800);
+    }, 200);
 
     console.log('[App] AUTOPOD Studio initialisé avec succès.');
+
+    // Préparation audio par défaut en arrière-plan sans bloquer l'ouverture de l'application
+    this.prepareDefaultAudio().catch((err) => {
+      console.warn('[App] Préparation automatique de l\'audio différée:', err);
+    });
   }
 
   /**
-   * Préparation automatique de l'audio par défaut au lancement
-   * L'utilisateur n'a plus besoin de cliquer manuellement sur "Générer la Voix"
+   * Préparation automatique de l'audio par défaut au lancement en tâche de fond
+   * L'application s'ouvre immédiatement pendant que l'audio se prépare
    */
   async prepareDefaultAudio() {
     const defaultText = "Welcome everyone to this new episode of Autopod! Today, we explore the secret of anime animation and expressive mascots. Have you noticed how smooth pose transitions make a story come alive? It is absolutely incredible and immersive! Thank you for joining us today, and see you very soon in our next episode!";
@@ -160,11 +169,21 @@ class AnimePodcastApp {
       const rate = parseFloat(this.sliderRate ? this.sliderRate.value : 1.0) || 1.0;
       const pitch = parseFloat(this.sliderPitch ? this.sliderPitch.value : 1.0) || 1.0;
 
+      if (this.audioFileNameEl && (!this.audioManager.audioBuffer)) {
+        this.audioFileNameEl.textContent = 'Génération audio Orbit en arrière-plan...';
+      }
+
       const result = await this.audioManager.synthesizeSpeech(defaultText, voiceId, rate, pitch);
       this.speechAnalyzer.analyzeAudioBuffer(result.buffer, result.sentences);
-      console.log(`[App] Audio par défaut prêt et disponible immédiatement (${voiceId}).`);
+      if (this.audioFileNameEl) {
+        this.audioFileNameEl.textContent = this.audioManager.audioFileName || 'Gemini_Orbit_Speech.wav';
+      }
+      console.log(`[App] Audio par défaut prêt et disponible (${voiceId}).`);
     } catch (err) {
       console.warn('[App] Préparation automatique de l\'audio différée:', err);
+      if (this.audioFileNameEl && !this.audioManager.audioBuffer) {
+        this.audioFileNameEl.textContent = 'Aucun fichier chargé';
+      }
     }
   }
 
@@ -178,8 +197,13 @@ class AnimePodcastApp {
   }
 
   dismissSplashScreen() {
-    if (this.splashScreen) {
+    if (this.splashScreen && !this.splashScreen.classList.contains('hidden')) {
       this.splashScreen.classList.add('hidden');
+      setTimeout(() => {
+        if (this.splashScreen) {
+          this.splashScreen.style.display = 'none';
+        }
+      }, 650);
     }
   }
 
