@@ -1,6 +1,6 @@
 {
-  "name": "AUTOPOD Studio",
-  "short_name": "AUTOPOD",
+  "name": "Autopod Studio",
+  "short_name": "Autopod",
   "description": "Générateur vidéo de podcast animé avec mascottes dynamiques et synchronisation vocale",
   "start_url": "./index.html",
   "scope": "./",

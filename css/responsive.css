@@ -81,11 +81,13 @@ input, textarea, select {
   }
 
   .app-top-header .header-title {
-    font-family: var(--font-display) !important;
+    font-family: var(--font-main) !important;
+    font-weight: 800 !important;
     font-size: 1.5rem !important;
-    letter-spacing: 0.05em;
+    letter-spacing: -0.01em;
     white-space: nowrap;
     line-height: 1;
+    text-transform: none !important;
   }
 
   .app-top-header .header-badge,
