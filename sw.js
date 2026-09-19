@@ -1,4 +1,4 @@
-const CACHE_NAME = 'autopod-v1.4.3';
+const CACHE_NAME = 'autopod-v1.4.4';
 
 const ASSETS_TO_CACHE = [
   './',
@@ -19,8 +19,14 @@ const ASSETS_TO_CACHE = [
   './js/canvas-renderer.js',
   './js/video-exporter.js',
   './assets/icons/favicon.svg',
+  './assets/icons/favicon-32.png',
   './assets/icons/icon-192.svg',
+  './assets/icons/icon-192.png',
   './assets/icons/icon-512.svg',
+  './assets/icons/icon-512.png',
+  './assets/icons/apple-touch-icon.png',
+  './assets/icons/icon-maskable-192.png',
+  './assets/icons/icon-maskable-512.png',
   './assets/fonts/ObelixPro.ttf'
 ];
 
