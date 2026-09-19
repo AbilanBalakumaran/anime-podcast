@@ -17,8 +17,8 @@ export class CanvasRenderer {
     this.ctx = this.canvas ? this.canvas.getContext('2d', { alpha: true }) : null;
     this.canvasWrapper = document.querySelector('.canvas-wrapper');
 
-    // Format vidéo AutoShort : '9:16' (Shorts/TikTok/Reels) ou '16:9' (YouTube/Paysage)
-    this.currentFormat = '9:16';
+    // Format vidéo AutoShort : '16:9' (YouTube/Paysage 1920x1080 par défaut) ou '9:16' (Shorts/TikTok/Reels)
+    this.currentFormat = '16:9';
     this.updateCanvasDimensions();
 
     this.currentMascot = null;
@@ -56,6 +56,11 @@ export class CanvasRenderer {
         this.canvasWrapper.classList.add('format-16-9');
         this.canvasWrapper.classList.remove('format-9-16');
       }
+    }
+
+    const headerFormatLabel = document.getElementById('header-format-label');
+    if (headerFormatLabel) {
+      headerFormatLabel.textContent = this.currentFormat === '16:9' ? '1920×1080 (16:9)' : '1080×1920 (9:16)';
     }
   }
 

@@ -1,10 +1,10 @@
-# 🎙️ Anime Podcast Studio
+# 🎙️ AUTOPOD Studio
 
-[![PWA Ready](https://img.shields.io/badge/PWA-Ready-f59e0b?style=flat-square)](./manifest.webmanifest)
-[![License: MIT](https://img.shields.io/badge/License-MIT-0b1329?style=flat-square)](LICENSE)
-[![Theme: Deep Blue & Gold](https://img.shields.io/badge/Theme-Dark%20Blue%20%26%20Gold-1e3a8a?style=flat-square)](#-charte-graphique-stricte)
+[![PWA Ready](https://img.shields.io/badge/PWA-Ready-facc15?style=flat-square)](./manifest.webmanifest)
+[![License: MIT](https://img.shields.io/badge/License-MIT-09090b?style=flat-square)](LICENSE)
+[![Theme: Noir Obsidienne & Jaune Cyber](https://img.shields.io/badge/Theme-Obsidian%20%26%20Cyber%20Gold-facc15?style=flat-square)](#-charte-graphique-stricte)
 
-> **Générateur vidéo PWA de podcast animé avec mascottes interactives et synchronisation vocale dynamique (rendu façon NotebookLM).**  
+> **Générateur vidéo PWA de podcast animé avec mascottes interactives et synchronisation vocale dynamique (rendu transparent 1080p).**  
 > Conçu pour produire des vidéos de mascottes animées détourées sur fond transparent (canal alpha WebM) parfaitement synchronisées avec une piste vocale, prêtes pour l'intégration en post-production (DaVinci Resolve, Adobe Premiere, OBS, CapCut).
 
 ---

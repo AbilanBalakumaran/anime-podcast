@@ -1,13 +1,13 @@
 {
-  "name": "Anime Podcast Studio",
-  "short_name": "AnimePodcast",
+  "name": "AUTOPOD Studio",
+  "short_name": "AUTOPOD",
   "description": "Générateur vidéo de podcast animé avec mascottes dynamiques et synchronisation vocale",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#070b14",
-  "theme_color": "#0b1329",
+  "background_color": "#09090b",
+  "theme_color": "#09090b",
   "categories": ["multimedia", "productivity", "utilities"],
   "icons": [
     {

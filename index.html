@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, shrink-to-fit=no, viewport-fit=cover">
   <meta name="theme-color" content="#09090b">
-  <meta name="description" content="Générateur vidéo de podcast animé avec mascottes interactives et synchronisation vocale">
-  <title>Anime Podcast Studio - Mascottes Animées &amp; Synchronisation Vocale</title>
+  <meta name="description" content="AUTOPOD - Studio vidéo de podcast animé avec mascottes interactives et synchronisation vocale">
+  <title>AUTOPOD - Studio Vidéo &amp; Podcast Animé</title>
 
   <!-- PWA Manifest & Icônes -->
   <link rel="manifest" href="./manifest.webmanifest">
@@ -35,10 +35,10 @@
       <div class="splash-logo-wrapper">
         <div class="splash-logo-ring-outer"></div>
         <div class="splash-logo-ring"></div>
-        <img src="./assets/icons/icon-192.svg" alt="Anime Podcast Studio" class="splash-logo-icon">
+        <img src="./assets/icons/icon-192.svg" alt="AUTOPOD Studio" class="splash-logo-icon">
       </div>
-      <h1 class="splash-title">ANIME <span>PODCAST</span> AI</h1>
-      <p class="splash-subtitle">Animation vocale dynamique &amp; export transparent</p>
+      <h1 class="splash-title">AUTO<span>POD</span></h1>
+      <p class="splash-subtitle">Animation vocale dynamique &amp; synchronisation studio</p>
       
       <div class="splash-progress-container">
         <div id="splash-progress-bar" class="splash-progress-bar"></div>
@@ -57,8 +57,8 @@
          ==================================================================== -->
     <aside class="crm-sidebar">
       <div class="crm-sidebar-brand">
-        <img src="./assets/icons/favicon.svg" alt="Logo" class="brand-icon">
-        <div class="brand-title">ANIME<span>PODCAST</span>.AI</div>
+        <img src="./assets/icons/favicon.svg" alt="Logo AUTOPOD" class="brand-icon">
+        <div class="brand-title">AUTO<span>POD</span></div>
         <div class="brand-badge">STUDIO PRO</div>
       </div>
 
@@ -106,7 +106,7 @@
             <polyline points="7 10 12 15 17 10"></polyline>
             <line x1="12" y1="15" x2="12" y2="3"></line>
           </svg>
-          Installer l'App PWA
+          Installer AUTOPOD
         </button>
       </div>
     </aside>
@@ -116,16 +116,33 @@
          ==================================================================== -->
     <div class="crm-main-content">
 
-      <!-- Header Mobile / Topbar -->
-      <header class="app-header-mobile">
-        <div class="crm-sidebar-brand" style="margin-bottom:0;">
-          <img src="./assets/icons/favicon.svg" alt="Logo" class="brand-icon">
-          <div class="brand-title">ANIME<span>PODCAST</span>.AI</div>
-          <div class="brand-badge">STUDIO PRO</div>
+      <!-- ====================================================================
+           HEADER SUPÉRIEUR - AUTOPOD STUDIO (Desktop & Mobile)
+           ==================================================================== -->
+      <header class="app-top-header">
+        <div class="header-left">
+          <div class="header-brand">
+            <img src="./assets/icons/favicon.svg" alt="AUTOPOD" class="header-logo">
+            <div class="header-title-wrap">
+              <span class="header-title">AUTO<span class="gold-text">POD</span></span>
+              <span class="header-badge">STUDIO PRO</span>
+            </div>
+          </div>
+          <div class="header-divider"></div>
+          <div class="header-tagline">
+            Générateur Vidéo &amp; Podcast Animé
+          </div>
         </div>
-        <div class="crm-status-pill">
-          <span class="status-dot"></span>
-          <span>En Ligne</span>
+
+        <div class="header-right">
+          <div class="header-meta-item" title="Format actuel du canevas vidéo">
+            <span class="meta-label">Format :</span>
+            <span id="header-format-label" class="meta-value">1920×1080 (16:9)</span>
+          </div>
+          <div class="crm-status-pill">
+            <span class="status-dot"></span>
+            <span>En Ligne</span>
+          </div>
         </div>
       </header>
 
@@ -281,10 +298,10 @@
 
                 <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                   <div class="format-switch-group">
-                    <button type="button" class="btn-format-switch active" data-format="9:16" title="Format Vertical (Shorts, TikTok, Reels)">
+                    <button type="button" class="btn-format-switch" data-format="9:16" title="Format Vertical (Shorts, TikTok, Reels)">
                       📱 9:16 Shorts
                     </button>
-                    <button type="button" class="btn-format-switch" data-format="16:9" title="Format Horizontal (YouTube, Paysage)">
+                    <button type="button" class="btn-format-switch active" data-format="16:9" title="Format Horizontal (YouTube, Paysage)">
                       🖥️ 16:9
                     </button>
                   </div>
@@ -295,7 +312,7 @@
                 </div>
               </div>
 
-              <div class="canvas-wrapper format-9-16 checkerboard">
+              <div class="canvas-wrapper format-16-9 checkerboard">
                 <canvas id="preview-canvas"></canvas>
                 <div class="canvas-overlay-badge">
                   <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--gold-primary); box-shadow: 0 0 6px var(--gold-primary);"></span>
@@ -485,7 +502,7 @@
 
       <!-- Pied de page -->
       <footer class="app-footer">
-        ANIME PODCAST AI &bull; Style AutoShort Studio CRM &bull; Noir Obsidienne &amp; Jaune Cyber
+        AUTOPOD Studio Pro &bull; Style AutoShort CRM &bull; Noir Obsidienne &amp; Jaune Cyber
       </footer>
     </div> <!-- Fin crm-main-content -->
 
@@ -735,6 +752,6 @@
   </div>
 
   <!-- Point d'Entrée JavaScript (Modules ES6) avec cache-busting -->
-  <script type="module" src="./js/app.js?v=1.3.1"></script>
+  <script type="module" src="./js/app.js?v=1.4.0"></script>
 </body>
 </html>

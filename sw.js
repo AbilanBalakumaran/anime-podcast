@@ -1,4 +1,4 @@
-const CACHE_NAME = 'anime-podcast-v1.3.1';
+const CACHE_NAME = 'autopod-v1.4.0';
 
 const ASSETS_TO_CACHE = [
   './',

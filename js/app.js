@@ -141,7 +141,7 @@ class AnimePodcastApp {
       this.dismissSplashScreen();
     }, 800);
 
-    console.log('[App] Anime Podcast Studio initialisé avec succès.');
+    console.log('[App] AUTOPOD Studio initialisé avec succès.');
   }
 
   /**
@@ -149,7 +149,7 @@ class AnimePodcastApp {
    * L'utilisateur n'a plus besoin de cliquer manuellement sur "Générer la Voix"
    */
   async prepareDefaultAudio() {
-    const defaultText = "Bonjour à tous et bienvenue dans ce nouvel épisode d'Anime Podcast ! Aujourd'hui, nous explorons le secret de l'animation japonaise et des mascottes expressives. Avez-vous remarqué comment les transitions de poses rendent un discours captivant ? C'est absolument incroyable et immersif ! Merci d'avoir partagé ce moment avec nous, et à très bientôt pour le prochain épisode !";
+    const defaultText = "Bonjour à tous et bienvenue dans ce nouvel épisode d'Autopod ! Aujourd'hui, nous explorons le secret de l'animation japonaise et des mascottes expressives. Avez-vous remarqué comment les transitions de poses rendent un discours captivant ? C'est absolument incroyable et immersif ! Merci d'avoir partagé ce moment avec nous, et à très bientôt pour le prochain épisode !";
 
     if (this.textareaTts) {
       this.textareaTts.value = defaultText;
@@ -282,7 +282,7 @@ class AnimePodcastApp {
         if (document.activeElement && typeof document.activeElement.blur === 'function') {
           document.activeElement.blur();
         }
-        this.textareaTts.value = "Bonjour à tous et bienvenue dans ce nouvel épisode d'Anime Podcast ! Aujourd'hui, nous explorons le secret de l'animation japonaise et des mascottes expressives. Avez-vous remarqué comment les transitions de poses rendent un discours captivant ? C'est absolument incroyable et immersif ! Merci d'avoir partagé ce moment avec nous, et à très bientôt pour le prochain épisode !";
+        this.textareaTts.value = "Bonjour à tous et bienvenue dans ce nouvel épisode d'Autopod ! Aujourd'hui, nous explorons le secret de l'animation japonaise et des mascottes expressives. Avez-vous remarqué comment les transitions de poses rendent un discours captivant ? C'est absolument incroyable et immersif ! Merci d'avoir partagé ce moment avec nous, et à très bientôt pour le prochain épisode !";
       });
     }
 

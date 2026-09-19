@@ -1,34 +1,121 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
   <defs>
+    <!-- Background Gradient (Noir Obsidienne) -->
     <linearGradient id="bgGrad192" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0b1329" />
-      <stop offset="100%" stop-color="#070b14" />
+      <stop offset="0%" stop-color="#141417" />
+      <stop offset="100%" stop-color="#09090b" />
     </linearGradient>
+
+    <!-- Cyber Gold Gradients -->
     <linearGradient id="goldGrad192" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#fbbf24" />
-      <stop offset="100%" stop-color="#d97706" />
+      <stop offset="0%" stop-color="#fef08a" />
+      <stop offset="35%" stop-color="#facc15" />
+      <stop offset="100%" stop-color="#ca8a04" />
     </linearGradient>
+
+    <linearGradient id="goldHairGrad" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="#fef9c3" />
+      <stop offset="30%" stop-color="#fde047" />
+      <stop offset="70%" stop-color="#facc15" />
+      <stop offset="100%" stop-color="#b45309" />
+    </linearGradient>
+
+    <linearGradient id="suitGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1c1c22" />
+      <stop offset="100%" stop-color="#0d0d10" />
+    </linearGradient>
+
+    <!-- Glowing Filters -->
     <filter id="goldGlow192" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feGaussianBlur stdDeviation="3.5" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <filter id="emberGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2" result="blur" />
       <feComposite in="SourceGraphic" in2="blur" operator="over" />
     </filter>
   </defs>
-  <!-- Background -->
-  <rect width="192" height="192" rx="42" fill="url(#bgGrad192)" stroke="#1e2f5b" stroke-width="3" />
-  <!-- Golden circular frame -->
-  <circle cx="96" cy="96" r="72" fill="none" stroke="url(#goldGrad192)" stroke-width="5" filter="url(#goldGlow192)" />
-  <!-- Headset headband -->
-  <path d="M 60 96 A 36 36 0 0 1 132 96" fill="none" stroke="url(#goldGrad192)" stroke-width="8" stroke-linecap="round" />
-  <!-- Ear cups -->
-  <rect x="52" y="90" width="16" height="32" rx="8" fill="#fbbf24" />
-  <rect x="124" y="90" width="16" height="32" rx="8" fill="#fbbf24" />
-  <!-- Audio spectrum waves -->
-  <line x1="82" y1="108" x2="82" y2="84" stroke="#fef3c7" stroke-width="7" stroke-linecap="round" />
-  <line x1="96" y1="120" x2="96" y2="72" stroke="#fbbf24" stroke-width="7" stroke-linecap="round" />
-  <line x1="110" y1="112" x2="110" y2="80" stroke="#fef3c7" stroke-width="7" stroke-linecap="round" />
-  <!-- Microphone boom -->
-  <path d="M 60 112 Q 68 136 90 136" fill="none" stroke="#d97706" stroke-width="6" stroke-linecap="round" />
-  <circle cx="92" cy="136" r="7" fill="#fbbf24" />
-  <!-- Decorative stars / sparkle -->
-  <path d="M 136 54 L 140 64 L 150 68 L 140 72 L 136 82 L 132 72 L 122 68 L 132 64 Z" fill="#fbbf24" opacity="0.85" />
+
+  <!-- Base Squircle -->
+  <rect width="192" height="192" rx="42" fill="url(#bgGrad192)" stroke="#27272a" stroke-width="2" />
+
+  <!-- Cyber Gold Outer Ring -->
+  <circle cx="96" cy="96" r="76" fill="none" stroke="url(#goldGrad192)" stroke-width="3" opacity="0.85" filter="url(#goldGlow192)" />
+  <circle cx="96" cy="96" r="70" fill="#0d0d11" opacity="0.9" />
+
+  <!-- Background decorative tech arcs -->
+  <path d="M 40 96 A 56 56 0 0 1 152 96" fill="none" stroke="#27272a" stroke-width="1.5" stroke-dasharray="4 6" />
+
+  <!-- ======================================================================
+       SANJI SILHOUETTE & FEATURES
+       ====================================================================== -->
+
+  <!-- Suit & Shoulders -->
+  <path d="M 44 180 L 62 142 L 82 152 L 96 162 L 110 152 L 130 142 L 148 180 Z" fill="url(#suitGrad)" stroke="#27272a" stroke-width="1.5" />
+  
+  <!-- Shirt & Tie -->
+  <polygon points="86,144 96,158 106,144 96,140" fill="#ffffff" />
+  <polygon points="94,146 98,146 99,174 96,178 93,174" fill="#09090b" stroke="#facc15" stroke-width="0.8" />
+  
+  <!-- Suit Collar / Lapels with Gold Edges -->
+  <path d="M 64 142 L 84 154 L 78 178" fill="none" stroke="#facc15" stroke-width="1.5" stroke-linecap="round" />
+  <path d="M 128 142 L 108 154 L 114 178" fill="none" stroke="#facc15" stroke-width="1.5" stroke-linecap="round" />
+
+  <!-- Neck & Face -->
+  <path d="M 85 116 L 85 145 L 107 145 L 107 116 Z" fill="#fcd34d" opacity="0.3" />
+  <!-- Jawline -->
+  <path d="M 68 96 Q 72 132 96 138 Q 120 132 124 96 Z" fill="#141418" stroke="#3f3f46" stroke-width="1.2" />
+
+  <!-- Cigarette in mouth -->
+  <!-- Slim cigarette angled down to left -->
+  <line x1="92" y1="126" x2="60" y2="135" stroke="#f4f4f5" stroke-width="3" stroke-linecap="round" />
+  <!-- Burning ember at tip with glow -->
+  <circle cx="58" cy="135.5" r="2.5" fill="#f97316" filter="url(#emberGlow)" />
+  <circle cx="58" cy="135.5" r="1.5" fill="#fef08a" />
+  <!-- Rising smoke trail in stylized cyber gold curve -->
+  <path d="M 57 133 C 50 125, 48 114, 55 105 C 63 94, 58 84, 52 74" fill="none" stroke="url(#goldGrad192)" stroke-width="1.8" stroke-linecap="round" opacity="0.65" />
+
+  <!-- Sanji Visible Eye (Right side) -->
+  <path d="M 103 98 Q 112 94 119 99" fill="none" stroke="#facc15" stroke-width="2.2" stroke-linecap="round" />
+  <ellipse cx="111" cy="101" rx="3.5" ry="4.5" fill="#facc15" />
+  <circle cx="111" cy="101" r="2" fill="#09090b" />
+  <circle cx="112.5" cy="99.5" r="1" fill="#ffffff" />
+  <path d="M 106 106 Q 112 108 118 106" fill="none" stroke="#ca8a04" stroke-width="1.2" stroke-linecap="round" />
+
+  <!-- The Signature Sanji Spiral Eyebrow (curled swirl at the tip) -->
+  <!-- Sanji's iconic eyebrow curves across and spirals into a tight curl at the end -->
+  <path d="M 101 91 Q 110 87 118 90" fill="none" stroke="#facc15" stroke-width="2.4" stroke-linecap="round" />
+  <!-- Spiral curl at outer tip -->
+  <path d="M 118 90 C 122 91, 124 88, 122 85 C 119 83, 116 86, 118 88" fill="none" stroke="#facc15" stroke-width="2.2" stroke-linecap="round" />
+
+  <!-- ======================================================================
+       SANJI SLEEK BLOND HAIR
+       Signature long dynamic fringe sweeping down over the left side of face
+       ====================================================================== -->
+  <!-- Hair Base Volume -->
+  <path d="M 64 96 C 58 70, 72 42, 96 42 C 124 42, 136 68, 132 96 C 130 114, 122 128, 120 132 C 114 116, 112 108, 110 98 C 104 88, 92 78, 82 82 C 70 86, 62 104, 64 96 Z" fill="url(#goldHairGrad)" />
+
+  <!-- Sweeping Bangs covering the left eye -->
+  <!-- Strand 1: Main dramatic diagonal sweep across face -->
+  <path d="M 96 42 Q 78 65 72 100 Q 68 122 74 136 Q 66 116 70 92 Q 76 68 96 42 Z" fill="#fde047" stroke="#ca8a04" stroke-width="0.8" />
+
+  <!-- Strand 2: Central stylized lock covering left eye entirely -->
+  <path d="M 106 48 Q 90 74 84 108 Q 80 126 88 138 Q 78 120 82 98 Q 88 72 106 48 Z" fill="#facc15" />
+
+  <!-- Strand 3: High-sheen hair highlight lock -->
+  <path d="M 98 44 Q 85 70 82 92 C 84 75, 92 58, 98 44 Z" fill="#fef9c3" opacity="0.9" />
+
+  <!-- Strand 4: Right side bangs framing face & eye -->
+  <path d="M 112 52 Q 124 72 126 94 Q 120 84 116 76 Q 110 65 112 52 Z" fill="#eab308" />
+  <path d="M 122 66 Q 134 84 132 106 Q 128 92 124 82 Z" fill="#ca8a04" />
+
+  <!-- Crown hair spike details (Sanji's messy stylish parted hair) -->
+  <path d="M 78 54 Q 68 46 62 56 Q 70 56 78 54 Z" fill="#facc15" />
+  <path d="M 92 44 Q 88 34 82 40 Q 86 44 92 44 Z" fill="#fde047" />
+  <path d="M 104 43 Q 112 33 118 42 Q 110 42 104 43 Z" fill="#fde047" />
+
+  <!-- Ambient Cyber Accent: Soundwave / Audio Bar dots at bottom corner -->
+  <circle cx="148" cy="148" r="3" fill="#facc15" opacity="0.8" />
+  <circle cx="156" cy="144" r="2" fill="#facc15" opacity="0.5" />
 </svg>
