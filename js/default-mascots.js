@@ -367,21 +367,4 @@ BASE_EMOTIONS.forEach(emo => {
   }
 });
 
-export const DEFAULT_MASCOTS = [
-  {
-    id: 'default-aiko',
-    name: 'Aiko',
-    tagline: 'Podcasteuse Anime & Pop-Culture',
-    isDefault: true,
-    emotions: aikoEmotions,
-    getSvgWithMouth: (emotion, variant = 0, mouthOpen = 0) => createAikoSVG(emotion, variant, mouthOpen)
-  },
-  {
-    id: 'default-ren',
-    name: 'Ren',
-    tagline: 'Chroniqueur Tech & Critique Manga',
-    isDefault: true,
-    emotions: renEmotions,
-    getSvgWithMouth: (emotion, variant = 0, mouthOpen = 0) => createRenSVG(emotion, variant, mouthOpen)
-  }
-];
+export const DEFAULT_MASCOTS = [];

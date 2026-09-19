@@ -232,11 +232,37 @@ export class CanvasRenderer {
       }
     }
 
-    // Ancrage stable au bas du canevas
+    // Récupération des réglages personnalisés de la mascotte (transform)
+    const transform = this.currentMascot.transform || {};
+    const scale = (transform.scale !== undefined ? transform.scale : 100) / 100;
+    const offsetX = (transform.offsetX !== undefined ? transform.offsetX : 0);
+    const offsetY = (transform.offsetY !== undefined ? transform.offsetY : 0);
+
+    const finalWidth = targetWidth * scale;
+    const finalHeight = targetHeight * scale;
+
+    // Ancrage au bas du canevas avec application des décalages personnalisés
     const posX = (width - targetWidth) / 2;
     const posY = height - targetHeight;
 
-    // 5. Rendu brut instantané (Anime Cut direct)
-    ctx.drawImage(imgToDraw, posX, posY, targetWidth, targetHeight);
+    const finalPosX = posX + (targetWidth - finalWidth) / 2 + offsetX;
+    const finalPosY = posY + (targetHeight - finalHeight) + offsetY;
+
+    // Filtres colorimétriques personnalisés (luminosité, contraste, teinte, saturation)
+    const b = transform.brightness !== undefined ? transform.brightness : 100;
+    const c = transform.contrast !== undefined ? transform.contrast : 100;
+    const h = transform.hue !== undefined ? transform.hue : 0;
+    const s = transform.saturation !== undefined ? transform.saturation : 100;
+
+    ctx.save();
+
+    if (b !== 100 || c !== 100 || h !== 0 || s !== 100) {
+      ctx.filter = `brightness(${b}%) contrast(${c}%) hue-rotate(${h}deg) saturate(${s}%)`;
+    }
+
+    // 5. Rendu brut instantané (Anime Cut direct) avec cadrage et colorimétrie personnalisés
+    ctx.drawImage(imgToDraw, finalPosX, finalPosY, finalWidth, finalHeight);
+
+    ctx.restore();
   }
 }

@@ -599,6 +599,111 @@
   </div>
 
   <!-- ========================================================================
+       MODALE : RÉGLAGE DE LA MASCOTTE (POSITION, ZOOM & TEINTE)
+       ======================================================================== -->
+  <div id="modal-mascot-tune" class="modal-backdrop">
+    <div class="modal-card" style="max-width: 680px;">
+      <div class="modal-header">
+        <h3 class="modal-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+          Réglages de la Mascotte : <span id="tune-mascot-name" style="color: var(--gold-bright); margin-left: 6px;">Mascotte</span>
+        </h3>
+        <button id="modal-tune-close-btn" class="modal-close">&times;</button>
+      </div>
+
+      <div class="tune-modal-body">
+        <!-- Prévisualisation en direct -->
+        <div class="tune-preview-column">
+          <div class="tune-preview-box">
+            <img id="tune-preview-img" src="" alt="Aperçu mascotte" class="tune-preview-img">
+          </div>
+          <span style="font-size: 0.75rem; color: var(--text-muted); text-align: center; margin-top: 6px;">
+            Aperçu en direct
+          </span>
+        </div>
+
+        <!-- Sliders de réglages -->
+        <div class="tune-controls-column">
+          <div class="tune-section-title">📐 Cadrage &amp; Position</div>
+          <div class="tune-control-group">
+            <div class="tune-control-header">
+              <label for="tune-scale">Taille / Zoom</label>
+              <span id="val-tune-scale" class="tune-val-badge">100%</span>
+            </div>
+            <input type="range" id="tune-scale" min="50" max="180" value="100" class="form-range">
+          </div>
+
+          <div class="tune-control-group">
+            <div class="tune-control-header">
+              <label for="tune-offset-x">Position Horizontale (X)</label>
+              <span id="val-tune-offset-x" class="tune-val-badge">0 px</span>
+            </div>
+            <input type="range" id="tune-offset-x" min="-300" max="300" value="0" class="form-range">
+          </div>
+
+          <div class="tune-control-group">
+            <div class="tune-control-header">
+              <label for="tune-offset-y">Position Verticale (Y)</label>
+              <span id="val-tune-offset-y" class="tune-val-badge">0 px</span>
+            </div>
+            <input type="range" id="tune-offset-y" min="-300" max="300" value="0" class="form-range">
+          </div>
+
+          <div class="tune-section-title" style="margin-top: 14px;">🎨 Teinte &amp; Colorimétrie</div>
+          <div class="tune-control-group">
+            <div class="tune-control-header">
+              <label for="tune-brightness">Luminosité</label>
+              <span id="val-tune-brightness" class="tune-val-badge">100%</span>
+            </div>
+            <input type="range" id="tune-brightness" min="50" max="180" value="100" class="form-range">
+          </div>
+
+          <div class="tune-control-group">
+            <div class="tune-control-header">
+              <label for="tune-contrast">Contraste</label>
+              <span id="val-tune-contrast" class="tune-val-badge">100%</span>
+            </div>
+            <input type="range" id="tune-contrast" min="50" max="180" value="100" class="form-range">
+          </div>
+
+          <div class="tune-control-group">
+            <div class="tune-control-header">
+              <label for="tune-hue">Teinte (Hue)</label>
+              <span id="val-tune-hue" class="tune-val-badge">0°</span>
+            </div>
+            <input type="range" id="tune-hue" min="-180" max="180" value="0" class="form-range">
+          </div>
+
+          <div class="tune-control-group">
+            <div class="tune-control-header">
+              <label for="tune-saturation">Saturation</label>
+              <span id="val-tune-saturation" class="tune-val-badge">100%</span>
+            </div>
+            <input type="range" id="tune-saturation" min="0" max="200" value="100" class="form-range">
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px;">
+        <button type="button" id="btn-tune-reset" class="btn btn-secondary btn-sm">
+          🔄 Réinitialiser
+        </button>
+        <div style="display: flex; gap: 10px;">
+          <button type="button" id="btn-tune-cancel" class="btn btn-secondary">
+            Annuler
+          </button>
+          <button type="button" id="btn-tune-save" class="btn btn-gold">
+            💾 Enregistrer les Réglages
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
        MODALE : EXPORTATION VIDÉO TRANSPARENTE
        ======================================================================== -->
   <div id="modal-export" class="modal-backdrop">
@@ -630,6 +735,6 @@
   </div>
 
   <!-- Point d'Entrée JavaScript (Modules ES6) avec cache-busting -->
-  <script type="module" src="./js/app.js?v=1.2.0"></script>
+  <script type="module" src="./js/app.js?v=1.3.0"></script>
 </body>
 </html>

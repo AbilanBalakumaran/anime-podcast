@@ -105,9 +105,16 @@ class AnimePodcastApp {
 
     // Canvas Renderer
     this.canvasRenderer = new CanvasRenderer(this.audioManager, this.speechAnalyzer);
-    await this.canvasRenderer.setMascot(this.mascotManager.getActiveMascot());
+    const activeMascot = this.mascotManager.getActiveMascot();
+    if (activeMascot) {
+      await this.canvasRenderer.setMascot(activeMascot);
+    }
 
-    this.updateSplashProgress(90, 'Configuration du moteur d\'export vidéo transparent...');
+    this.updateSplashProgress(85, 'Préparation de la piste audio par défaut...');
+    this.populateTtsVoices();
+    await this.prepareDefaultAudio();
+
+    this.updateSplashProgress(95, 'Configuration du moteur d\'export vidéo transparent...');
 
     // Video Exporter
     this.videoExporter = new VideoExporter(this.canvasRenderer, this.audioManager);
@@ -116,7 +123,6 @@ class AnimePodcastApp {
     this.setupNavigation();
     this.setupSettingsPage();
     this.setupHistoryPage();
-    this.populateTtsVoices();
 
     // Bind Logger
     const logsConsole = document.getElementById('logs-console');
@@ -131,6 +137,30 @@ class AnimePodcastApp {
     }, 800);
 
     console.log('[App] Anime Podcast Studio initialisé avec succès.');
+  }
+
+  /**
+   * Préparation automatique de l'audio par défaut au lancement
+   * L'utilisateur n'a plus besoin de cliquer manuellement sur "Générer la Voix"
+   */
+  async prepareDefaultAudio() {
+    const defaultText = "Bonjour à tous et bienvenue dans ce nouvel épisode d'Anime Podcast ! Aujourd'hui, nous explorons le secret de l'animation japonaise et des mascottes expressives. Avez-vous remarqué comment les transitions de poses rendent un discours captivant ? C'est absolument incroyable et immersif ! Merci d'avoir partagé ce moment avec nous, et à très bientôt pour le prochain épisode !";
+
+    if (this.textareaTts) {
+      this.textareaTts.value = defaultText;
+    }
+
+    try {
+      const voiceIdx = parseInt(this.selectVoice ? this.selectVoice.value : 0, 10) || 0;
+      const rate = parseFloat(this.sliderRate ? this.sliderRate.value : 1.0) || 1.0;
+      const pitch = parseFloat(this.sliderPitch ? this.sliderPitch.value : 1.0) || 1.0;
+
+      const result = await this.audioManager.synthesizeSpeech(defaultText, voiceIdx, rate, pitch);
+      this.speechAnalyzer.analyzeAudioBuffer(result.buffer, result.sentences);
+      console.log('[App] Audio par défaut prêt et disponible immédiatement.');
+    } catch (err) {
+      console.warn('[App] Préparation automatique de l\'audio différée:', err);
+    }
   }
 
   updateSplashProgress(percent, statusText) {

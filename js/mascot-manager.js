@@ -41,6 +41,33 @@ export class MascotManager {
     this.btnAddCustomEmotion = document.getElementById('btn-add-custom-emotion');
     this.inputCustomEmotionName = document.getElementById('input-custom-emotion-name');
 
+    // Éléments de la modale de réglage (Position & Teinte)
+    this.modalTune = document.getElementById('modal-mascot-tune');
+    this.modalTuneClose = document.getElementById('modal-tune-close-btn');
+    this.btnTuneCancel = document.getElementById('btn-tune-cancel');
+    this.btnTuneSave = document.getElementById('btn-tune-save');
+    this.btnTuneReset = document.getElementById('btn-tune-reset');
+    this.tuneMascotName = document.getElementById('tune-mascot-name');
+    this.tunePreviewImg = document.getElementById('tune-preview-img');
+
+    // Sliders de réglage
+    this.tuneScale = document.getElementById('tune-scale');
+    this.tuneOffsetX = document.getElementById('tune-offset-x');
+    this.tuneOffsetY = document.getElementById('tune-offset-y');
+    this.tuneBrightness = document.getElementById('tune-brightness');
+    this.tuneContrast = document.getElementById('tune-contrast');
+    this.tuneHue = document.getElementById('tune-hue');
+    this.tuneSaturation = document.getElementById('tune-saturation');
+
+    // Badges de valeur
+    this.valTuneScale = document.getElementById('val-tune-scale');
+    this.valTuneOffsetX = document.getElementById('val-tune-offset-x');
+    this.valTuneOffsetY = document.getElementById('val-tune-offset-y');
+    this.valTuneBrightness = document.getElementById('val-tune-brightness');
+    this.valTuneContrast = document.getElementById('val-tune-contrast');
+    this.valTuneHue = document.getElementById('val-tune-hue');
+    this.valTuneSaturation = document.getElementById('val-tune-saturation');
+
     // Liste des fichiers importés en vrac pour revue
     // Array<{ id, name, dataUrl, assignedEmotion }>
     this.bulkUploadedFiles = [];
@@ -55,12 +82,18 @@ export class MascotManager {
     this.renderFullGrid();
     this.renderEmotionPills();
     this.setupModalEvents();
+    this.setupTuneModalEvents();
   }
 
   async loadMascotsFromDB() {
     try {
       const customMascots = await dbManager.getAllMascots();
       this.mascots = [...DEFAULT_MASCOTS, ...customMascots];
+      if (!this.activeMascot && this.mascots.length > 0) {
+        this.activeMascot = this.mascots[0];
+      } else if (this.activeMascot && !this.mascots.some(m => m.id === this.activeMascot.id)) {
+        this.activeMascot = this.mascots[0] || null;
+      }
     } catch (err) {
       console.warn('[MascotManager] Impossible de charger les mascottes depuis IndexedDB:', err);
     }
@@ -171,9 +204,26 @@ export class MascotManager {
     if (!this.pickerContainer) return;
     this.pickerContainer.innerHTML = '';
 
+    if (this.mascots.length === 0) {
+      const emptyCard = document.createElement('div');
+      emptyCard.className = 'mascot-card';
+      emptyCard.style.cursor = 'pointer';
+      emptyCard.style.border = '1px dashed var(--border-gold)';
+      emptyCard.style.textAlign = 'center';
+      emptyCard.style.padding = '18px 10px';
+      emptyCard.innerHTML = `
+        <div style="font-size: 1.8rem; margin-bottom: 6px;">➕</div>
+        <div style="font-weight: 700; font-size: 0.85rem; color: var(--gold-primary);">Ajouter une Mascotte</div>
+        <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;">Importer des poses</div>
+      `;
+      emptyCard.addEventListener('click', () => this.openModal());
+      this.pickerContainer.appendChild(emptyCard);
+      return;
+    }
+
     this.mascots.forEach(mascot => {
       const card = document.createElement('div');
-      card.className = `mascot-card ${mascot.id === this.activeMascot.id ? 'selected' : ''}`;
+      card.className = `mascot-card ${this.activeMascot && mascot.id === this.activeMascot.id ? 'selected' : ''}`;
       card.dataset.id = mascot.id;
 
       const thumbnailBox = document.createElement('div');
@@ -208,7 +258,7 @@ export class MascotManager {
       card.appendChild(nameEl);
       card.appendChild(statsEl);
 
-      if (mascot.id === this.activeMascot.id) {
+      if (this.activeMascot && mascot.id === this.activeMascot.id) {
         const badge = document.createElement('div');
         badge.className = 'mascot-badge';
         card.appendChild(badge);
@@ -243,10 +293,29 @@ export class MascotManager {
     if (!this.fullGridContainer) return;
     this.fullGridContainer.innerHTML = '';
 
+    if (this.mascots.length === 0) {
+      this.fullGridContainer.innerHTML = `
+        <div class="empty-state" style="grid-column: 1 / -1; padding: 40px 20px; text-align: center;">
+          <div style="font-size: 3rem; margin-bottom: 12px;">🎭</div>
+          <h3 style="color: var(--text-white); margin-bottom: 8px;">Aucune mascotte enregistrée</h3>
+          <p style="color: var(--text-muted); font-size: 0.85rem; max-width: 420px; margin: 0 auto 18px;">
+            Importez vos images de personnage (PNG transparents ou SVG) en vrac pour commencer.
+          </p>
+          <button type="button" class="btn btn-gold" id="btn-grid-new-mascot">
+            + Nouvelle Mascotte
+          </button>
+        </div>
+      `;
+      const btnNew = document.getElementById('btn-grid-new-mascot');
+      if (btnNew) btnNew.addEventListener('click', () => this.openModal());
+      return;
+    }
+
     this.mascots.forEach(mascot => {
       const card = document.createElement('div');
-      card.className = `mascot-full-card ${mascot.id === this.activeMascot.id ? 'selected' : ''}`;
+      card.className = `mascot-full-card ${this.activeMascot && mascot.id === this.activeMascot.id ? 'selected' : ''}`;
       card.dataset.id = mascot.id;
+      card.style.cursor = 'pointer';
 
       const thumb = document.createElement('div');
       thumb.className = 'mascot-full-thumb';
@@ -286,9 +355,22 @@ export class MascotManager {
       statsEl.appendChild(emoBadge);
       statsEl.appendChild(posesBadge);
 
+      const btnTune = document.createElement('button');
+      btnTune.type = 'button';
+      btnTune.className = 'btn btn-outline-gold btn-sm';
+      btnTune.style.marginTop = '10px';
+      btnTune.style.width = '100%';
+      btnTune.innerHTML = '⚙️ Régler Position &amp; Teinte';
+      btnTune.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.setActiveMascot(mascot.id);
+        this.openTuneModal(mascot);
+      });
+
       card.appendChild(thumb);
       card.appendChild(nameEl);
       card.appendChild(statsEl);
+      card.appendChild(btnTune);
 
       if (mascot.isDefault) {
         const defaultBadge = document.createElement('span');
@@ -311,6 +393,7 @@ export class MascotManager {
 
       card.addEventListener('click', () => {
         this.setActiveMascot(mascot.id);
+        this.openTuneModal(mascot);
       });
 
       this.fullGridContainer.appendChild(card);
@@ -320,6 +403,8 @@ export class MascotManager {
   renderEmotionPills() {
     if (!this.emotionsContainer) return;
     this.emotionsContainer.innerHTML = '';
+
+    if (!this.activeMascot) return;
 
     const availableEmotions = this.getAllEmotionsForMascot(this.activeMascot);
 
@@ -350,6 +435,161 @@ export class MascotManager {
 
       this.emotionsContainer.appendChild(pill);
     });
+  }
+
+  setupTuneModalEvents() {
+    if (this.modalTuneClose) {
+      this.modalTuneClose.addEventListener('click', () => this.closeTuneModal());
+    }
+    if (this.btnTuneCancel) {
+      this.btnTuneCancel.addEventListener('click', () => this.closeTuneModal());
+    }
+    if (this.modalTune) {
+      this.modalTune.addEventListener('click', (e) => {
+        if (e.target === this.modalTune) this.closeTuneModal();
+      });
+    }
+
+    const sliders = [
+      { input: this.tuneScale, badge: this.valTuneScale, unit: '%', key: 'scale' },
+      { input: this.tuneOffsetX, badge: this.valTuneOffsetX, unit: ' px', key: 'offsetX' },
+      { input: this.tuneOffsetY, badge: this.valTuneOffsetY, unit: ' px', key: 'offsetY' },
+      { input: this.tuneBrightness, badge: this.valTuneBrightness, unit: '%', key: 'brightness' },
+      { input: this.tuneContrast, badge: this.valTuneContrast, unit: '%', key: 'contrast' },
+      { input: this.tuneHue, badge: this.valTuneHue, unit: '°', key: 'hue' },
+      { input: this.tuneSaturation, badge: this.valTuneSaturation, unit: '%', key: 'saturation' }
+    ];
+
+    const applyLiveTune = () => {
+      if (!this.activeMascot) return;
+
+      const scale = parseFloat(this.tuneScale ? this.tuneScale.value : 100);
+      const offsetX = parseFloat(this.tuneOffsetX ? this.tuneOffsetX.value : 0);
+      const offsetY = parseFloat(this.tuneOffsetY ? this.tuneOffsetY.value : 0);
+      const brightness = parseFloat(this.tuneBrightness ? this.tuneBrightness.value : 100);
+      const contrast = parseFloat(this.tuneContrast ? this.tuneContrast.value : 100);
+      const hue = parseFloat(this.tuneHue ? this.tuneHue.value : 0);
+      const saturation = parseFloat(this.tuneSaturation ? this.tuneSaturation.value : 100);
+
+      this.activeMascot.transform = {
+        scale,
+        offsetX,
+        offsetY,
+        brightness,
+        contrast,
+        hue,
+        saturation
+      };
+
+      // Mettre à jour l'aperçu dans la modale
+      if (this.tunePreviewImg) {
+        this.tunePreviewImg.style.transform = `scale(${scale / 100}) translate(${offsetX / 2}px, ${offsetY / 2}px)`;
+        this.tunePreviewImg.style.filter = `brightness(${brightness}%) contrast(${contrast}%) hue-rotate(${hue}deg) saturate(${saturation}%)`;
+      }
+
+      // Mettre à jour en direct le canevas principal
+      if (this.onMascotChange) {
+        this.onMascotChange(this.activeMascot, this.activeEmotion, this.activeVariantIndex);
+      }
+    };
+
+    sliders.forEach(s => {
+      if (s.input) {
+        s.input.addEventListener('input', () => {
+          if (s.badge) s.badge.textContent = `${s.input.value}${s.unit}`;
+          applyLiveTune();
+        });
+      }
+    });
+
+    // Bouton Réinitialiser
+    if (this.btnTuneReset) {
+      this.btnTuneReset.addEventListener('click', () => {
+        if (this.tuneScale) this.tuneScale.value = 100;
+        if (this.tuneOffsetX) this.tuneOffsetX.value = 0;
+        if (this.tuneOffsetY) this.tuneOffsetY.value = 0;
+        if (this.tuneBrightness) this.tuneBrightness.value = 100;
+        if (this.tuneContrast) this.tuneContrast.value = 100;
+        if (this.tuneHue) this.tuneHue.value = 0;
+        if (this.tuneSaturation) this.tuneSaturation.value = 100;
+
+        if (this.valTuneScale) this.valTuneScale.textContent = '100%';
+        if (this.valTuneOffsetX) this.valTuneOffsetX.textContent = '0 px';
+        if (this.valTuneOffsetY) this.valTuneOffsetY.textContent = '0 px';
+        if (this.valTuneBrightness) this.valTuneBrightness.textContent = '100%';
+        if (this.valTuneContrast) this.valTuneContrast.textContent = '100%';
+        if (this.valTuneHue) this.valTuneHue.textContent = '0°';
+        if (this.valTuneSaturation) this.valTuneSaturation.textContent = '100%';
+
+        applyLiveTune();
+      });
+    }
+
+    // Bouton Enregistrer
+    if (this.btnTuneSave) {
+      this.btnTuneSave.addEventListener('click', async () => {
+        if (!this.activeMascot) return;
+        try {
+          await dbManager.saveMascot(this.activeMascot);
+          this.closeTuneModal();
+          alert(`Réglages de position et de teinte enregistrés pour "${this.activeMascot.name}" !`);
+        } catch (err) {
+          console.error('[MascotManager] Erreur sauvegarde réglages:', err);
+          alert('Erreur lors de l\'enregistrement des réglages.');
+        }
+      });
+    }
+  }
+
+  openTuneModal(mascot) {
+    if (!this.modalTune || !mascot) return;
+    this.activeMascot = mascot;
+
+    if (this.tuneMascotName) {
+      this.tuneMascotName.textContent = mascot.name;
+    }
+
+    const t = mascot.transform || {};
+    const scale = t.scale !== undefined ? t.scale : 100;
+    const offsetX = t.offsetX !== undefined ? t.offsetX : 0;
+    const offsetY = t.offsetY !== undefined ? t.offsetY : 0;
+    const brightness = t.brightness !== undefined ? t.brightness : 100;
+    const contrast = t.contrast !== undefined ? t.contrast : 100;
+    const hue = t.hue !== undefined ? t.hue : 0;
+    const saturation = t.saturation !== undefined ? t.saturation : 100;
+
+    if (this.tuneScale) this.tuneScale.value = scale;
+    if (this.tuneOffsetX) this.tuneOffsetX.value = offsetX;
+    if (this.tuneOffsetY) this.tuneOffsetY.value = offsetY;
+    if (this.tuneBrightness) this.tuneBrightness.value = brightness;
+    if (this.tuneContrast) this.tuneContrast.value = contrast;
+    if (this.tuneHue) this.tuneHue.value = hue;
+    if (this.tuneSaturation) this.tuneSaturation.value = saturation;
+
+    if (this.valTuneScale) this.valTuneScale.textContent = `${scale}%`;
+    if (this.valTuneOffsetX) this.valTuneOffsetX.textContent = `${offsetX} px`;
+    if (this.valTuneOffsetY) this.valTuneOffsetY.textContent = `${offsetY} px`;
+    if (this.valTuneBrightness) this.valTuneBrightness.textContent = `${brightness}%`;
+    if (this.valTuneContrast) this.valTuneContrast.textContent = `${contrast}%`;
+    if (this.valTuneHue) this.valTuneHue.textContent = `${hue}°`;
+    if (this.valTuneSaturation) this.valTuneSaturation.textContent = `${saturation}%`;
+
+    // Image de prévisualisation
+    const neutralPoses = this.getPosesForEmotion(mascot, 'neutre');
+    const firstPose = neutralPoses[0] || (Object.values(mascot.emotions || {})[0] || [])[0] || '';
+    if (this.tunePreviewImg) {
+      this.tunePreviewImg.src = firstPose;
+      this.tunePreviewImg.style.transform = `scale(${scale / 100}) translate(${offsetX / 2}px, ${offsetY / 2}px)`;
+      this.tunePreviewImg.style.filter = `brightness(${brightness}%) contrast(${contrast}%) hue-rotate(${hue}deg) saturate(${saturation}%)`;
+    }
+
+    this.modalTune.classList.add('open');
+  }
+
+  closeTuneModal() {
+    if (this.modalTune) {
+      this.modalTune.classList.remove('open');
+    }
   }
 
   setupModalEvents() {

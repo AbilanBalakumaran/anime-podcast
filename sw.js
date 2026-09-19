@@ -1,4 +1,4 @@
-const CACHE_NAME = 'anime-podcast-v1.2.0';
+const CACHE_NAME = 'anime-podcast-v1.3.0';
 
 const ASSETS_TO_CACHE = [
   './',
