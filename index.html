@@ -500,14 +500,10 @@
            PAGE 1B : SUJETS VIDÉO (Génération automatique 5-10 min en un clic)
            ================================================================ -->
       <div class="crm-page" id="page-topics">
-        <div class="page-header">
-          <p class="page-subtitle">Sélectionnez votre prochain sujet à aborder.</p>
-        </div>
-
         <!-- VUE LISTE -->
         <div id="topics-list-view">
-          <div class="topics-toolbar">
-            <button type="button" id="btn-refresh-topics" class="btn btn-outline-gold btn-sm">
+          <div class="action-header-stack">
+            <button type="button" id="btn-refresh-topics" class="btn btn-gold btn-sm">
               <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="23 4 23 10 17 10"></polyline>
                 <polyline points="1 20 1 14 7 14"></polyline>
@@ -515,6 +511,7 @@
               </svg>
               Rafraîchir les tendances
             </button>
+            <p class="page-subtitle">Sélectionnez votre prochain sujet à aborder.</p>
           </div>
 
           <div id="topics-grid" class="topics-db-list">
@@ -555,15 +552,15 @@
            PAGE 3 : HISTORIQUE (Journal des exports vidéo)
            ================================================================ -->
       <div class="crm-page" id="page-history">
-        <div class="page-header">
-          <p class="page-subtitle">Journal de vos vidéos exportées.</p>
-          <button id="btn-clear-history" class="btn btn-secondary btn-sm">
+        <div class="action-header-stack">
+          <button id="btn-clear-history" class="btn btn-gold btn-sm">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
               <polyline points="3 6 5 6 21 6"></polyline>
               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
             </svg>
             Vider l'historique
           </button>
+          <p class="page-subtitle">Journal de vos vidéos exportées.</p>
         </div>
 
         <div id="history-list" class="history-list">
@@ -582,115 +579,115 @@
            PAGE 4 : PARAMÈTRES (Voix off, Logs & Debug)
            ================================================================ -->
       <div class="crm-page" id="page-settings">
-        <div class="page-header">
-          <p class="page-subtitle">Mascottes, voix off et logs de l'application.</p>
-        </div>
 
-        <nav class="settings-subnav">
-          <button type="button" class="settings-subnav-item active" data-settings-tab="mascots">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="8" r="5"></circle>
-              <path d="M20 21a8 8 0 1 0-16 0"></path>
-            </svg>
-            Mascottes
-          </button>
-          <button type="button" class="settings-subnav-item" data-settings-tab="voice">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
-            </svg>
-            Voix Off
-          </button>
-          <button type="button" class="settings-subnav-item" data-settings-tab="logs">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="4 17 10 11 4 5"></polyline>
-              <line x1="12" y1="19" x2="20" y2="19"></line>
-            </svg>
-            Logs &amp; Debug
-          </button>
-        </nav>
-
-        <!-- Widget Mascottes -->
-        <section class="studio-card settings-tab-panel" data-settings-panel="mascots">
-          <div class="card-header">
-            <h2 class="card-title">
+        <!-- MENU (seul affiché à l'arrivée sur Paramètres) -->
+        <div id="settings-menu-view">
+          <nav class="settings-menu-list">
+            <button type="button" class="settings-menu-item" data-settings-tab="mascots">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="8" r="5"></circle>
                 <path d="M20 21a8 8 0 1 0-16 0"></path>
               </svg>
               Mascottes
-            </h2>
-            <button id="btn-new-mascot" class="btn btn-gold btn-sm">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
+              <svg class="settings-menu-item-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
               </svg>
-              Nouvelle Mascotte
             </button>
-          </div>
-          <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px;">
-            Importez, organisez et gérez toutes vos mascottes et leurs émotions.
-          </p>
-          <div id="mascots-full-grid" class="mascots-full-grid">
-            <!-- Rempli dynamiquement par mascot-manager.js -->
-          </div>
-        </section>
-
-        <!-- Section Voix Off -->
-        <section class="studio-card settings-tab-panel" data-settings-panel="voice" style="display: none;">
-          <div class="card-header">
-            <h2 class="card-title">
+            <button type="button" class="settings-menu-item" data-settings-tab="voice">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
                 <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
               </svg>
-              Voix Off Anglaises (English Voices)
-            </h2>
-          </div>
-
-          <div class="form-group">
-            <label for="settings-voice-select" class="form-label">Voix de synthèse par défaut (Anglais)</label>
-            <select id="settings-voice-select" class="form-select"></select>
-          </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
-            <div class="form-group" style="margin-bottom: 0;">
-              <label for="settings-voice-rate" class="form-label">Vitesse de diction</label>
-              <input type="range" id="settings-voice-rate" min="0.7" max="1.5" step="0.05" value="1.0" style="accent-color: var(--gold-primary);">
-            </div>
-            <div class="form-group" style="margin-bottom: 0;">
-              <label for="settings-voice-pitch" class="form-label">Tonalité vocale</label>
-              <input type="range" id="settings-voice-pitch" min="0.7" max="1.4" step="0.05" value="1.0" style="accent-color: var(--gold-primary);">
-            </div>
-          </div>
-
-          <button id="btn-test-voice" class="btn btn-outline-gold btn-sm" style="width: 100%;">
-            🔊 Tester la voix sélectionnée
-          </button>
-        </section>
-
-        <!-- Section Logs & Debug -->
-        <section class="studio-card settings-tab-panel" data-settings-panel="logs" style="display: none;">
-          <div class="card-header">
-            <h2 class="card-title">
+              Voix Off
+              <svg class="settings-menu-item-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+            <button type="button" class="settings-menu-item" data-settings-tab="logs">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="4 17 10 11 4 5"></polyline>
                 <line x1="12" y1="19" x2="20" y2="19"></line>
               </svg>
-              Console de Logs &amp; Debug
-            </h2>
-            <div style="display:flex; gap:8px;">
-              <button id="btn-copy-logs" class="btn btn-outline-gold btn-sm">📋 Copier</button>
-              <button id="btn-clear-logs" class="btn btn-secondary btn-sm">Effacer</button>
+              Logs &amp; Debug
+              <svg class="settings-menu-item-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+          </nav>
+        </div>
+
+        <!-- VUE DÉTAIL (une seule section, atteinte en cliquant sur le menu) -->
+        <div id="settings-detail-view" style="display: none;">
+          <div class="action-header-stack">
+            <button type="button" id="btn-settings-detail-back" class="btn btn-gold btn-sm">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+              Retour
+            </button>
+            <h2 class="topic-detail-title" id="settings-detail-title">Mascottes</h2>
+          </div>
+
+          <!-- Widget Mascottes -->
+          <section class="studio-card settings-tab-panel" data-settings-panel="mascots">
+            <div class="card-header">
+              <h2 class="card-title">Mes mascottes</h2>
+              <button id="btn-new-mascot" class="btn btn-gold btn-sm">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Nouvelle Mascotte
+              </button>
             </div>
-          </div>
-          <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px;">
-            Les logs en temps réel de l'application. Copiez-les pour signaler un bug.
-          </p>
-          <div id="logs-console" class="logs-console">
-            <div class="log-entry log-info">[INFO] Console de logs prête.</div>
-          </div>
-        </section>
+            <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px;">
+              Importez, organisez et gérez toutes vos mascottes et leurs émotions.
+            </p>
+            <div id="mascots-full-grid" class="mascots-full-grid">
+              <!-- Rempli dynamiquement par mascot-manager.js -->
+            </div>
+          </section>
+
+          <!-- Section Voix Off -->
+          <section class="studio-card settings-tab-panel" data-settings-panel="voice" style="display: none;">
+            <div class="form-group">
+              <label for="settings-voice-select" class="form-label">Voix de synthèse par défaut (Anglais)</label>
+              <select id="settings-voice-select" class="form-select"></select>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label for="settings-voice-rate" class="form-label">Vitesse de diction</label>
+                <input type="range" id="settings-voice-rate" min="0.7" max="1.5" step="0.05" value="1.0" style="accent-color: var(--gold-primary);">
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label for="settings-voice-pitch" class="form-label">Tonalité vocale</label>
+                <input type="range" id="settings-voice-pitch" min="0.7" max="1.4" step="0.05" value="1.0" style="accent-color: var(--gold-primary);">
+              </div>
+            </div>
+
+            <button id="btn-test-voice" class="btn btn-outline-gold btn-sm" style="width: 100%;">
+              🔊 Tester la voix sélectionnée
+            </button>
+          </section>
+
+          <!-- Section Logs & Debug -->
+          <section class="studio-card settings-tab-panel" data-settings-panel="logs" style="display: none;">
+            <div class="card-header">
+              <h2 class="card-title">Journal</h2>
+              <div style="display:flex; gap:8px;">
+                <button id="btn-copy-logs" class="btn btn-outline-gold btn-sm">📋 Copier</button>
+                <button id="btn-clear-logs" class="btn btn-secondary btn-sm">Effacer</button>
+              </div>
+            </div>
+            <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px;">
+              Les logs en temps réel de l'application. Copiez-les pour signaler un bug.
+            </p>
+            <div id="logs-console" class="logs-console">
+              <div class="log-entry log-info">[INFO] Console de logs prête.</div>
+            </div>
+          </section>
+        </div>
       </div>
 
       <!-- Pied de page -->

@@ -248,6 +248,7 @@ class AnimePodcastApp {
     } else if (pageId === 'page-history') {
       this.renderHistoryPage();
     } else if (pageId === 'page-settings') {
+      this.resetSettingsToMenu();
       this.populateSettingsVoices();
       this.mascotManager.renderFullGrid();
     }
@@ -288,18 +289,30 @@ class AnimePodcastApp {
   // ==================== PARAMÈTRES ====================
 
   setupSettingsPage() {
-    // Sous-menu Paramètres (Mascottes / Voix Off / Logs & Debug)
-    const subnavItems = document.querySelectorAll('.settings-subnav-item');
+    // Menu Paramètres (Mascottes / Voix Off / Logs & Debug) : rien n'est
+    // affiché tant qu'on n'a pas cliqué sur une entrée du menu.
+    const SETTINGS_TAB_LABELS = { mascots: 'Mascottes', voice: 'Voix Off', logs: 'Logs & Debug' };
+    const menuItems = document.querySelectorAll('.settings-menu-item');
     const tabPanels = document.querySelectorAll('.settings-tab-panel');
-    subnavItems.forEach((item) => {
+    const settingsMenuView = document.getElementById('settings-menu-view');
+    const settingsDetailView = document.getElementById('settings-detail-view');
+    const settingsDetailTitle = document.getElementById('settings-detail-title');
+    const btnSettingsDetailBack = document.getElementById('btn-settings-detail-back');
+
+    menuItems.forEach((item) => {
       item.addEventListener('click', () => {
         const tab = item.dataset.settingsTab;
-        subnavItems.forEach(i => i.classList.toggle('active', i === item));
         tabPanels.forEach(panel => {
           panel.style.display = panel.dataset.settingsPanel === tab ? 'block' : 'none';
         });
+        if (settingsDetailTitle) settingsDetailTitle.textContent = SETTINGS_TAB_LABELS[tab] || '';
+        if (settingsMenuView) settingsMenuView.style.display = 'none';
+        if (settingsDetailView) settingsDetailView.style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       });
     });
+
+    btnSettingsDetailBack?.addEventListener('click', () => this.resetSettingsToMenu());
 
     // Boutons Logs
     const btnCopyLogs = document.getElementById('btn-copy-logs');
@@ -357,6 +370,13 @@ class AnimePodcastApp {
         }
       });
     }
+  }
+
+  resetSettingsToMenu() {
+    const settingsMenuView = document.getElementById('settings-menu-view');
+    const settingsDetailView = document.getElementById('settings-detail-view');
+    if (settingsDetailView) settingsDetailView.style.display = 'none';
+    if (settingsMenuView) settingsMenuView.style.display = 'block';
   }
 
   populateSettingsVoices() {

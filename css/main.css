@@ -675,45 +675,50 @@ input, textarea, select, button {
 }
 
 /* ==========================================================================
-   PARAMÈTRES - SOUS-MENU (onglets remplaçant les widgets empilés)
+   PARAMÈTRES - MENU DE NAVIGATION (Mascottes / Voix Off / Logs & Debug)
+   Rien n'est affiché tant qu'on n'a pas cliqué sur une entrée du menu.
    ========================================================================== */
-.settings-subnav {
+.settings-menu-list {
   display: flex;
+  flex-direction: column;
   gap: 8px;
-  padding: 16px 24px 20px;
-  flex-wrap: wrap;
+  padding: 20px 24px 24px;
 }
 
-.settings-subnav-item {
-  display: inline-flex;
+.settings-menu-item {
+  display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   background-color: var(--bg-card);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-full);
-  padding: 8px 16px;
-  font-size: 0.82rem;
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  font-size: 0.9rem;
   font-weight: 700;
-  color: var(--text-muted);
+  color: var(--text-white);
   cursor: pointer;
   transition: all var(--transition-fast);
+  text-align: left;
 }
 
-.settings-subnav-item svg {
-  width: 14px;
-  height: 14px;
+.settings-menu-item svg:first-child {
+  width: 18px;
+  height: 18px;
   flex-shrink: 0;
-}
-
-.settings-subnav-item:hover {
-  border-color: var(--border-gold);
-  color: var(--text-white);
-}
-
-.settings-subnav-item.active {
-  background: var(--gold-subtle);
-  border-color: var(--border-gold);
   color: var(--gold-primary);
+}
+
+.settings-menu-item:hover {
+  border-color: var(--border-gold);
+  box-shadow: var(--shadow-card);
+}
+
+.settings-menu-item-chevron {
+  margin-left: auto;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--text-dim);
 }
 
 
@@ -813,12 +818,6 @@ input, textarea, select, button {
 /* ==========================================================================
    PAGE SUJETS VIDÉO - Liste dynamique type "base de données"
    ========================================================================== */
-.topics-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 0 24px 12px;
-}
 
 .topics-db-list {
   display: flex;
@@ -906,14 +905,36 @@ input, textarea, select, button {
 }
 
 /* ==========================================================================
+   EN-TÊTE D'ACTION RÉUTILISABLE : un bouton (jaune) au-dessus d'un texte,
+   jamais collés l'un à l'autre. Utilisé par Sujets Vidéo, Historique,
+   Paramètres (bouton Retour / Rafraîchir / Vider, etc.).
+   ========================================================================== */
+.action-header-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 20px 24px 16px;
+}
+
+.action-header-stack .btn {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.action-header-stack .page-subtitle {
+  margin: 0;
+}
+
+/* ==========================================================================
    SUJETS VIDÉO - VUE DÉTAIL PLEINE PAGE (remplace l'ancienne modale d'aperçu)
    ========================================================================== */
 .topic-detail-header {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 10px;
-  padding: 0 24px 16px;
+  gap: 16px;
+  padding: 20px 24px 16px;
 }
 
 .topic-detail-back-btn {
