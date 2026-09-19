@@ -334,11 +334,14 @@
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   padding: 10px 14px;
-  font-size: 0.9rem;
+  font-size: 16px;
   color: var(--text-white);
   outline: none;
   transition: border-color var(--transition-fast);
   font-family: inherit;
+  max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .form-input:focus,

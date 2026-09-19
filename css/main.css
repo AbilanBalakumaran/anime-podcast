@@ -82,6 +82,7 @@ html, body {
 /* Protection anti-zoom iOS : 16px minimum pour tous les champs */
 input, textarea, select, button {
   font-family: inherit;
+  font-size: 16px !important;
   touch-action: manipulation;
 }
 
@@ -319,6 +320,7 @@ input, textarea, select, button {
   justify-content: space-between;
   margin-bottom: 16px;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .card-title {
