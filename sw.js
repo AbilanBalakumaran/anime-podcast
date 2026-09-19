@@ -1,4 +1,4 @@
-const CACHE_NAME = 'autopod-v1.4.0';
+const CACHE_NAME = 'autopod-v1.4.1';
 
 const ASSETS_TO_CACHE = [
   './',
@@ -20,7 +20,8 @@ const ASSETS_TO_CACHE = [
   './js/video-exporter.js',
   './assets/icons/favicon.svg',
   './assets/icons/icon-192.svg',
-  './assets/icons/icon-512.svg'
+  './assets/icons/icon-512.svg',
+  './assets/fonts/ObelixPro.ttf'
 ];
 
 // Installation : mise en cache immédiate et forçage de l'activation

@@ -3,9 +3,18 @@
    Design System : Style AutoShort.ai & CRM Moderne
    Palette : Noir Obsidienne Mat (#09090b, #0d0d11, #141417, #18181c, #27272a)
    Accents : Jaune Cyber Électrique (#facc15, #fde047, #eab308)
-   Typographie : Plus Jakarta Sans & JetBrains Mono
+   Typographie : ObelixPro (Titres), Plus Jakarta Sans & JetBrains Mono
    Exclusion stricte : AUCUNE nuance de rose sur toute l'interface.
    ========================================================================== */
+
+/* Police manga/comic ObelixPro (identique à Sukishort / AutoAMV) */
+@font-face {
+  font-family: 'ObelixPro';
+  src: url('../assets/fonts/ObelixPro.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
 
 :root {
   /* Palette Noir Obsidienne Mat (AutoShort) */
@@ -34,6 +43,7 @@
   --emerald-subtle: rgba(16, 185, 129, 0.15);
 
   /* Typographie & Couleurs de Texte */
+  --font-display: 'ObelixPro', 'Plus Jakarta Sans', -apple-system, sans-serif;
   --font-main: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: 'JetBrains Mono', "SFMono-Regular", Consolas, Menlo, monospace;
 
@@ -132,13 +142,14 @@ input, textarea, select, button {
 }
 
 .brand-title {
-  font-size: 1.1rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  letter-spacing: 0.04em;
   color: var(--text-white);
   display: flex;
   align-items: center;
   gap: 6px;
+  text-transform: uppercase;
 }
 
 .brand-title span {
@@ -318,12 +329,12 @@ input, textarea, select, button {
 }
 
 .header-title {
-  font-family: var(--font-main);
-  font-size: 1.25rem;
-  font-weight: 800;
-  letter-spacing: -0.5px;
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  letter-spacing: 0.04em;
   color: var(--text-white);
   line-height: 1;
+  text-transform: uppercase;
 }
 
 .header-title .gold-text {

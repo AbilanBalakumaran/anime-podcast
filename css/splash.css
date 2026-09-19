@@ -87,9 +87,9 @@
 
 /* Titres */
 .splash-title {
-  font-size: 1.6rem;
-  font-weight: 800;
-  letter-spacing: 1.5px;
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  letter-spacing: 2px;
   color: var(--text-white);
   text-transform: uppercase;
 }
