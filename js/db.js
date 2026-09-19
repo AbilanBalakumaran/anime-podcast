@@ -1,11 +1,13 @@
 /**
  * IndexedDB Database Manager - Anime Podcast Studio
- * Gère le stockage persistant des mascottes avec support multi-émotions et multi-poses par émotion.
+ * Gère le stockage persistant des mascottes et de l'historique des exports.
+ * Version 3 : ajout du store 'history' pour le journal des exports vidéo.
  */
 
 const DB_NAME = 'anime_podcast_db';
-const DB_VERSION = 2; // Version 2 pour la migration vers structure multi-émotions
+const DB_VERSION = 3;
 const STORE_MASCOTS = 'mascots';
+const STORE_HISTORY = 'history';
 
 export class DBManager {
   constructor() {
@@ -25,6 +27,10 @@ export class DBManager {
           store.createIndex('name', 'name', { unique: false });
           store.createIndex('updatedAt', 'updatedAt', { unique: false });
         }
+        if (!db.objectStoreNames.contains(STORE_HISTORY)) {
+          const histStore = db.createObjectStore(STORE_HISTORY, { keyPath: 'id' });
+          histStore.createIndex('exportedAt', 'exportedAt', { unique: false });
+        }
       };
 
       request.onsuccess = (event) => {
@@ -38,6 +44,8 @@ export class DBManager {
       };
     });
   }
+
+  // ==================== MASCOTS ====================
 
   async getAllMascots() {
     const db = await this.open();
@@ -108,6 +116,55 @@ export class DBManager {
       const transaction = db.transaction(STORE_MASCOTS, 'readwrite');
       const store = transaction.objectStore(STORE_MASCOTS);
       const request = store.delete(id);
+
+      request.onsuccess = () => resolve(true);
+      request.onerror = (e) => reject(e.target.error);
+    });
+  }
+
+  // ==================== HISTORY ====================
+
+  async saveHistoryEntry(entry) {
+    const db = await this.open();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction(STORE_HISTORY, 'readwrite');
+      const store = transaction.objectStore(STORE_HISTORY);
+
+      const dataToSave = {
+        id: `export-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+        exportedAt: Date.now(),
+        ...entry
+      };
+
+      const request = store.put(dataToSave);
+      request.onsuccess = () => resolve(dataToSave);
+      request.onerror = (e) => reject(e.target.error);
+    });
+  }
+
+  async getAllHistory() {
+    const db = await this.open();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction(STORE_HISTORY, 'readonly');
+      const store = transaction.objectStore(STORE_HISTORY);
+      const request = store.getAll();
+
+      request.onsuccess = () => {
+        const entries = request.result || [];
+        // Trier par date décroissante (plus récent en premier)
+        entries.sort((a, b) => b.exportedAt - a.exportedAt);
+        resolve(entries);
+      };
+      request.onerror = (e) => reject(e.target.error);
+    });
+  }
+
+  async clearHistory() {
+    const db = await this.open();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction(STORE_HISTORY, 'readwrite');
+      const store = transaction.objectStore(STORE_HISTORY);
+      const request = store.clear();
 
       request.onsuccess = () => resolve(true);
       request.onerror = (e) => reject(e.target.error);

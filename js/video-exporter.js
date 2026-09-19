@@ -6,6 +6,8 @@
  * - Affiche la progression en temps réel et génère le fichier téléchargeable
  */
 
+import { dbManager } from './db.js';
+
 export class VideoExporter {
   constructor(canvasRenderer, audioManager) {
     this.canvasRenderer = canvasRenderer;
@@ -155,6 +157,20 @@ export class VideoExporter {
     document.body.appendChild(downloadLink);
     downloadLink.click();
     document.body.removeChild(downloadLink);
+
+    // Enregistrement dans l'historique IndexedDB
+    const duration = this.audioManager.getDuration() || 0;
+    const format = this.canvasRenderer.currentFormat || '9:16';
+    dbManager.saveHistoryEntry({
+      filename: filename,
+      mascotName: activeMascot ? activeMascot.name : 'Mascotte',
+      duration: duration.toFixed(1),
+      format: format
+    }).then(() => {
+      console.log(`[VideoExporter] Export enregistré dans l'historique: ${filename}`);
+    }).catch(err => {
+      console.warn('[VideoExporter] Erreur sauvegarde historique:', err);
+    });
 
     setTimeout(() => {
       URL.revokeObjectURL(url);

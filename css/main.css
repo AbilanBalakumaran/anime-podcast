@@ -356,6 +356,274 @@ input, textarea, select, button {
   text-decoration: underline;
 }
 
+/* ==========================================================================
+   SYSTÈME DE PAGES SPA (Show/Hide)
+   ========================================================================== */
+.crm-page {
+  display: none;
+  flex: 1;
+}
+
+.crm-page.active {
+  display: block;
+}
+
+/* Header de page (Mascottes, Historique, Paramètres) */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px 24px 0;
+  flex-wrap: wrap;
+}
+
+.page-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-white);
+}
+
+.page-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* ==========================================================================
+   PAGE MASCOTTES - Grille complète
+   ========================================================================== */
+.mascots-full-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+  padding: 20px 24px 24px;
+}
+
+.mascot-full-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-card);
+  transition: all var(--transition-normal);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.mascot-full-card:hover {
+  border-color: var(--border-highlight);
+  transform: translateY(-2px);
+}
+
+.mascot-full-card.selected {
+  border-color: var(--gold-primary);
+  box-shadow: 0 0 20px var(--gold-glow);
+}
+
+.mascot-full-thumb {
+  width: 100px;
+  height: 100px;
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.mascot-full-thumb img,
+.mascot-full-thumb svg {
+  max-width: 90%;
+  max-height: 90%;
+  object-fit: contain;
+}
+
+.mascot-full-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-white);
+  text-align: center;
+}
+
+.mascot-full-stats {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.mascot-stat-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: var(--gold-subtle);
+  color: var(--gold-primary);
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+}
+
+.mascot-full-card .btn-delete-mascot {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+}
+
+.mascot-full-card .btn-delete-mascot:hover {
+  background: #ef4444;
+  color: #fff;
+  border-color: #ef4444;
+}
+
+.mascot-default-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: var(--bg-surface);
+  color: var(--text-dim);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-subtle);
+}
+
+/* ==========================================================================
+   PAGE HISTORIQUE
+   ========================================================================== */
+.history-list {
+  padding: 20px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.history-entry {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  transition: border-color var(--transition-fast);
+}
+
+.history-entry:hover {
+  border-color: var(--border-highlight);
+}
+
+.history-entry-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.history-entry-name {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-white);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.history-entry-meta {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.history-entry-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: var(--gold-subtle);
+  color: var(--gold-primary);
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 60px 24px;
+  color: var(--text-dim);
+  text-align: center;
+}
+
+.empty-state svg {
+  color: var(--text-dim);
+  opacity: 0.4;
+}
+
+/* ==========================================================================
+   PAGE PARAMÈTRES - Console de Logs
+   ========================================================================== */
+#page-settings .studio-card {
+  margin: 0 24px 20px;
+}
+
+#page-settings .studio-card:first-of-type {
+  margin-top: 20px;
+}
+
+.logs-console {
+  background: var(--bg-abyss);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+
+.log-entry {
+  padding: 2px 0;
+  border-bottom: 1px solid rgba(39, 39, 42, 0.3);
+  word-break: break-all;
+}
+
+.log-entry.log-info {
+  color: var(--text-muted);
+}
+
+.log-entry.log-warn {
+  color: #facc15;
+}
+
+.log-entry.log-error {
+  color: #ef4444;
+  font-weight: 600;
+}
+
 /* Barre de navigation mobile du bas (par défaut masquée sur PC) */
 .mobile-bottom-nav {
   display: none;

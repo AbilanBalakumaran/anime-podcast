@@ -1,17 +1,20 @@
 /**
  * MAIN APP - ANIME PODCAST STUDIO
  * Orchestrateur principal :
- * - Gestion du Splash Screen
- * - Initialisation PWA
+ * - Navigation SPA multi-pages (Production, Mascottes, Historique, Paramètres)
+ * - Gestion du Splash Screen & PWA
  * - Interconnexion des modules avec support multi-émotions et anti-ennui
+ * - Logger temps réel & Historique des exports
  */
 
+import { appLogger } from './logger.js';
 import { PWAManager } from './pwa.js';
 import { MascotManager } from './mascot-manager.js';
 import { AudioManager } from './audio-manager.js';
 import { SpeechAnalyzer } from './speech-analyzer.js';
 import { CanvasRenderer } from './canvas-renderer.js';
 import { VideoExporter } from './video-exporter.js';
+import { dbManager } from './db.js';
 
 class AnimePodcastApp {
   constructor() {
@@ -49,6 +52,9 @@ class AnimePodcastApp {
     this.audioStatusBar = document.getElementById('audio-status-bar');
     this.audioFileNameEl = document.getElementById('audio-file-name');
     this.audioIconPulse = document.getElementById('audio-icon-pulse');
+
+    // Navigation SPA
+    this.currentPage = 'page-production';
 
     this.init();
   }
@@ -107,13 +113,24 @@ class AnimePodcastApp {
     this.videoExporter = new VideoExporter(this.canvasRenderer, this.audioManager);
 
     this.setupUIEvents();
+    this.setupNavigation();
+    this.setupSettingsPage();
+    this.setupHistoryPage();
     this.populateTtsVoices();
+
+    // Bind Logger
+    const logsConsole = document.getElementById('logs-console');
+    if (logsConsole) {
+      appLogger.bindConsoleElement(logsConsole);
+    }
 
     this.updateSplashProgress(100, 'Studio Prêt !');
 
     setTimeout(() => {
       this.dismissSplashScreen();
     }, 800);
+
+    console.log('[App] Anime Podcast Studio initialisé avec succès.');
   }
 
   updateSplashProgress(percent, statusText) {
@@ -130,6 +147,54 @@ class AnimePodcastApp {
       this.splashScreen.classList.add('hidden');
     }
   }
+
+  // ==================== NAVIGATION SPA ====================
+
+  setupNavigation() {
+    const allNavItems = document.querySelectorAll('.crm-nav-link, .mobile-nav-item');
+    
+    allNavItems.forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
+        const pageId = item.dataset.page;
+        if (pageId) this.navigateTo(pageId);
+      });
+    });
+  }
+
+  navigateTo(pageId) {
+    // Masquer toutes les pages
+    document.querySelectorAll('.crm-page').forEach(page => {
+      page.classList.remove('active');
+    });
+
+    // Afficher la page cible
+    const targetPage = document.getElementById(pageId);
+    if (targetPage) {
+      targetPage.classList.add('active');
+    }
+
+    // Mettre à jour l'état actif dans la sidebar et la bottom nav
+    document.querySelectorAll('.crm-nav-link, .mobile-nav-item').forEach(el => {
+      el.classList.toggle('active', el.dataset.page === pageId);
+    });
+
+    this.currentPage = pageId;
+
+    // Actions spéciales par page
+    if (pageId === 'page-mascots') {
+      this.mascotManager.renderFullGrid();
+    } else if (pageId === 'page-history') {
+      this.renderHistoryPage();
+    } else if (pageId === 'page-settings') {
+      this.populateSettingsVoices();
+    }
+
+    // Scroll en haut de la page
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ==================== UI EVENTS ====================
 
   setupUIEvents() {
     if (this.tabImport && this.tabTts) {
@@ -203,29 +268,145 @@ class AnimePodcastApp {
         }
       });
     }
-
-    this.setupNavbarNavigation();
   }
 
-  setupNavbarNavigation() {
-    const allNavItems = document.querySelectorAll('.crm-nav-link, .mobile-nav-item');
-    allNavItems.forEach(item => {
-      item.addEventListener('click', (e) => {
-        e.preventDefault();
-        const targetId = item.dataset.target;
+  // ==================== PARAMÈTRES ====================
 
-        // Synchroniser l'état actif sur la sidebar PC et la barre du bas mobile
-        allNavItems.forEach(el => {
-          el.classList.toggle('active', el.dataset.target === targetId);
-        });
+  setupSettingsPage() {
+    // Boutons Logs
+    const btnCopyLogs = document.getElementById('btn-copy-logs');
+    const btnClearLogs = document.getElementById('btn-clear-logs');
 
-        const targetEl = document.getElementById(targetId);
-        if (targetEl) {
-          targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (btnCopyLogs) {
+      btnCopyLogs.addEventListener('click', async () => {
+        const success = await appLogger.copyToClipboard();
+        if (success) {
+          btnCopyLogs.textContent = '✅ Copié !';
+          setTimeout(() => { btnCopyLogs.textContent = '📋 Copier'; }, 2000);
         }
       });
-    });
+    }
+
+    if (btnClearLogs) {
+      btnClearLogs.addEventListener('click', () => {
+        appLogger.clearLogs();
+      });
+    }
+
+    // Test de voix
+    const btnTestVoice = document.getElementById('btn-test-voice');
+    if (btnTestVoice) {
+      btnTestVoice.addEventListener('click', () => {
+        const select = document.getElementById('settings-voice-select');
+        const rate = document.getElementById('settings-voice-rate');
+        const pitch = document.getElementById('settings-voice-pitch');
+
+        const voiceIdx = select ? parseInt(select.value, 10) : 0;
+        const rateVal = rate ? parseFloat(rate.value) : 1.0;
+        const pitchVal = pitch ? parseFloat(pitch.value) : 1.0;
+
+        const utterance = new SpeechSynthesisUtterance('Bonjour, ceci est un test de la voix sélectionnée pour votre podcast animé.');
+        const voices = speechSynthesis.getVoices();
+        if (voices[voiceIdx]) utterance.voice = voices[voiceIdx];
+        utterance.rate = rateVal;
+        utterance.pitch = pitchVal;
+        utterance.lang = 'fr-FR';
+
+        speechSynthesis.cancel();
+        speechSynthesis.speak(utterance);
+
+        console.log(`[Settings] Test voix: index=${voiceIdx}, rate=${rateVal}, pitch=${pitchVal}`);
+      });
+    }
   }
+
+  populateSettingsVoices() {
+    const select = document.getElementById('settings-voice-select');
+    if (!select) return;
+
+    const voices = speechSynthesis.getVoices();
+    select.innerHTML = '';
+
+    voices.forEach((voice, index) => {
+      const option = document.createElement('option');
+      option.value = index;
+      option.textContent = `${voice.name} (${voice.lang})${voice.default ? ' [Défaut]' : ''}`;
+      select.appendChild(option);
+    });
+
+    if (voices.length === 0) {
+      const option = document.createElement('option');
+      option.value = 0;
+      option.textContent = 'Voix par défaut du système';
+      select.appendChild(option);
+    }
+  }
+
+  // ==================== HISTORIQUE ====================
+
+  setupHistoryPage() {
+    const btnClearHistory = document.getElementById('btn-clear-history');
+    if (btnClearHistory) {
+      btnClearHistory.addEventListener('click', async () => {
+        if (confirm('Voulez-vous vraiment vider tout l\'historique des exports ?')) {
+          await dbManager.clearHistory();
+          this.renderHistoryPage();
+          console.log('[History] Historique vidé.');
+        }
+      });
+    }
+  }
+
+  async renderHistoryPage() {
+    const container = document.getElementById('history-list');
+    if (!container) return;
+
+    try {
+      const entries = await dbManager.getAllHistory();
+
+      if (entries.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="48" height="48">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            <p>Aucune vidéo exportée pour le moment.</p>
+            <p style="font-size: 0.8rem; color: var(--text-dim);">Les exports apparaîtront ici automatiquement.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = '';
+      entries.forEach(entry => {
+        const date = new Date(entry.exportedAt);
+        const dateStr = date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
+        const timeStr = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+
+        const div = document.createElement('div');
+        div.className = 'history-entry';
+        div.innerHTML = `
+          <div class="history-entry-info">
+            <div class="history-entry-name">${entry.filename || 'Export vidéo'}</div>
+            <div class="history-entry-meta">
+              <span>📅 ${dateStr} à ${timeStr}</span>
+              <span>🎭 ${entry.mascotName || 'Inconnue'}</span>
+              <span>⏱️ ${entry.duration || '?'}s</span>
+              <span>📐 ${entry.format || '9:16'}</span>
+            </div>
+          </div>
+          <div class="history-entry-badge">WebM Alpha</div>
+        `;
+        container.appendChild(div);
+      });
+    } catch (err) {
+      console.error('[History] Erreur de chargement:', err);
+      container.innerHTML = '<div class="empty-state"><p>Erreur de chargement de l\'historique.</p></div>';
+    }
+  }
+
+  // ==================== AUDIO ====================
 
   async processAudioFile(file) {
     try {
@@ -267,7 +448,7 @@ class AnimePodcastApp {
           <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
           <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
         </svg>
-        Générer la Voix & Segmenter les Phrases
+        Générer la Voix &amp; Segmenter les Phrases
       `;
     }
   }

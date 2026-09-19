@@ -22,6 +22,7 @@ export class MascotManager {
 
     // Éléments du DOM principal
     this.pickerContainer = document.getElementById('mascot-picker');
+    this.fullGridContainer = document.getElementById('mascots-full-grid');
     this.emotionsContainer = document.getElementById('poses-preview-bar');
     this.btnNewMascot = document.getElementById('btn-new-mascot');
     this.modal = document.getElementById('modal-new-mascot');
@@ -51,6 +52,7 @@ export class MascotManager {
   async init() {
     await this.loadMascotsFromDB();
     this.renderPicker();
+    this.renderFullGrid();
     this.renderEmotionPills();
     this.setupModalEvents();
   }
@@ -83,6 +85,7 @@ export class MascotManager {
       this.activeEmotion = 'neutre';
       this.activeVariantIndex = 0;
       this.renderPicker();
+      this.renderFullGrid();
       this.renderEmotionPills();
       if (this.onMascotChange) {
         this.onMascotChange(this.activeMascot, this.activeEmotion, this.activeVariantIndex);
@@ -230,6 +233,87 @@ export class MascotManager {
       });
 
       this.pickerContainer.appendChild(card);
+    });
+  }
+
+  renderFullGrid() {
+    if (!this.fullGridContainer) {
+      this.fullGridContainer = document.getElementById('mascots-full-grid');
+    }
+    if (!this.fullGridContainer) return;
+    this.fullGridContainer.innerHTML = '';
+
+    this.mascots.forEach(mascot => {
+      const card = document.createElement('div');
+      card.className = `mascot-full-card ${mascot.id === this.activeMascot.id ? 'selected' : ''}`;
+      card.dataset.id = mascot.id;
+
+      const thumb = document.createElement('div');
+      thumb.className = 'mascot-full-thumb';
+
+      const neutralPoses = this.getPosesForEmotion(mascot, 'neutre');
+      const firstPose = neutralPoses[0] || (Object.values(mascot.emotions || {})[0] || [])[0] || '';
+
+      if (firstPose.trim().startsWith('<svg')) {
+        thumb.innerHTML = firstPose;
+      } else if (firstPose) {
+        const img = document.createElement('img');
+        img.src = firstPose;
+        img.alt = mascot.name;
+        thumb.appendChild(img);
+      } else {
+        thumb.innerHTML = '<span style="font-size:2rem;">🎭</span>';
+      }
+
+      const nameEl = document.createElement('div');
+      nameEl.className = 'mascot-full-name';
+      nameEl.textContent = mascot.name;
+
+      const statsEl = document.createElement('div');
+      statsEl.className = 'mascot-full-stats';
+      const numEmotions = Object.keys(mascot.emotions || {}).length;
+      let totalPoses = 0;
+      Object.values(mascot.emotions || {}).forEach(arr => totalPoses += (arr ? arr.length : 0));
+
+      const emoBadge = document.createElement('span');
+      emoBadge.className = 'mascot-stat-badge';
+      emoBadge.textContent = `${numEmotions} émotions`;
+
+      const posesBadge = document.createElement('span');
+      posesBadge.className = 'mascot-stat-badge';
+      posesBadge.textContent = `${totalPoses} poses`;
+
+      statsEl.appendChild(emoBadge);
+      statsEl.appendChild(posesBadge);
+
+      card.appendChild(thumb);
+      card.appendChild(nameEl);
+      card.appendChild(statsEl);
+
+      if (mascot.isDefault) {
+        const defaultBadge = document.createElement('span');
+        defaultBadge.className = 'mascot-default-badge';
+        defaultBadge.textContent = 'Mascotte par défaut';
+        card.appendChild(defaultBadge);
+      } else {
+        const delBtn = document.createElement('button');
+        delBtn.className = 'btn-delete-mascot';
+        delBtn.innerHTML = '&times;';
+        delBtn.title = 'Supprimer cette mascotte';
+        delBtn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          if (confirm(`Supprimer définitivement la mascotte "${mascot.name}" ?`)) {
+            await this.deleteCustomMascot(mascot.id);
+          }
+        });
+        card.appendChild(delBtn);
+      }
+
+      card.addEventListener('click', () => {
+        this.setActiveMascot(mascot.id);
+      });
+
+      this.fullGridContainer.appendChild(card);
     });
   }
 
@@ -550,6 +634,7 @@ export class MascotManager {
         this.setActiveMascot(this.mascots[0].id);
       } else {
         this.renderPicker();
+        this.renderFullGrid();
       }
     } catch (err) {
       console.error('[MascotManager] Erreur de suppression:', err);

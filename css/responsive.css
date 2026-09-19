@@ -263,6 +263,61 @@ input, textarea, select {
     grid-template-columns: 1fr;
     gap: 12px;
   }
+
+  /* Nouvelles pages SPA - Adaptations mobile */
+  .page-header {
+    padding: 16px 14px 0;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .page-title {
+    font-size: 1.15rem;
+  }
+
+  .mascots-full-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    padding: 14px 12px;
+  }
+
+  .mascot-full-card {
+    padding: 14px;
+  }
+
+  .mascot-full-thumb {
+    width: 72px;
+    height: 72px;
+  }
+
+  .history-list {
+    padding: 14px 12px;
+  }
+
+  .history-entry {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 14px;
+  }
+
+  #page-settings .studio-card {
+    margin: 0 12px 14px;
+  }
+
+  #page-settings .studio-card:first-of-type {
+    margin-top: 14px;
+  }
+
+  .logs-console {
+    max-height: 280px;
+    font-size: 0.72rem;
+  }
+
+  /* Dégagement bas pour toutes les pages (bottom nav safe area) */
+  .crm-page {
+    padding-bottom: calc(70px + env(safe-area-inset-bottom, 14px));
+  }
 }
 
 /* Écrans très étroits (< 380px) */
