@@ -368,9 +368,12 @@ export class MascotManager {
    * - Affiche la grille de revue pour correction
    */
   async handleBulkFiles(files) {
-    const validImages = files.filter(f => f.type.startsWith('image/'));
+    const validImages = files.filter(f => 
+      (f.type && f.type.startsWith('image/')) || 
+      /\.(png|jpe?g|webp|svg|gif|bmp|avif)$/i.test(f.name)
+    );
     if (validImages.length === 0) {
-      alert('Veuillez sélectionner des fichiers image valides (PNG, SVG, WebP).');
+      alert('Veuillez sélectionner des fichiers image valides (PNG, SVG, WebP, JPG).');
       return;
     }
 
@@ -393,7 +396,20 @@ export class MascotManager {
   readFileAsDataURL(file) {
     return new Promise((resolve) => {
       const reader = new FileReader();
-      reader.onload = (e) => resolve(e.target.result);
+      reader.onload = (e) => {
+        let result = e.target.result;
+        // Si Windows n'a pas détecté le type MIME pour un fichier PNG
+        if (result.startsWith('data:;') || result.startsWith('data:application/octet-stream;')) {
+          if (file.name.toLowerCase().endsWith('.png')) {
+            result = result.replace(/^data:[^;]*;/, 'data:image/png;');
+          } else if (file.name.toLowerCase().endsWith('.svg')) {
+            result = result.replace(/^data:[^;]*;/, 'data:image/svg+xml;');
+          } else if (file.name.toLowerCase().endsWith('.webp')) {
+            result = result.replace(/^data:[^;]*;/, 'data:image/webp;');
+          }
+        }
+        resolve(result);
+      };
       reader.readAsDataURL(file);
     });
   }
