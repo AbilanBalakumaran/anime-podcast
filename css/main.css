@@ -291,9 +291,9 @@ input, textarea, select, button {
   padding-left: calc(24px + env(safe-area-inset-left, 0px));
   padding-right: calc(24px + env(safe-area-inset-right, 0px));
   padding-bottom: 0;
-  background-color: rgba(13, 13, 17, 0.94);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background-color: #09090b !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
   border-bottom: 1px solid var(--border-subtle);
   position: sticky;
   top: 0;

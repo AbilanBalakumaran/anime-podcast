@@ -209,7 +209,7 @@ class AnimePodcastApp {
         if (this.splashScreen) {
           this.splashScreen.style.display = 'none';
         }
-      }, 520);
+      }, 320);
     }
   }
 
