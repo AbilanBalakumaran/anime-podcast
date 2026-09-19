@@ -253,6 +253,28 @@ export class SpeechAnalyzer {
   }
 
   /**
+   * Assigne une même illustration (data URL) à un lot de segments par id,
+   * ex. pour la génération automatique d'illustrations par scène.
+   * Retourne une Promise résolue une fois l'image chargée et appliquée.
+   */
+  assignImageToSegments(segmentIds, dataUrl) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        this.segments
+          .filter(s => segmentIds.includes(s.id))
+          .forEach(s => {
+            s.image = img;
+            s.imageData = dataUrl;
+          });
+        resolve();
+      };
+      img.onerror = () => resolve();
+      img.src = dataUrl;
+    });
+  }
+
+  /**
    * Retourne le segment complet pour le timestamp en cours
    */
   getSegmentAtTime(currentTime) {

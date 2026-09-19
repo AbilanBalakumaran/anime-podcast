@@ -219,6 +219,14 @@
           </svg>
           Production
         </a>
+        <a href="#" class="crm-nav-link" data-page="page-topics">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 8h20M7 3v5M17 3v5"></path>
+            <rect x="2" y="8" width="20" height="13" rx="2" ry="2"></rect>
+            <path d="M9 12.5l5 2.5-5 2.5z"></path>
+          </svg>
+          Sujets Vidéo
+        </a>
         <a href="#" class="crm-nav-link" data-page="page-mascots">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="8" r="5"></circle>
@@ -552,6 +560,24 @@
       </div>
 
       <!-- ================================================================
+           PAGE 1B : SUJETS VIDÉO (Génération automatique 5-10 min en un clic)
+           ================================================================ -->
+      <div class="crm-page" id="page-topics">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">🎬 Sujets Vidéo</h1>
+            <p class="page-subtitle">Cliquez sur un sujet : script, voix off, illustrations et montage sont générés automatiquement (vidéo 1920×1080, 5-10 min).</p>
+          </div>
+        </div>
+
+        <div id="topics-active-mascot" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;"></div>
+
+        <div id="topics-grid" class="mascots-full-grid">
+          <!-- Rempli dynamiquement par topics-manager.js -->
+        </div>
+      </div>
+
+      <!-- ================================================================
            PAGE 2 : MASCOTTES (Gestion complète des mascottes)
            ================================================================ -->
       <div class="crm-page" id="page-mascots">
@@ -724,6 +750,13 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polygon points="23 7 16 12 23 17 23 7"></polygon>
           <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+        </svg>
+      </a>
+      <a href="#" class="mobile-nav-item" data-page="page-topics" title="Sujets Vidéo" aria-label="Sujets Vidéo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 8h20M7 3v5M17 3v5"></path>
+          <rect x="2" y="8" width="20" height="13" rx="2" ry="2"></rect>
+          <path d="M9 12.5l5 2.5-5 2.5z"></path>
         </svg>
       </a>
       <a href="#" class="mobile-nav-item" data-page="page-mascots" title="Mascottes" aria-label="Mascottes">
@@ -961,7 +994,36 @@
     </div>
   </div>
 
+  <!-- ========================================================================
+       MODALE : GÉNÉRATION AUTOMATIQUE D'UNE VIDÉO (SUJETS VIDÉO)
+       ======================================================================== -->
+  <div id="modal-topic-pipeline" class="modal-backdrop">
+    <div class="modal-card" style="max-width: 460px;">
+      <div class="modal-header">
+        <h3 class="modal-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
+            <path d="M2 8h20M7 3v5M17 3v5"></path>
+            <rect x="2" y="8" width="20" height="13" rx="2" ry="2"></rect>
+          </svg>
+          Génération Automatique de la Vidéo
+        </h3>
+      </div>
+
+      <div class="export-modal-content">
+        <div class="export-progress-ring">
+          <div class="export-progress-value" style="font-size: 1.6rem;">🎬</div>
+        </div>
+        <div id="topic-pipeline-status" style="font-size: 0.9rem; color: var(--text-white);">
+          Écriture du script...
+        </div>
+        <div style="font-size: 0.78rem; color: var(--text-muted); max-width: 320px;">
+          Script, voix off et illustrations sont générés automatiquement, puis l'export vidéo démarre (barre de progression dédiée).
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Point d'Entrée JavaScript (Modules ES6) avec cache-busting -->
-  <script type="module" src="./js/app.js?v=1.6.0"></script>
+  <script type="module" src="./js/app.js?v=1.7.0"></script>
 </body>
 </html>

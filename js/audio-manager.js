@@ -43,17 +43,13 @@ export class AudioManager {
     this.onStateChange = onStateChangeCallback;
     this.animationFrameId = null;
 
-    // Clés API par défaut (décodées dynamiquement pour protection des dépôts publics)
-    this._kG = 'QVEuQWI4Uk42STM5OV8xTnRPWEV6VUJHLWtBNEhLTWktSktobjdLRHZQWmRfNzVZUzUxU3c=';
-    this._kE = 'c2tfNjI5YzcwZWRjOTA0NTg4MDRiMDZiYzIyMzg1OTdlNzM5ODhiMDQ1MjdmOTI4NGIy';
-
     // Initialisation des voix disponibles
     this.systemEnglishVoices = [];
     this.initVoices();
   }
 
   getGeminiKey() {
-    return localStorage.getItem('autopod_gemini_key') || atob(this._kG);
+    return localStorage.getItem('autopod_gemini_key') || '';
   }
 
   setGeminiKey(key) {
@@ -61,7 +57,7 @@ export class AudioManager {
   }
 
   getElevenLabsKey() {
-    return localStorage.getItem('autopod_elevenlabs_key') || atob(this._kE);
+    return localStorage.getItem('autopod_elevenlabs_key') || '';
   }
 
   setElevenLabsKey(key) {

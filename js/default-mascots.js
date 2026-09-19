@@ -367,4 +367,17 @@ BASE_EMOTIONS.forEach(emo => {
   }
 });
 
-export const DEFAULT_MASCOTS = [];
+export const DEFAULT_MASCOTS = [
+  {
+    id: 'aiko',
+    name: 'Aiko',
+    isDefault: true,
+    emotions: aikoEmotions
+  },
+  {
+    id: 'ren',
+    name: 'Ren',
+    isDefault: true,
+    emotions: renEmotions
+  }
+];

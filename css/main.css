@@ -299,9 +299,6 @@ input, textarea, select, button {
   top: 0;
   z-index: 100;
   flex-shrink: 0;
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
-  will-change: transform;
   box-sizing: border-box;
 }
 

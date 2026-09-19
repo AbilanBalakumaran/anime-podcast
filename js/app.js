@@ -14,6 +14,7 @@ import { AudioManager } from './audio-manager.js';
 import { SpeechAnalyzer } from './speech-analyzer.js';
 import { CanvasRenderer } from './canvas-renderer.js';
 import { VideoExporter } from './video-exporter.js';
+import { TopicsManager } from './topics-manager.js';
 import { dbManager } from './db.js';
 
 class AnimePodcastApp {
@@ -24,6 +25,7 @@ class AnimePodcastApp {
     this.speechAnalyzer = null;
     this.canvasRenderer = null;
     this.videoExporter = null;
+    this.topicsManager = null;
 
     // Splash Screen
     this.splashScreen = document.getElementById('app-splash-screen');
@@ -131,6 +133,9 @@ class AnimePodcastApp {
 
     // Video Exporter
     this.videoExporter = new VideoExporter(this.canvasRenderer, this.audioManager);
+
+    // Sujets Vidéo (génération automatique)
+    this.topicsManager = new TopicsManager(this);
 
     this.setupUIEvents();
     this.setupNavigation();
@@ -247,7 +252,9 @@ class AnimePodcastApp {
     this.currentPage = pageId;
 
     // Actions spéciales par page
-    if (pageId === 'page-mascots') {
+    if (pageId === 'page-topics') {
+      this.topicsManager.renderGrid();
+    } else if (pageId === 'page-mascots') {
       this.mascotManager.renderFullGrid();
     } else if (pageId === 'page-history') {
       this.renderHistoryPage();
