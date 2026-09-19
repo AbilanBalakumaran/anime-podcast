@@ -3,16 +3,14 @@
  * Panneau "Sujets Vidéo" : liste dynamique de sujets anime tirée d'AniList
  * (image de couverture réelle, score, statut de diffusion, tendance), triée
  * par tendance du moment (nouvelle saison en cours = signal fort). Un clic
- * sur "Aperçu" génère un brief structuré (Gemini, informé par des faits/
- * articles réels trouvés via Tavily) : thème, durée, cible, objectif, plan
- * chronologique, sources. "Générer en vidéo" transmet ce brief à l'assistant
- * étape par étape de la page Production (js/production-wizard.js), qui
- * gère script -> audio -> illustrations -> export.
+ * sur "Aperçu" affiche instantanément les informations déjà récupérées
+ * (aucun appel API) sur une page dédiée. "Générer en vidéo" transmet ces
+ * informations à l'assistant étape par étape de la page Production
+ * (js/production-wizard.js) : la génération IA (script, puis audio et
+ * illustrations) n'a lieu qu'après un clic explicite sur "Générer le script"
+ * sur cette page-là, jamais depuis la liste des sujets.
  */
 
-import { WORKER_BASE_URL } from './worker-config.js';
-
-const GEMINI_TEXT_MODEL = 'gemini-2.5-flash';
 const ANILIST_ENDPOINT = 'https://graphql.anilist.co';
 const ANILIST_PAGE_SIZE = 20;
 
@@ -61,6 +59,7 @@ const FALLBACK_TOPICS = [
     title: 'One Piece',
     category: 'Action, Aventure',
     hook: 'Impossible de charger les tendances en direct — sujet de secours.',
+    description: '',
     angle: "A video essay about the anime One Piece, its enduring popularity, and why it remains a cultural phenomenon after 25+ years.",
     coverImage: null
   },
@@ -69,6 +68,7 @@ const FALLBACK_TOPICS = [
     title: 'Jujutsu Kaisen',
     category: 'Action, Surnaturel',
     hook: 'Impossible de charger les tendances en direct — sujet de secours.',
+    description: '',
     angle: "A video essay about the anime Jujutsu Kaisen, its cursed energy system, and why fans love its sorcerers and Domain Expansions.",
     coverImage: null
   },
@@ -77,6 +77,7 @@ const FALLBACK_TOPICS = [
     title: 'Frieren: Beyond Journey\'s End',
     category: 'Aventure, Drame',
     hook: 'Impossible de charger les tendances en direct — sujet de secours.',
+    description: '',
     angle: "A video essay about the anime Frieren: Beyond Journey's End and its meditation on mortality, memory and the passage of time.",
     coverImage: null
   }
@@ -98,9 +99,6 @@ export class TopicsManager {
     this.gridEl = document.getElementById('topics-grid');
     this.btnRefresh = document.getElementById('btn-refresh-topics');
 
-    this.modal = document.getElementById('modal-topic-pipeline');
-    this.statusEl = document.getElementById('topic-pipeline-status');
-
     this.listView = document.getElementById('topics-list-view');
     this.detailView = document.getElementById('topics-detail-view');
     this.previewTitleEl = document.getElementById('topic-preview-title');
@@ -109,8 +107,6 @@ export class TopicsManager {
 
     this.topics = [];
     this.currentPreviewTopic = null;
-    this.currentBrief = null;
-    this.isGenerating = false;
     this.isLoadingTopics = false;
 
     this.btnRefresh?.addEventListener('click', () => this.renderGrid(true));
@@ -180,6 +176,7 @@ export class TopicsManager {
       title,
       category: genres.join(', ') || 'Anime',
       hook: [genres[0], statusLabel, scoreOn10 ? `Score ${scoreOn10}/10` : null].filter(Boolean).join(' • '),
+      description,
       angle: `A video essay about the anime "${title}" (AniList score: ${scoreOn10 || 'N/A'}/10, ${statusLabel}). Synopsis: ${description.slice(0, 500)}. Genres: ${genres.join(', ')}. ${isTrendingNow ? 'This anime is currently airing and trending right now — mention the current buzz, recent episodes or new season, and why fans are excited.' : 'This anime is a fan favorite — explore why it left such a lasting impression.'}`,
       coverImage: media.coverImage?.large || null,
       score: scoreOn10,
@@ -250,19 +247,15 @@ export class TopicsManager {
     const contentEl = document.createElement('div');
     contentEl.className = 'topic-row-content';
 
-    const titleEl = document.createElement('span');
+    const titleEl = document.createElement('div');
     titleEl.className = 'topic-row-title';
     titleEl.textContent = topic.title;
     contentEl.appendChild(titleEl);
 
     if (topic.hook) {
-      const sepEl = document.createElement('span');
-      sepEl.className = 'topic-row-sep';
-      sepEl.textContent = ' — ';
-      const metaEl = document.createElement('span');
+      const metaEl = document.createElement('div');
       metaEl.className = 'topic-row-meta';
       metaEl.textContent = topic.hook;
-      contentEl.appendChild(sepEl);
       contentEl.appendChild(metaEl);
     }
 
@@ -297,50 +290,24 @@ export class TopicsManager {
       : `${iconSvg(ICON_PERSON, 14)} Aucune mascotte sélectionnée.`;
   }
 
-  // ==================== ÉTAPE 1 : APERÇU (BRIEF STRUCTURÉ) ====================
+  // ==================== APERÇU INSTANTANÉ (AUCUN APPEL API) ====================
 
-  async openTopicPreview(topic) {
-    if (this.isGenerating) {
-      alert('Une génération est déjà en cours, merci de patienter.');
-      return;
-    }
-
-    const geminiKey = this.app.audioManager.getGeminiKey();
-    if (!geminiKey && !WORKER_BASE_URL) {
-      alert("Veuillez renseigner votre clé API Gemini dans Paramètres avant de générer un aperçu.");
-      this.app.navigateTo('page-settings');
-      return;
-    }
-
-    this.isGenerating = true;
-    this.showPipelineModal('Analyse du sujet...');
-
-    try {
-      const brief = await this.generateBrief(topic);
-      this.hidePipelineModal();
-      this.currentPreviewTopic = topic;
-      this.currentBrief = brief;
-      this.showDetailView(topic, brief);
-    } catch (err) {
-      console.error('[TopicsManager] Échec de la génération du brief:', err);
-      alert("Erreur lors de la génération de l'aperçu : " + err.message);
-      this.hidePipelineModal();
-    } finally {
-      this.isGenerating = false;
-    }
+  openTopicPreview(topic) {
+    this.currentPreviewTopic = topic;
+    this.showDetailView(topic);
   }
 
-  showDetailView(topic, brief) {
+  showDetailView(topic) {
     if (!this.previewTitleEl) this.previewTitleEl = document.getElementById('topic-preview-title');
 
     if (this.previewTitleEl) this.previewTitleEl.textContent = topic.title;
-    this.renderBriefView(brief);
+    this.renderTopicDetailView(topic);
     if (this.listView) this.listView.style.display = 'none';
     if (this.detailView) this.detailView.style.display = 'block';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  renderBriefView(brief) {
+  renderTopicDetailView(topic) {
     const container = document.getElementById('topic-preview-brief');
     if (!container) return;
     container.innerHTML = '';
@@ -362,173 +329,46 @@ export class TopicsManager {
       return d;
     };
 
-    addSection('Thème', textVal(brief.theme));
-    addSection('Durée visée', textVal(`${brief.duration_minutes || '5-10'} minutes`));
-    addSection('Public cible', textVal(brief.target_audience));
-    addSection('Objectif', textVal(`${brief.objective || ''}${brief.objective_reason ? ' — ' + brief.objective_reason : ''}`));
-
-    const outlineList = document.createElement('ol');
-    outlineList.className = 'topic-brief-outline';
-    (brief.outline || []).forEach(item => {
-      const li = document.createElement('li');
-      li.textContent = item;
-      outlineList.appendChild(li);
-    });
-    addSection('Plan chronologique', outlineList);
-
-    const sourcesWrap = document.createElement('div');
-    sourcesWrap.className = 'topic-brief-sources';
-    (brief.sources || []).forEach(src => {
-      const line = document.createElement('div');
-      line.textContent = `• ${src}`;
-      sourcesWrap.appendChild(line);
-    });
-    addSection('Sources', sourcesWrap);
+    if (topic.category) addSection('Genres', textVal(topic.category));
+    if (topic.hook) addSection('Infos', textVal(topic.hook));
+    addSection('Synopsis', textVal(topic.description || 'Aucun synopsis disponible.'));
   }
 
   backToList() {
     if (this.detailView) this.detailView.style.display = 'none';
     if (this.listView) this.listView.style.display = 'block';
     this.currentPreviewTopic = null;
-    this.currentBrief = null;
   }
 
-  // ==================== ÉTAPE 2 : TRANSMISSION À L'ASSISTANT PRODUCTION ====================
+  // ==================== TRANSMISSION À L'ASSISTANT PRODUCTION ====================
 
   confirmGenerateFromPreview() {
     const topic = this.currentPreviewTopic;
-    const brief = this.currentBrief;
 
-    if (!topic || !brief) {
-      alert('Aucun brief à transmettre.');
+    if (!topic) {
+      alert('Aucun sujet sélectionné.');
       return;
     }
 
-    const briefText = this.composeBriefText(topic, brief);
+    const briefText = this.composeBriefText(topic);
     this.backToList();
     this.app.productionWizard.startFromBrief(briefText);
     this.app.navigateTo('page-production');
   }
 
-  composeBriefText(topic, brief) {
+  composeBriefText(topic) {
     const lines = [];
     lines.push(`Sujet : ${topic.title}`);
+    if (topic.category) lines.push(`Genres : ${topic.category}`);
+    if (topic.hook) lines.push(topic.hook);
+    if (topic.description) {
+      lines.push('');
+      lines.push('Synopsis :');
+      lines.push(topic.description);
+    }
     lines.push('');
-    lines.push(`Thème : ${brief.theme || ''}`);
-    lines.push(`Durée visée : ${brief.duration_minutes || '5-10'} minutes`);
-    lines.push(`Public cible : ${brief.target_audience || ''}`);
-    lines.push(`Objectif : ${brief.objective || ''}${brief.objective_reason ? ' — ' + brief.objective_reason : ''}`);
-    lines.push('');
-    lines.push('Plan chronologique :');
-    (brief.outline || []).forEach((item, i) => lines.push(`${i + 1}. ${item}`));
-    lines.push('');
-    lines.push('Sources / faits de référence :');
-    (brief.sources || []).forEach(src => lines.push(`- ${src}`));
+    lines.push('Angle :');
+    lines.push(topic.angle);
     return lines.join('\n');
-  }
-
-  // ==================== GÉNÉRATION DU BRIEF (GEMINI TEXTE, JSON) ====================
-
-  async generateBrief(topic) {
-    const apiKey = this.app.audioManager.getGeminiKey();
-    const useWorker = !apiKey && !!WORKER_BASE_URL;
-
-    const groundingContext = WORKER_BASE_URL ? await this.fetchGroundingContext(topic) : '';
-    const groundingBlock = groundingContext
-      ? `\nReal reference material found online about this topic:\n${groundingContext}\n`
-      : '';
-
-    const prompt = `You are a content strategist preparing a brief for an anime & pop-culture video essay.
-
-Topic: ${topic.title}
-Angle: ${topic.angle}
-${groundingBlock}
-Return a JSON object with exactly these fields:
-{
-  "theme": "one clear sentence describing what the video is about",
-  "duration_minutes": "a range like '7-9'",
-  "target_audience": "who this video is for",
-  "objective": "one of: nostalgic, opinion/claim-driven, theoretical/analytical, informative, entertainment — pick the single best fit for this topic",
-  "objective_reason": "one sentence justifying that choice",
-  "sources": ["2 to 4 short references to real facts or articles used, drawn from the reference material above if provided"],
-  "outline": ["5 to 8 short chronological beats/themes the video will cover, in presentation order"]
-}
-Return ONLY the JSON object, no markdown, no code fences.`;
-
-    const url = useWorker
-      ? `${WORKER_BASE_URL}/proxy/gemini/${GEMINI_TEXT_MODEL}`
-      : `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_TEXT_MODEL}:generateContent?key=${apiKey}`;
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { responseMimeType: 'application/json' }
-      })
-    });
-
-    if (!response.ok) {
-      const errData = await response.json().catch(() => ({}));
-      throw new Error(errData.error?.message || `Erreur HTTP ${response.status} (brief)`);
-    }
-
-    const json = await response.json();
-    const rawText = (json.candidates?.[0]?.content?.parts || [])
-      .map(p => p.text || '')
-      .join('');
-
-    if (!rawText.trim()) {
-      throw new Error("Gemini n'a retourné aucun brief.");
-    }
-
-    try {
-      return JSON.parse(rawText);
-    } catch (err) {
-      throw new Error('Le brief généré est invalide (JSON mal formé).');
-    }
-  }
-
-  /**
-   * Récupère des faits/articles réels via Tavily (ex: pages "X facts you
-   * didn't know") pour ancrer le script dans du contenu existant plutôt que
-   * de tout inventer. Passe toujours par le Worker (la clé Tavily n'existe
-   * que côté serveur) ; retourne '' silencieusement en cas d'échec ou si
-   * aucun Worker n'est configuré, sans jamais bloquer le pipeline.
-   */
-  async fetchGroundingContext(topic) {
-    if (!WORKER_BASE_URL) return '';
-    try {
-      const response = await fetch(`${WORKER_BASE_URL}/proxy/tavily/search`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: `${topic.title} facts trivia things you didn't know`, max_results: 4 })
-      });
-      if (!response.ok) return '';
-      const json = await response.json();
-      const results = json.results || [];
-      return results
-        .map(r => `- ${r.title}: ${(r.content || '').slice(0, 300)}`)
-        .join('\n');
-    } catch (err) {
-      console.warn('[TopicsManager] Contexte Tavily indisponible, poursuite sans grounding:', err);
-      return '';
-    }
-  }
-
-  // ==================== MODAL DE STATUT (PIPELINE) ====================
-
-  showPipelineModal(text) {
-    if (!this.modal) this.modal = document.getElementById('modal-topic-pipeline');
-    if (!this.statusEl) this.statusEl = document.getElementById('topic-pipeline-status');
-    this.updatePipelineStatus(text);
-    this.modal?.classList.add('open');
-  }
-
-  updatePipelineStatus(text) {
-    if (this.statusEl) this.statusEl.textContent = text;
-  }
-
-  hidePipelineModal() {
-    this.modal?.classList.remove('open');
   }
 }

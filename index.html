@@ -316,13 +316,6 @@
           <!-- COLONNE GAUCHE : ASSISTANT ÉTAPE PAR ÉTAPE -->
           <aside class="config-sidebar">
 
-            <div class="wizard-stepper" id="wizard-stepper">
-              <div class="wizard-step-dot active" data-step="1"><span class="wizard-step-num">1</span>Brief</div>
-              <div class="wizard-step-dot" data-step="2"><span class="wizard-step-num">2</span>Script</div>
-              <div class="wizard-step-dot" data-step="3"><span class="wizard-step-num">3</span>Audio</div>
-              <div class="wizard-step-dot" data-step="4"><span class="wizard-step-num">4</span>Images</div>
-            </div>
-
             <!-- ÉTAPE 1 : BRIEF -->
             <section class="studio-card wizard-step" id="wizard-step-brief">
               <div class="card-header">
@@ -508,7 +501,7 @@
            ================================================================ -->
       <div class="crm-page" id="page-topics">
         <div class="page-header">
-          <p class="page-subtitle">Sujets tendances (AniList), cliquez pour prévisualiser puis générer la vidéo.</p>
+          <p class="page-subtitle">Sélectionnez votre prochain sujet à aborder.</p>
         </div>
 
         <!-- VUE LISTE -->
@@ -534,7 +527,7 @@
         <!-- VUE DÉTAIL (APERÇU PLEINE PAGE) -->
         <div id="topics-detail-view" style="display: none;">
           <div class="topic-detail-header">
-            <button type="button" id="btn-topic-detail-back" class="btn btn-secondary btn-sm">
+            <button type="button" id="btn-topic-detail-back" class="btn btn-gold btn-sm topic-detail-back-btn">
               <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="15 18 9 12 15 6"></polyline>
               </svg>
@@ -968,38 +961,6 @@
     </div>
   </div>
 
-  <!-- ========================================================================
-       MODALE : GÉNÉRATION AUTOMATIQUE D'UNE VIDÉO (SUJETS VIDÉO)
-       ======================================================================== -->
-  <div id="modal-topic-pipeline" class="modal-backdrop">
-    <div class="modal-card" style="max-width: 460px;">
-      <div class="modal-header">
-        <h3 class="modal-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
-            <path d="M2 8h20M7 3v5M17 3v5"></path>
-            <rect x="2" y="8" width="20" height="13" rx="2" ry="2"></rect>
-          </svg>
-          Génération Automatique de la Vidéo
-        </h3>
-      </div>
-
-      <div class="export-modal-content">
-        <div class="export-progress-ring">
-          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M2 8h20M7 3v5M17 3v5"></path>
-            <rect x="2" y="8" width="20" height="13" rx="2" ry="2"></rect>
-            <path d="M9 12.5l5 2.5-5 2.5z"></path>
-          </svg>
-        </div>
-        <div id="topic-pipeline-status" style="font-size: 0.9rem; color: var(--text-white);">
-          Écriture du script...
-        </div>
-        <div style="font-size: 0.78rem; color: var(--text-muted); max-width: 320px;">
-          Script, voix off et illustrations sont générés automatiquement, puis l'export vidéo démarre (barre de progression dédiée).
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- Point d'Entrée JavaScript (Modules ES6) avec cache-busting -->
   <script type="module" src="./js/app.js?v=2.0.0"></script>

@@ -22,7 +22,6 @@ export class ProductionWizard {
     this.scenes = []; // [{ segmentIds, texts, duration, candidates: [dataUrl...], selectedIndex }]
     this.isBusy = false;
 
-    this.stepperEl = document.getElementById('wizard-stepper');
     this.stepBrief = document.getElementById('wizard-step-brief');
     this.stepScript = document.getElementById('wizard-step-script');
     this.stepAudio = document.getElementById('wizard-step-audio');
@@ -55,26 +54,25 @@ export class ProductionWizard {
 
   // ==================== NAVIGATION ====================
 
+  // Les étapes s'accumulent : atteindre l'étape n affiche les étapes 1..n
+  // sans jamais masquer celles déjà révélées (rien ne doit disparaître).
   goToStep(n) {
     this.currentStep = n;
     const steps = { 1: this.stepBrief, 2: this.stepScript, 3: this.stepAudio, 4: this.stepImages };
+    let target = null;
     Object.entries(steps).forEach(([num, el]) => {
-      if (el) el.style.display = parseInt(num, 10) === n ? 'block' : 'none';
+      if (!el) return;
+      if (parseInt(num, 10) <= n) {
+        el.style.display = 'block';
+        if (parseInt(num, 10) === n) target = el;
+      }
     });
-    if (this.stepFinal) this.stepFinal.style.display = 'none';
-
-    if (this.stepperEl) {
-      this.stepperEl.querySelectorAll('.wizard-step-dot').forEach(dot => {
-        const dotStep = parseInt(dot.dataset.step, 10);
-        dot.classList.toggle('active', dotStep === n);
-        dot.classList.toggle('done', dotStep < n);
-      });
-    }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   confirmImages() {
     if (this.stepFinal) this.stepFinal.style.display = 'block';
+    this.stepFinal?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   reset() {
@@ -84,8 +82,13 @@ export class ProductionWizard {
     if (this.scriptText) this.scriptText.value = '';
     if (this.imagesStatus) this.imagesStatus.textContent = '';
     if (this.btnGotoFinal) this.btnGotoFinal.style.display = 'none';
+    [this.stepScript, this.stepAudio, this.stepImages, this.stepFinal].forEach(el => {
+      if (el) el.style.display = 'none';
+    });
     this.renderScenesList();
-    this.goToStep(1);
+    this.currentStep = 1;
+    if (this.stepBrief) this.stepBrief.style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   // ==================== HANDOFF DEPUIS SUJETS VIDÉO ====================
