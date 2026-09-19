@@ -1,7 +1,7 @@
 /* ==========================================================================
    COMPONENTS - ANIME PODCAST STUDIO
    Charte : Bleu sombre & Or uniquement (zéro rose)
-   Support complet du système multi-émotions et multi-poses par émotion
+   Support de l'import en vrac, détection automatique & multi-poses par émotion
    ========================================================================== */
 
 /* Boutons */
@@ -505,9 +505,9 @@
   background-color: var(--bg-card);
   border: 1px solid var(--border-gold);
   border-radius: var(--radius-lg);
-  max-width: 780px;
+  max-width: 820px;
   width: 100%;
-  max-height: 90vh;
+  max-height: 92vh;
   overflow-y: auto;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 30px var(--gold-subtle);
   padding: 24px;
@@ -547,150 +547,178 @@
   color: var(--gold-light);
 }
 
-/* Configuration Multi-Émotions dans la modale */
-.modal-emotions-container {
+/* ==========================================================================
+   ZONE D'IMPORT EN VRAC (BULK UPLOAD) & REVUE / CORRECTION
+   ========================================================================== */
+
+.bulk-upload-dropzone {
+  border: 2px dashed var(--gold-primary);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, rgba(245, 158, 11, 0.06) 0%, rgba(17, 29, 56, 0.4) 100%);
+  padding: 30px 20px;
+  text-align: center;
+  cursor: pointer;
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  max-height: 480px;
+  align-items: center;
+  gap: 10px;
+  transition: all var(--transition-normal);
+  box-shadow: 0 0 20px var(--gold-subtle);
+}
+
+.bulk-upload-dropzone:hover,
+.bulk-upload-dropzone.dragover {
+  border-color: var(--gold-light);
+  background: linear-gradient(180deg, rgba(245, 158, 11, 0.12) 0%, rgba(28, 46, 86, 0.5) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 0 30px var(--gold-glow);
+}
+
+.bulk-dropzone-icon {
+  width: 52px;
+  height: 52px;
+  color: var(--gold-light);
+  filter: drop-shadow(0 0 8px var(--gold-glow));
+}
+
+.bulk-dropzone-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-white);
+}
+
+.bulk-dropzone-sub {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  max-width: 480px;
+}
+
+/* Grille de Revue & Correction */
+.bulk-review-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 14px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 16px;
+}
+
+.bulk-review-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.bulk-review-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-white);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bulk-review-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  max-height: 360px;
   overflow-y: auto;
   padding-right: 6px;
 }
 
-.emotion-config-card {
-  background-color: var(--bg-surface);
+.bulk-review-card {
+  background: var(--bg-darker);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  padding: 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.emotion-config-header {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.emotion-config-title {
+  padding: 10px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.92rem;
-  color: var(--text-white);
-}
-
-.badge-required {
-  font-size: 0.65rem;
-  background: rgba(220, 38, 38, 0.2);
-  color: #fca5a5;
-  border: 1px solid rgba(220, 38, 38, 0.4);
-  padding: 1px 6px;
-  border-radius: var(--radius-full);
-}
-
-.badge-count {
-  font-size: 0.7rem;
-  background: var(--gold-subtle);
-  color: var(--gold-light);
-  border: 1px solid rgba(245, 158, 11, 0.3);
-  padding: 1px 8px;
-  border-radius: var(--radius-full);
-  margin-left: auto;
-}
-
-.emotion-config-hint {
-  font-size: 0.72rem;
-  color: var(--text-muted);
-}
-
-/* Galerie des poses par émotion */
-.emotion-poses-gallery {
-  display: flex;
   gap: 10px;
-  flex-wrap: wrap;
+  position: relative;
+  transition: border-color var(--transition-fast);
 }
 
-.pose-thumb-item {
-  position: relative;
-  width: 72px;
-  height: 72px;
+.bulk-review-card:hover {
+  border-color: var(--border-highlight);
+}
+
+.bulk-review-thumb {
+  width: 54px;
+  height: 54px;
   border-radius: var(--radius-sm);
-  background-color: var(--bg-darker);
-  border: 1px solid var(--border-subtle);
+  background: var(--bg-abyss);
   overflow: hidden;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  border: 1px solid var(--border-subtle);
 }
 
-.pose-thumb-item img,
-.pose-thumb-item svg {
+.bulk-review-thumb img {
   width: 100%;
   height: 100%;
   object-fit: contain;
 }
 
-.thumb-index {
-  position: absolute;
-  bottom: 2px;
-  left: 4px;
-  font-size: 0.65rem;
-  font-family: monospace;
-  color: var(--gold-light);
-  background: rgba(7, 11, 20, 0.8);
-  padding: 0 4px;
-  border-radius: 3px;
-}
-
-.btn-remove-pose {
-  position: absolute;
-  top: 2px;
-  right: 2px;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: rgba(220, 38, 38, 0.85);
-  color: white;
-  border: none;
-  font-size: 11px;
-  line-height: 1;
+.bulk-review-info {
+  flex: 1;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: transform var(--transition-fast);
+  flex-direction: column;
+  gap: 4px;
+  overflow: hidden;
 }
 
-.btn-remove-pose:hover {
-  transform: scale(1.15);
-  background: #dc2626;
-}
-
-.emotion-dropzone {
-  border: 1.5px dashed var(--border-highlight);
-  border-radius: var(--radius-sm);
-  padding: 10px 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  cursor: pointer;
-  font-size: 0.8rem;
+.bulk-review-name {
+  font-size: 0.75rem;
+  font-weight: 600;
   color: var(--text-muted);
-  background: rgba(11, 19, 41, 0.4);
-  transition: all var(--transition-fast);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.emotion-dropzone:hover,
-.emotion-dropzone.dragover {
-  border-color: var(--gold-primary);
+.bulk-select-emotion {
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-subtle);
   color: var(--gold-light);
-  background: var(--gold-subtle);
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  padding: 4px 6px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color var(--transition-fast);
+  width: 100%;
 }
 
-/* Création d'émotion personnalisée */
+.bulk-select-emotion:focus,
+.bulk-select-emotion:hover {
+  border-color: var(--gold-primary);
+}
+
+.bulk-btn-remove {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 2px 4px;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+  align-self: flex-start;
+}
+
+.bulk-btn-remove:hover {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.15);
+}
+
+/* Outil d'ajout d'émotion personnalisée */
 .custom-emotion-adder {
   display: flex;
   gap: 8px;
@@ -699,7 +727,7 @@
   border-radius: var(--radius-md);
   padding: 12px;
   align-items: center;
-  margin-top: 6px;
+  margin-top: 10px;
 }
 
 .custom-emotion-adder input {

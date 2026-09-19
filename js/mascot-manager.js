@@ -1,10 +1,10 @@
 /**
  * MASCOT MANAGER - ANIME PODCAST STUDIO
  * Gère les mascottes multi-émotions et multi-poses :
- * - Catalogue étendu d'émotions
- * - Ajout d'émotions personnalisées illimitées
- * - Upload multi-poses par émotion (galerie de variantes avec drag & drop)
- * - Persistance IndexedDB et synchronisation avec le canevas
+ * - Import en vrac (Bulk Upload) de toutes les images en un seul clic
+ * - Détection automatique intelligente de l'émotion par analyse du nom de fichier
+ * - Grille de revue et correction manuelle en 1 clic avant enregistrement
+ * - Persistance IndexedDB et synchronisation dynamique avec le canevas
  */
 
 import { DEFAULT_MASCOTS, BASE_EMOTIONS } from './default-mascots.js';
@@ -20,7 +20,7 @@ export class MascotManager {
     this.onMascotChange = onMascotChangeCallback;
     this.onEmotionChange = onEmotionChangeCallback;
 
-    // Éléments du DOM
+    // Éléments du DOM principal
     this.pickerContainer = document.getElementById('mascot-picker');
     this.emotionsContainer = document.getElementById('poses-preview-bar');
     this.btnNewMascot = document.getElementById('btn-new-mascot');
@@ -29,15 +29,21 @@ export class MascotManager {
     this.formNewMascot = document.getElementById('form-new-mascot');
     this.inputMascotName = document.getElementById('input-mascot-name');
 
-    // Conteneur de configuration des émotions dans la modale
-    this.emotionsConfigContainer = document.getElementById('modal-emotions-container');
+    // Éléments de l'import en vrac
+    this.bulkDropzone = document.getElementById('bulk-upload-dropzone');
+    this.inputBulkFiles = document.getElementById('input-bulk-files');
+    this.bulkReviewContainer = document.getElementById('bulk-review-container');
+    this.bulkReviewGrid = document.getElementById('bulk-review-grid');
+    this.bulkCountBadge = document.getElementById('bulk-count-badge');
+
+    // Émotion personnalisée
     this.btnAddCustomEmotion = document.getElementById('btn-add-custom-emotion');
     this.inputCustomEmotionName = document.getElementById('input-custom-emotion-name');
 
-    // Structure de travail temporaire pour la création de mascotte
-    // { [emotionId]: [dataUrl1, dataUrl2, ...] }
-    this.tempMascotEmotions = {};
-    this.customEmotionsList = []; // Array<{ id, label, icon, hint }>
+    // Liste des fichiers importés en vrac pour revue
+    // Array<{ id, name, dataUrl, assignedEmotion }>
+    this.bulkUploadedFiles = [];
+    this.customEmotionsList = [];
 
     this.init();
   }
@@ -88,7 +94,7 @@ export class MascotManager {
     const availablePoses = this.getPosesForEmotion(this.activeMascot, emotionName);
     if (availablePoses && availablePoses.length > 0) {
       if (this.activeEmotion === emotionName) {
-        // Si on clique à nouveau sur la même émotion, cycler entre ses variantes !
+        // Cycler entre les variantes
         this.activeVariantIndex = (this.activeVariantIndex + 1) % availablePoses.length;
       } else {
         this.activeEmotion = emotionName;
@@ -112,6 +118,50 @@ export class MascotManager {
     return Object.keys(mascot.emotions);
   }
 
+  getAllAvailableEmotions() {
+    return [...BASE_EMOTIONS, ...this.customEmotionsList];
+  }
+
+  /**
+   * Moteur de Détection Automatique d'Émotion
+   * Analyse le nom du fichier (insensible à la casse, sans accents)
+   */
+  detectEmotionFromFileName(fileName, index = 0) {
+    const clean = fileName
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]/g, ' ');
+
+    const rules = [
+      { id: 'enthousiaste', keywords: ['enthousiaste', 'enthusiastic', 'excited', 'sparkle', 'hype', 'victory', 'cheer', 'energy', 'dynamique', 'super'] },
+      { id: 'explicative', keywords: ['explicative', 'explaining', 'explain', 'point', 'teach', 'present', 'hand', 'demo', 'tuto', 'index'] },
+      { id: 'pensive', keywords: ['pensive', 'thinking', 'thoughtful', 'think', 'wonder', 'question', 'curious', 'doubt', 'ponder', 'songeur'] },
+      { id: 'surprise', keywords: ['surprise', 'surprised', 'shock', 'gasp', 'astonished', 'what', 'omg', 'choc', 'ebahi', 'sursaut'] },
+      { id: 'confiante', keywords: ['confiante', 'confident', 'cool', 'smug', 'arms crossed', 'proud', 'fiert', 'brave', 'classe'] },
+      { id: 'joyeuse', keywords: ['joyeuse', 'happy', 'smile', 'joy', 'laugh', 'cheerful', 'fun', 'content', 'rire', 'sourire'] },
+      { id: 'serieuse', keywords: ['serieuse', 'serious', 'focus', 'stern', 'steady', 'concentr', 'grave', 'calme'] },
+      { id: 'ironique', keywords: ['ironique', 'ironic', 'smirk', 'sarcastic', 'tease', 'wry', 'moqueur', 'malicieux'] },
+      { id: 'enervee', keywords: ['enervee', 'angry', 'mad', 'rage', 'passion', 'furious', 'annoyed', 'colere', 'enrage'] },
+      { id: 'determinee', keywords: ['determinee', 'determined', 'action', 'ready', 'fight', 'engage', 'volont'] },
+      { id: 'embarrassee', keywords: ['embarrassee', 'embarrassed', 'shy', 'blush', 'sweat', 'awkward', 'timide', 'gene'] },
+      { id: 'neutre', keywords: ['neutre', 'neutral', 'idle', 'default', 'base', 'normal', 'stand', 'pose', 'repos'] }
+    ];
+
+    // Vérifier les correspondances de mots-clés
+    for (const rule of rules) {
+      for (const kw of rule.keywords) {
+        if (clean.includes(kw)) {
+          return rule.id;
+        }
+      }
+    }
+
+    // Si aucune correspondance explicite, distribuer de façon équilibrée
+    const fallbackList = ['neutre', 'enthousiaste', 'explicative', 'pensive', 'surprise', 'joyeuse'];
+    return fallbackList[index % fallbackList.length];
+  }
+
   renderPicker() {
     if (!this.pickerContainer) return;
     this.pickerContainer.innerHTML = '';
@@ -124,9 +174,8 @@ export class MascotManager {
       const thumbnailBox = document.createElement('div');
       thumbnailBox.className = 'mascot-thumbnail';
 
-      // Première pose disponible pour la miniature
       const neutralPoses = this.getPosesForEmotion(mascot, 'neutre');
-      const firstPose = neutralPoses[0] || (Object.values(mascot.emotions)[0] || [])[0] || '';
+      const firstPose = neutralPoses[0] || (Object.values(mascot.emotions || {})[0] || [])[0] || '';
 
       if (firstPose.trim().startsWith('<svg')) {
         thumbnailBox.innerHTML = firstPose;
@@ -143,7 +192,6 @@ export class MascotManager {
       nameEl.className = 'mascot-name';
       nameEl.textContent = mascot.name;
 
-      // Badge du nombre d'émotions et poses
       const statsEl = document.createElement('div');
       statsEl.className = 'mascot-stats-badge';
       const numEmotions = Object.keys(mascot.emotions || {}).length;
@@ -161,7 +209,6 @@ export class MascotManager {
         card.appendChild(badge);
       }
 
-      // Bouton de suppression pour les mascottes créées
       if (!mascot.isDefault) {
         const delBtn = document.createElement('button');
         delBtn.className = 'btn-delete-mascot';
@@ -234,6 +281,34 @@ export class MascotManager {
       });
     }
 
+    // Événements d'importation en vrac (Bulk Upload)
+    if (this.bulkDropzone && this.inputBulkFiles) {
+      this.bulkDropzone.addEventListener('click', () => this.inputBulkFiles.click());
+
+      this.inputBulkFiles.addEventListener('change', async (e) => {
+        if (e.target.files && e.target.files.length > 0) {
+          await this.handleBulkFiles(Array.from(e.target.files));
+        }
+      });
+
+      this.bulkDropzone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        this.bulkDropzone.classList.add('dragover');
+      });
+
+      this.bulkDropzone.addEventListener('dragleave', () => {
+        this.bulkDropzone.classList.remove('dragover');
+      });
+
+      this.bulkDropzone.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        this.bulkDropzone.classList.remove('dragover');
+        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+          await this.handleBulkFiles(Array.from(e.dataTransfer.files));
+        }
+      });
+    }
+
     // Ajout d'une émotion personnalisée
     if (this.btnAddCustomEmotion && this.inputCustomEmotionName) {
       this.btnAddCustomEmotion.addEventListener('click', () => {
@@ -241,7 +316,7 @@ export class MascotManager {
         if (!customName) return;
 
         const customId = customName.toLowerCase().replace(/[^a-z0-9]/g, '_');
-        if (this.tempMascotEmotions[customId] !== undefined) {
+        if (this.getAllAvailableEmotions().some(e => e.id === customId)) {
           alert('Cette émotion existe déjà.');
           return;
         }
@@ -254,10 +329,10 @@ export class MascotManager {
         };
 
         this.customEmotionsList.push(newEmotionMeta);
-        this.tempMascotEmotions[customId] = [];
         this.inputCustomEmotionName.value = '';
 
-        this.renderModalEmotionSection(newEmotionMeta);
+        // Rafraîchir les sélecteurs dans la grille de revue
+        this.renderBulkReviewGrid();
       });
     }
 
@@ -273,16 +348,12 @@ export class MascotManager {
   openModal() {
     if (!this.modal) return;
 
-    this.tempMascotEmotions = {};
+    this.bulkUploadedFiles = [];
     this.customEmotionsList = [];
     if (this.inputMascotName) this.inputMascotName.value = '';
+    if (this.bulkReviewContainer) this.bulkReviewContainer.style.display = 'none';
+    if (this.bulkReviewGrid) this.bulkReviewGrid.innerHTML = '';
 
-    // Initialiser les 12 émotions de base
-    BASE_EMOTIONS.forEach(emo => {
-      this.tempMascotEmotions[emo.id] = [];
-    });
-
-    this.renderModalEmotionsList();
     this.modal.classList.add('open');
   }
 
@@ -290,121 +361,33 @@ export class MascotManager {
     if (this.modal) this.modal.classList.remove('open');
   }
 
-  renderModalEmotionsList() {
-    if (!this.emotionsConfigContainer) return;
-    this.emotionsConfigContainer.innerHTML = '';
-
-    const allEmotionsToRender = [...BASE_EMOTIONS, ...this.customEmotionsList];
-    allEmotionsToRender.forEach(emo => {
-      this.renderModalEmotionSection(emo);
-    });
-  }
-
-  renderModalEmotionSection(emo) {
-    if (!this.emotionsConfigContainer) return;
-
-    let section = document.getElementById(`modal-emo-section-${emo.id}`);
-    if (!section) {
-      section = document.createElement('div');
-      section.id = `modal-emo-section-${emo.id}`;
-      section.className = 'emotion-config-card';
-      this.emotionsConfigContainer.appendChild(section);
-    }
-
-    const currentPoses = this.tempMascotEmotions[emo.id] || [];
-    const isRequired = emo.id === 'neutre';
-
-    section.innerHTML = `
-      <div class="emotion-config-header">
-        <div class="emotion-config-title">
-          <span class="emotion-icon">${emo.icon}</span>
-          <strong>${emo.label}</strong>
-          ${isRequired ? '<span class="badge-required">Obligatoire</span>' : ''}
-          <span class="badge-count">${currentPoses.length} pose${currentPoses.length > 1 ? 's' : ''}</span>
-        </div>
-        <div class="emotion-config-hint">${emo.hint || ''}</div>
-      </div>
-
-      <!-- Galerie des poses actuelles pour cette émotion -->
-      <div class="emotion-poses-gallery" id="gallery-${emo.id}"></div>
-
-      <!-- Dropzone d'upload multi-fichiers pour cette émotion -->
-      <div class="emotion-dropzone" id="dropzone-${emo.id}">
-        <input type="file" id="input-files-${emo.id}" accept="image/*" multiple style="display: none;">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="12" y1="5" x2="12" y2="19"></line>
-          <line x1="5" y1="12" x2="19" y2="12"></line>
-        </svg>
-        <span>Ajouter une ou plusieurs poses pour cette émotion (Glisser-déposer ou cliquer)</span>
-      </div>
-    `;
-
-    // Remplir la galerie de poses
-    const galleryEl = section.querySelector(`#gallery-${emo.id}`);
-    currentPoses.forEach((poseUrl, idx) => {
-      const thumb = document.createElement('div');
-      thumb.className = 'pose-thumb-item';
-      thumb.innerHTML = `
-        <img src="${poseUrl}" alt="${emo.label} pose ${idx + 1}" />
-        <button type="button" class="btn-remove-pose" title="Supprimer cette variante">&times;</button>
-        <span class="thumb-index">#${idx + 1}</span>
-      `;
-
-      thumb.querySelector('.btn-remove-pose').addEventListener('click', (e) => {
-        e.stopPropagation();
-        this.tempMascotEmotions[emo.id].splice(idx, 1);
-        this.renderModalEmotionSection(emo);
-      });
-
-      galleryEl.appendChild(thumb);
-    });
-
-    // Configuration des événements d'upload multi-fichiers
-    const dropzone = section.querySelector(`#dropzone-${emo.id}`);
-    const fileInput = section.querySelector(`#input-files-${emo.id}`);
-
-    if (dropzone && fileInput) {
-      dropzone.addEventListener('click', () => fileInput.click());
-
-      fileInput.addEventListener('change', (e) => {
-        if (e.target.files && e.target.files.length > 0) {
-          this.handleMultiFilesUpload(Array.from(e.target.files), emo);
-        }
-      });
-
-      dropzone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        dropzone.classList.add('dragover');
-      });
-
-      dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
-
-      dropzone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        dropzone.classList.remove('dragover');
-        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-          this.handleMultiFilesUpload(Array.from(e.dataTransfer.files), emo);
-        }
-      });
-    }
-  }
-
-  async handleMultiFilesUpload(files, emo) {
-    const validImageFiles = files.filter(f => f.type.startsWith('image/'));
-    if (validImageFiles.length === 0) {
-      alert('Veuillez déposer des fichiers image valides (PNG, SVG, WebP).');
+  /**
+   * Traite toutes les images importées en vrac :
+   * - Lit chaque image en DataURL
+   * - Détecte automatiquement l'émotion par le nom
+   * - Affiche la grille de revue pour correction
+   */
+  async handleBulkFiles(files) {
+    const validImages = files.filter(f => f.type.startsWith('image/'));
+    if (validImages.length === 0) {
+      alert('Veuillez sélectionner des fichiers image valides (PNG, SVG, WebP).');
       return;
     }
 
-    for (const file of validImageFiles) {
+    for (let i = 0; i < validImages.length; i++) {
+      const file = validImages[i];
       const dataUrl = await this.readFileAsDataURL(file);
-      if (!this.tempMascotEmotions[emo.id]) {
-        this.tempMascotEmotions[emo.id] = [];
-      }
-      this.tempMascotEmotions[emo.id].push(dataUrl);
+      const detectedEmotion = this.detectEmotionFromFileName(file.name, this.bulkUploadedFiles.length + i);
+
+      this.bulkUploadedFiles.push({
+        id: `bulk-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+        name: file.name,
+        dataUrl: dataUrl,
+        assignedEmotion: detectedEmotion
+      });
     }
 
-    this.renderModalEmotionSection(emo);
+    this.renderBulkReviewGrid();
   }
 
   readFileAsDataURL(file) {
@@ -415,33 +398,111 @@ export class MascotManager {
     });
   }
 
+  /**
+   * Rendu de la grille de revue & correction
+   */
+  renderBulkReviewGrid() {
+    if (!this.bulkReviewContainer || !this.bulkReviewGrid) return;
+
+    if (this.bulkUploadedFiles.length === 0) {
+      this.bulkReviewContainer.style.display = 'none';
+      return;
+    }
+
+    this.bulkReviewContainer.style.display = 'flex';
+    if (this.bulkCountBadge) {
+      this.bulkCountBadge.textContent = `${this.bulkUploadedFiles.length} image${this.bulkUploadedFiles.length > 1 ? 's' : ''} analysée${this.bulkUploadedFiles.length > 1 ? 's' : ''}`;
+    }
+
+    this.bulkReviewGrid.innerHTML = '';
+    const allEmotions = this.getAllAvailableEmotions();
+
+    this.bulkUploadedFiles.forEach((item, idx) => {
+      const card = document.createElement('div');
+      card.className = 'bulk-review-card';
+
+      // Miniature
+      const thumb = document.createElement('div');
+      thumb.className = 'bulk-review-thumb';
+      thumb.innerHTML = `<img src="${item.dataUrl}" alt="${item.name}" />`;
+
+      // Infos & Sélecteur d'émotion
+      const infoBox = document.createElement('div');
+      infoBox.className = 'bulk-review-info';
+
+      const nameEl = document.createElement('div');
+      nameEl.className = 'bulk-review-name';
+      nameEl.textContent = item.name;
+      nameEl.title = item.name;
+
+      const selectEl = document.createElement('select');
+      selectEl.className = 'bulk-select-emotion';
+
+      allEmotions.forEach(emo => {
+        const opt = document.createElement('option');
+        opt.value = emo.id;
+        opt.textContent = `${emo.icon} ${emo.label}`;
+        if (emo.id === item.assignedEmotion) {
+          opt.selected = true;
+        }
+        selectEl.appendChild(opt);
+      });
+
+      // Correction manuelle immédiate par l'utilisateur
+      selectEl.addEventListener('change', (e) => {
+        item.assignedEmotion = e.target.value;
+      });
+
+      infoBox.appendChild(nameEl);
+      infoBox.appendChild(selectEl);
+
+      // Bouton suppression de l'image
+      const btnRemove = document.createElement('button');
+      btnRemove.type = 'button';
+      btnRemove.className = 'bulk-btn-remove';
+      btnRemove.innerHTML = '&times;';
+      btnRemove.title = 'Retirer cette image';
+      btnRemove.addEventListener('click', () => {
+        this.bulkUploadedFiles.splice(idx, 1);
+        this.renderBulkReviewGrid();
+      });
+
+      card.appendChild(thumb);
+      card.appendChild(infoBox);
+      card.appendChild(btnRemove);
+
+      this.bulkReviewGrid.appendChild(card);
+    });
+  }
+
   async handleCreateMascotSubmit() {
     const name = this.inputMascotName.value.trim();
     if (!name) {
-      alert('Veuillez entrer un nom pour la mascotte.');
+      alert('Veuillez entrer un nom pour votre mascotte.');
       return;
     }
 
-    const neutralPoses = this.tempMascotEmotions.neutre || [];
-    if (neutralPoses.length === 0) {
-      alert('Veuillez fournir au moins une pose pour l\'émotion "Neutre" (obligatoire).');
+    if (this.bulkUploadedFiles.length === 0) {
+      alert('Veuillez importer au moins une image pour votre mascotte.');
       return;
     }
 
-    // Filtrer les émotions qui ont au moins une pose
+    // Regrouper les images par émotion
     const finalEmotions = {};
-    for (const [emoId, poses] of Object.entries(this.tempMascotEmotions)) {
-      if (poses && poses.length > 0) {
-        finalEmotions[emoId] = poses;
-      }
-    }
 
-    // Si certaines émotions de base n'ont pas de pose, utiliser la pose neutre comme fallback
-    BASE_EMOTIONS.forEach(emo => {
-      if (!finalEmotions[emo.id]) {
-        finalEmotions[emo.id] = [...neutralPoses];
+    this.bulkUploadedFiles.forEach(item => {
+      const emo = item.assignedEmotion;
+      if (!finalEmotions[emo]) {
+        finalEmotions[emo] = [];
       }
+      finalEmotions[emo].push(item.dataUrl);
     });
+
+    // Si l'émotion neutre n'a pas été assignée, lui attribuer la première image disponible
+    if (!finalEmotions.neutre || finalEmotions.neutre.length === 0) {
+      const firstAvailable = this.bulkUploadedFiles[0].dataUrl;
+      finalEmotions.neutre = [firstAvailable];
+    }
 
     const newMascot = {
       id: `custom-${Date.now()}`,
@@ -456,6 +517,7 @@ export class MascotManager {
       this.mascots.push(newMascot);
       this.setActiveMascot(newMascot.id);
       this.closeModal();
+      alert(`Mascotte "${name}" créée avec succès avec ${this.bulkUploadedFiles.length} poses réparties sur ${Object.keys(finalEmotions).length} émotions !`);
     } catch (err) {
       console.error('[MascotManager] Erreur d\'enregistrement:', err);
       alert('Erreur lors de l\'enregistrement de la mascotte.');

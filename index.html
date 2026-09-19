@@ -306,7 +306,7 @@
   </div>
 
   <!-- ========================================================================
-       MODALE 1 : CRÉATION D'UNE NOUVELLE MASCOTTE (MULTI-ÉMOTIONS & MULTI-POSES)
+       MODALE : CRÉATION D'UNE NOUVELLE MASCOTTE (IMPORT EN VRAC & DÉTECTION AUTO)
        ======================================================================== -->
   <div id="modal-new-mascot" class="modal-backdrop">
     <div class="modal-card">
@@ -315,7 +315,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
             <path d="M12 5v14M5 12h14"></path>
           </svg>
-          Créer une Nouvelle Mascotte (Multi-Émotions & Multi-Poses)
+          Créer une Nouvelle Mascotte (Import en Vrac & Détection Auto)
         </h3>
         <button id="modal-close-btn" class="modal-close">&times;</button>
       </div>
@@ -323,23 +323,48 @@
       <form id="form-new-mascot">
         <div class="form-group">
           <label for="input-mascot-name" class="form-label">Nom de la mascotte *</label>
-          <input type="text" id="input-mascot-name" class="form-input" placeholder="Ex: Hikari, Kenji..." required>
+          <input type="text" id="input-mascot-name" class="form-input" placeholder="Ex: Hikari, Kenji, Luna..." required>
         </div>
 
+        <!-- 1. ZONE UNIQUE D'IMPORTATION EN VRAC -->
         <div class="form-group">
           <div class="form-label">
-            <span>Émotions & Variantes de Poses (PNG ou SVG transparents)</span>
-            <span style="color: var(--gold-light);">Glissez plusieurs images par émotion</span>
-          </div>
-          
-          <!-- Conteneur dynamique des 12 émotions de base + émotions créées -->
-          <div id="modal-emotions-container" class="modal-emotions-container">
-            <!-- Rempli dynamiquement par mascot-manager.js -->
+            <span>1. Importer toutes vos images en vrac</span>
+            <span style="color: var(--gold-light);">Détection automatique de l'émotion par le nom de fichier</span>
           </div>
 
-          <!-- Outil d'ajout d'une émotion personnalisée -->
+          <input type="file" id="input-bulk-files" accept="image/*" multiple style="display: none;">
+          <div id="bulk-upload-dropzone" class="bulk-upload-dropzone">
+            <svg class="bulk-dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            <div class="bulk-dropzone-title">📁 Cliquez pour envoyer toutes vos images en vrac</div>
+            <div class="bulk-dropzone-sub">Ou glissez-déposez tout votre dossier d'images ici (PNG, SVG, WebP)</div>
+          </div>
+        </div>
+
+        <!-- 2. GRILLE DE REVUE ET CORRECTION EN 1 CLIC -->
+        <div id="bulk-review-container" class="bulk-review-container" style="display: none;">
+          <div class="bulk-review-header">
+            <span class="bulk-review-title">
+              <span>2. Revue & Correction des émotions</span>
+            </span>
+            <span id="bulk-count-badge" class="badge-count">0 images</span>
+          </div>
+          <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 8px;">
+            L'application a analysé les noms de fichiers et pré-assigné les émotions. Si vous constatez une erreur, changez simplement l'émotion via le menu déroulant sous l'image avant d'enregistrer.
+          </p>
+          <div id="bulk-review-grid" class="bulk-review-grid">
+            <!-- Rempli dynamiquement par mascot-manager.js -->
+          </div>
+        </div>
+
+        <!-- 3. AJOUT D'ÉMOTION PERSONNALISÉE (OPTIONNEL) -->
+        <div class="form-group">
           <div class="custom-emotion-adder">
-            <input type="text" id="input-custom-emotion-name" class="form-input" placeholder="Nouvelle émotion personnalisée (ex: Sarcastique, Choquée, Romantique...)">
+            <input type="text" id="input-custom-emotion-name" class="form-input" placeholder="Ajouter une émotion personnalisée (ex: Sarcastique, Choquée, Romantique...)">
             <button type="button" id="btn-add-custom-emotion" class="btn btn-outline-gold btn-sm">
               + Ajouter l'Émotion
             </button>
@@ -351,7 +376,7 @@
             Annuler
           </button>
           <button type="submit" class="btn btn-gold">
-            Enregistrer dans IndexedDB
+            Enregistrer la Mascotte
           </button>
         </div>
       </form>
@@ -359,7 +384,7 @@
   </div>
 
   <!-- ========================================================================
-       MODALE 2 : EXPORTATION VIDÉO TRANSPARENTE
+       MODALE : EXPORTATION VIDÉO TRANSPARENTE
        ======================================================================== -->
   <div id="modal-export" class="modal-backdrop">
     <div class="modal-card" style="max-width: 460px;">
