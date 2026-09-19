@@ -2,9 +2,10 @@
  * CANVAS RENDERER - ANIME PODCAST STUDIO
  * Rendu vidéo dynamique sur canevas HTML5 transparent :
  * - Mascotte détourée sur fond transparent natif (canal alpha RGBA 0,0,0,0)
- * - Animation de respiration idle (breathing / floating)
- * - Synchronisation buccale temps réel (lip-sync / mouth flap) selon l'énergie audio
- * - Transitions douces entre les 5 poses synchronisées aux phrases (façon NotebookLM)
+ * - Support étendu de toutes les émotions et de toutes les variantes de poses
+ * - Animation de respiration idle et balancement naturel
+ * - Flap buccal réactif temps réel (lip-sync)
+ * - Alternance fluide synchronisée aux phrases et sous-segments
  */
 
 export class CanvasRenderer {
@@ -16,7 +17,6 @@ export class CanvasRenderer {
     this.ctx = this.canvas ? this.canvas.getContext('2d', { alpha: true }) : null;
     this.canvasWrapper = document.querySelector('.canvas-wrapper');
 
-    // Résolution de travail Full HD pour export vidéo haute qualité
     this.baseWidth = 1920;
     this.baseHeight = 1080;
 
@@ -26,16 +26,14 @@ export class CanvasRenderer {
     }
 
     this.currentMascot = null;
-    this.currentPose = 'neutre';
-    this.targetPose = 'neutre';
-    this.poseTransitionAlpha = 1.0;
+    this.currentEmotion = 'neutre';
+    this.currentVariantIndex = 0;
 
-    // Cache d'images préchargées pour rendu fluide à 60 FPS
-    this.imageCache = new Map(); // key: mascotId_poseName, value: HTMLImageElement
+    // Cache d'images préchargées : key = mascotId_emotion_variantIndex
+    this.imageCache = new Map();
 
     this.isRunning = false;
     this.animationFrameId = null;
-    this.lastTimestamp = 0;
 
     this.init();
   }
@@ -61,28 +59,28 @@ export class CanvasRenderer {
 
   async setMascot(mascot) {
     this.currentMascot = mascot;
-    // Précharger toutes les 5 poses de la mascotte
-    await this.preloadMascotPoses(mascot);
+    this.currentEmotion = 'neutre';
+    this.currentVariantIndex = 0;
+    await this.preloadAllMascotPoses(mascot);
   }
 
-  setPose(poseName) {
-    if (this.currentPose !== poseName) {
-      this.targetPose = poseName;
-      this.currentPose = poseName;
-    }
+  setEmotion(emotionName, variantIndex = 0) {
+    this.currentEmotion = emotionName;
+    this.currentVariantIndex = variantIndex;
   }
 
-  async preloadMascotPoses(mascot) {
-    if (!mascot || !mascot.poses) return;
+  async preloadAllMascotPoses(mascot) {
+    if (!mascot || !mascot.emotions) return;
 
-    const poses = ['neutre', 'enthousiaste', 'explicative', 'pensive', 'surprise'];
-    for (const p of poses) {
-      const poseData = mascot.poses[p];
-      if (poseData) {
-        const key = `${mascot.id}_${p}`;
-        if (!this.imageCache.has(key)) {
-          const img = await this.createImageFromData(poseData);
-          this.imageCache.set(key, img);
+    for (const [emoKey, poses] of Object.entries(mascot.emotions)) {
+      if (Array.isArray(poses)) {
+        for (let idx = 0; idx < poses.length; idx++) {
+          const poseData = poses[idx];
+          const cacheKey = `${mascot.id}_${emoKey}_${idx}`;
+          if (!this.imageCache.has(cacheKey) && poseData) {
+            const img = await this.createImageFromData(poseData);
+            this.imageCache.set(cacheKey, img);
+          }
         }
       }
     }
@@ -94,7 +92,6 @@ export class CanvasRenderer {
       img.crossOrigin = 'anonymous';
 
       if (data.trim().startsWith('<svg')) {
-        // Conversion de la chaîne SVG en Data URI
         const blob = new Blob([data], { type: 'image/svg+xml;charset=utf-8' });
         const url = URL.createObjectURL(blob);
         img.onload = () => {
@@ -103,7 +100,6 @@ export class CanvasRenderer {
         };
         img.src = url;
       } else {
-        // Data URL existante (image uploadée)
         img.onload = () => resolve(img);
         img.src = data;
       }
@@ -130,10 +126,6 @@ export class CanvasRenderer {
     }
   }
 
-  /**
-   * Rendu d'une frame individuelle
-   * Utilisé à la fois pour la prévisualisation en temps réel et pour l'export vidéo
-   */
   renderFrame(timestamp = performance.now()) {
     if (!this.ctx || !this.canvas) return;
 
@@ -141,53 +133,52 @@ export class CanvasRenderer {
     const width = this.canvas.width;
     const height = this.canvas.height;
 
-    // 1. Nettoyage complet : GARANTIE DE FOND TRANSPARENT (ALPHA PUR)
+    // 1. FOND TRANSPARENT ABSOLU (Canal Alpha RGBA 0,0,0,0)
     ctx.clearRect(0, 0, width, height);
 
     if (!this.currentMascot) return;
 
-    // 2. Détermination de la pose selon le temps audio en cours (synchronisation NotebookLM)
+    // 2. Synchronisation de l'attitude avec la lecture audio en cours
     if (this.audioManager && this.speechAnalyzer && this.audioManager.isPlaying) {
       const currentTime = this.audioManager.getCurrentTime();
-      const detectedPose = this.speechAnalyzer.getPoseAtTime(currentTime);
-      if (detectedPose) {
-        this.currentPose = detectedPose;
+      const attitude = this.speechAnalyzer.getPoseAtTime(currentTime);
+      if (attitude) {
+        this.currentEmotion = attitude.emotion;
+        this.currentVariantIndex = attitude.variantIndex;
       }
     }
 
-    // 3. Mesure de l'énergie vocale pour le flap buccal et les micro-mouvements
+    // 3. Mesure de l'énergie vocale pour le flap buccal et micro-mouvements
     const mouthAperture = this.audioManager ? this.audioManager.getMouthAperture() : 0;
     const isSpeaking = mouthAperture > 0.05;
 
-    // 4. Calcul de l'animation Idle (respiration & balancement subtil)
+    // 4. Animation Idle (respiration & balancement doux)
     const timeSec = timestamp * 0.001;
-    const idleY = Math.sin(timeSec * 2.2) * 8; // Flottement vertical doux de 8px
-    const idleTilt = Math.sin(timeSec * 1.5) * 0.008; // Léger balancement angulaire
+    const idleY = Math.sin(timeSec * 2.2) * 8;
+    const idleTilt = Math.sin(timeSec * 1.5) * 0.008;
     const speakingBounce = isSpeaking ? (Math.sin(timestamp * 0.02) * 6 * mouthAperture) : 0;
 
-    // 5. Positionnement centré de la mascotte
+    // 5. Positionnement
     const targetHeight = height * 0.88;
-    const targetWidth = targetHeight * (400 / 500); // Ratio du personnage
+    const targetWidth = targetHeight * (400 / 500);
     const posX = (width - targetWidth) / 2;
     const posY = height - targetHeight + idleY + speakingBounce;
 
     ctx.save();
 
-    // Pivot pour le balancement au bas du personnage
     const pivotX = width / 2;
     const pivotY = height;
     ctx.translate(pivotX, pivotY);
     ctx.rotate(idleTilt);
     ctx.translate(-pivotX, -pivotY);
 
-    // 6. Rendu de l'image de la mascotte
-    const cacheKey = `${this.currentMascot.id}_${this.currentPose}`;
+    // 6. Rendu de l'attitude courante
+    const cacheKey = `${this.currentMascot.id}_${this.currentEmotion}_${this.currentVariantIndex}`;
     let imgToDraw = this.imageCache.get(cacheKey);
 
-    // Si mascotte par défaut avec support de flap buccal SVG dynamique
+    // Si mascotte par défaut avec flap buccal dynamique SVG
     if (this.currentMascot.getSvgWithMouth && isSpeaking) {
-      // Générer dynamiquement la pose avec ouverture buccale proportionnelle
-      const dynamicSvg = this.currentMascot.getSvgWithMouth(this.currentPose, mouthAperture);
+      const dynamicSvg = this.currentMascot.getSvgWithMouth(this.currentEmotion, this.currentVariantIndex, mouthAperture);
       const dynamicImg = new Image();
       const blob = new Blob([dynamicSvg], { type: 'image/svg+xml;charset=utf-8' });
       const url = URL.createObjectURL(blob);
@@ -198,9 +189,10 @@ export class CanvasRenderer {
     if (imgToDraw && imgToDraw.complete && imgToDraw.naturalWidth > 0) {
       ctx.drawImage(imgToDraw, posX, posY, targetWidth, targetHeight);
     } else {
-      // Fallback sur la pose neutre si l'image ciblée n'est pas encore prête
-      const fallbackKey = `${this.currentMascot.id}_neutre`;
-      const fallbackImg = this.imageCache.get(fallbackKey);
+      // Fallbacks gracieux
+      const fallbackKey1 = `${this.currentMascot.id}_${this.currentEmotion}_0`;
+      const fallbackKey2 = `${this.currentMascot.id}_neutre_0`;
+      const fallbackImg = this.imageCache.get(fallbackKey1) || this.imageCache.get(fallbackKey2);
       if (fallbackImg && fallbackImg.complete) {
         ctx.drawImage(fallbackImg, posX, posY, targetWidth, targetHeight);
       }

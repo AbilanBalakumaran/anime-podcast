@@ -1,28 +1,26 @@
 /**
  * SPEECH ANALYZER - ANIME PODCAST STUDIO
- * Analyse la structure temporelle de la piste vocale (VAD - Voice Activity Detection),
- * segmente le discours phrase par phrase et attribue dynamiquement les 5 poses
- * selon des règles logiques et des variations naturelles.
+ * Moteur d'analyse temporelle (VAD) et d'alternance dynamique anti-ennui :
+ * - Découpage automatique des phrases et des silences
+ * - Alternance intelligente des émotions sans répétition consécutive
+ * - Alternance intra-phrase pour les phrases longues (> 3.2s) afin de maintenir l'attention
+ * - Sélection et personnalisation manuelle par segment
  */
 
+import { BASE_EMOTIONS } from './default-mascots.js';
+
 export class SpeechAnalyzer {
-  constructor(audioManager, onSegmentSelectCallback) {
+  constructor(audioManager, mascotManager, onSegmentSelectCallback) {
     this.audioManager = audioManager;
+    this.mascotManager = mascotManager;
     this.onSegmentSelect = onSegmentSelectCallback;
-    this.segments = []; // Array<{ id, start, end, duration, pose, text }>
+
+    this.segments = []; // Array<{ id, start, end, duration, emotion, variantIndex, text }>
     this.waveformCanvas = document.getElementById('waveform-canvas');
     this.waveformCtx = this.waveformCanvas ? this.waveformCanvas.getContext('2d') : null;
     this.playheadEl = document.getElementById('timeline-playhead');
     this.segmentsListEl = document.getElementById('segments-scroll-list');
     this.segmentsCountEl = document.getElementById('segments-count');
-
-    this.availablePoses = [
-      { id: 'neutre', label: 'Neutre' },
-      { id: 'enthousiaste', label: 'Enthousiaste' },
-      { id: 'explicative', label: 'Explicative' },
-      { id: 'pensive', label: 'Pensive' },
-      { id: 'surprise', label: 'Surprise' }
-    ];
 
     this.setupWaveformClick();
   }
@@ -42,7 +40,7 @@ export class SpeechAnalyzer {
   }
 
   /**
-   * Analyse un AudioBuffer pour en extraire les phrases et assigner les poses
+   * Analyse un AudioBuffer pour en extraire les phrases et assigner les émotions/poses
    */
   analyzeAudioBuffer(audioBuffer, optionalSentencesText = null) {
     if (!audioBuffer) return [];
@@ -73,15 +71,14 @@ export class SpeechAnalyzer {
     const threshold = Math.max(0.015, maxRms * 0.14);
 
     // 2. Détection d'activité vocale (VAD)
-    const minSpeechDuration = 0.4; // 400ms minimum pour une phrase
-    const minSilenceDuration = 0.28; // 280ms de silence pour marquer une fin de phrase
+    const minSpeechDuration = 0.4; // 400ms minimum
+    const minSilenceDuration = 0.28; // 280ms de silence pour fin de phrase
 
     const speechWindows = [];
     for (let w = 0; w < numWindows; w++) {
       speechWindows.push(rmsValues[w] >= threshold);
     }
 
-    // Regroupement en segments
     const rawSegments = [];
     let inSpeech = false;
     let segStart = 0;
@@ -117,9 +114,9 @@ export class SpeechAnalyzer {
       }
     }
 
-    // Si aucun segment détecté (ex. volume très bas), créer des segments réguliers
+    // Fallback si silence absolu ou volume trop faible
     if (rawSegments.length === 0 && duration > 0) {
-      const step = Math.min(3.5, duration);
+      const step = Math.min(3.0, duration);
       for (let t = 0; t < duration; t += step) {
         rawSegments.push({
           start: t,
@@ -129,10 +126,10 @@ export class SpeechAnalyzer {
       }
     }
 
-    // 3. Attribution logique & dynamique des poses à chaque phrase
-    this.segments = this.assignIntelligentPoses(rawSegments, optionalSentencesText);
+    // 3. Application du Moteur d'Alternance Anti-Ennui
+    this.segments = this.applyAntiBoredomEngine(rawSegments, optionalSentencesText);
 
-    // 4. Rendu visuel de la forme d'onde et de la liste des segments
+    // 4. Rendu de la forme d'onde et de la timeline
     this.drawWaveform(rmsValues, maxRms);
     this.renderSegmentsList();
 
@@ -140,73 +137,125 @@ export class SpeechAnalyzer {
   }
 
   /**
-   * Moteur d'attribution des poses :
-   * - Alterne logiquement pour éviter de répéter 2 fois la même pose
-   * - Utilise les ponctuations (?, !) et la durée pour choisir la pose optimale
+   * Moteur d'Alternance Anti-Ennui :
+   * - Découpe les phrases trop longues (> 3.2s) en sous-segments dynamiques
+   * - Alterne systématiquement les émotions et les variantes de poses
+   * - Zéro répétition consécutive pour maintenir l'attention maximale du spectateur
    */
-  assignIntelligentPoses(rawSegments, optionalSentencesText) {
-    const poses = ['enthousiaste', 'explicative', 'pensive', 'surprise', 'neutre'];
-    let lastPose = null;
+  applyAntiBoredomEngine(rawSegments, optionalSentencesText) {
+    const mascot = this.mascotManager.getActiveMascot();
+    const availableEmotions = this.mascotManager.getAllEmotionsForMascot(mascot);
 
-    return rawSegments.map((seg, index) => {
-      let chosenPose = 'neutre';
-      const text = (optionalSentencesText && optionalSentencesText[index]) 
-        ? optionalSentencesText[index].trim() 
-        : `Phrase ${index + 1}`;
+    const refinedSegments = [];
+    let segCounter = 0;
 
-      if (text.includes('?')) {
-        // Question -> pensive ou surprise
-        chosenPose = (lastPose === 'pensive') ? 'surprise' : 'pensive';
-      } else if (text.includes('!')) {
-        // Exclamation -> enthousiaste ou surprise
-        chosenPose = (lastPose === 'enthousiaste') ? 'surprise' : 'enthousiaste';
-      } else if (seg.duration > 3.2) {
-        // Longue explication -> explicative
-        chosenPose = (lastPose === 'explicative') ? 'enthousiaste' : 'explicative';
-      } else if (index === 0) {
-        // Introduction
-        chosenPose = 'enthousiaste';
+    rawSegments.forEach((seg, origIdx) => {
+      const text = (optionalSentencesText && optionalSentencesText[origIdx]) 
+        ? optionalSentencesText[origIdx].trim() 
+        : `Phrase ${origIdx + 1}`;
+
+      // Si la phrase dure plus de 3.2 secondes, découpage intra-phrase pour varier la pose au milieu !
+      if (seg.duration > 3.2) {
+        const midTime = seg.start + (seg.duration * 0.52);
+        refinedSegments.push({
+          id: `seg-${segCounter++}`,
+          start: seg.start,
+          end: midTime,
+          duration: midTime - seg.start,
+          text: text + ' (Partie 1)',
+          origText: text
+        });
+        refinedSegments.push({
+          id: `seg-${segCounter++}`,
+          start: midTime,
+          end: seg.end,
+          duration: seg.end - midTime,
+          text: text + ' (Partie 2)',
+          origText: text
+        });
       } else {
-        // Alternance naturelle parmi les poses dynamiques
-        const candidatePoses = ['enthousiaste', 'explicative', 'pensive', 'surprise'].filter(p => p !== lastPose);
-        chosenPose = candidatePoses[Math.floor(Math.random() * candidatePoses.length)];
+        refinedSegments.push({
+          id: `seg-${segCounter++}`,
+          start: seg.start,
+          end: seg.end,
+          duration: seg.duration,
+          text: text,
+          origText: text
+        });
+      }
+    });
+
+    // Attribution des émotions et variantes avec règle stricte de non-répétition
+    let lastEmotion = null;
+    let lastVariant = -1;
+
+    return refinedSegments.map((seg, index) => {
+      let chosenEmotion = 'neutre';
+      const text = seg.origText;
+
+      // Heuristiques intelligentes basées sur le contexte
+      if (text.includes('?')) {
+        chosenEmotion = (lastEmotion === 'pensive') ? 'surprise' : 'pensive';
+      } else if (text.includes('!')) {
+        const excitePool = ['enthousiaste', 'joyeuse', 'determinee', 'enervee'].filter(e => availableEmotions.includes(e));
+        chosenEmotion = excitePool.find(e => e !== lastEmotion) || 'enthousiaste';
+      } else if (seg.duration > 2.2) {
+        const explainPool = ['explicative', 'confiante', 'serieuse'].filter(e => availableEmotions.includes(e));
+        chosenEmotion = explainPool.find(e => e !== lastEmotion) || 'explicative';
+      } else if (index === 0) {
+        chosenEmotion = availableEmotions.includes('enthousiaste') ? 'enthousiaste' : availableEmotions[0];
+      } else {
+        // Sélection aléatoire parmi les émotions disponibles différentes de la précédente
+        const candidatePool = availableEmotions.filter(e => e !== lastEmotion);
+        chosenEmotion = candidatePool[Math.floor(Math.random() * candidatePool.length)] || availableEmotions[0];
       }
 
-      lastPose = chosenPose;
+      // Si l'émotion choisie n'existe pas sur la mascotte, fallback
+      if (!availableEmotions.includes(chosenEmotion)) {
+        chosenEmotion = availableEmotions[0] || 'neutre';
+      }
+
+      // Choix de la variante de pose pour cette émotion
+      const posesForEmo = this.mascotManager.getPosesForEmotion(mascot, chosenEmotion);
+      let chosenVariant = 0;
+
+      if (posesForEmo.length > 1) {
+        // Si même émotion que la précédente ou pour varier, choisir une autre variante
+        const availableVariants = posesForEmo.map((_, i) => i).filter(i => !(chosenEmotion === lastEmotion && i === lastVariant));
+        chosenVariant = availableVariants[Math.floor(Math.random() * availableVariants.length)] || 0;
+      }
+
+      lastEmotion = chosenEmotion;
+      lastVariant = chosenVariant;
 
       return {
-        id: `seg-${index}-${Date.now()}`,
-        index: index,
-        start: seg.start,
-        end: seg.end,
-        duration: seg.duration,
-        pose: chosenPose,
-        text: text
+        ...seg,
+        emotion: chosenEmotion,
+        variantIndex: chosenVariant
       };
     });
   }
 
   /**
-   * Retourne la pose active correspondant au timestamp de lecture
+   * Retourne l'attitude active { emotion, variantIndex } pour le timestamp en cours
    */
   getPoseAtTime(currentTime) {
     if (!this.segments || this.segments.length === 0) {
-      return 'neutre';
+      return { emotion: 'neutre', variantIndex: 0 };
     }
 
-    // Recherche du segment correspondant
     const activeSegment = this.segments.find(seg => currentTime >= seg.start && currentTime <= seg.end);
     if (activeSegment) {
-      return activeSegment.pose;
+      return {
+        emotion: activeSegment.emotion,
+        variantIndex: activeSegment.variantIndex
+      };
     }
 
-    // Pendant les silences / pauses entre les phrases : posture neutre
-    return 'neutre';
+    // Pendant les silences : retour en posture neutre variante 0
+    return { emotion: 'neutre', variantIndex: 0 };
   }
 
-  /**
-   * Dessine la forme d'onde audio sur le canevas dédié
-   */
   drawWaveform(rmsValues, maxRms) {
     if (!this.waveformCanvas || !this.waveformCtx) return;
 
@@ -215,12 +264,9 @@ export class SpeechAnalyzer {
     const ctx = this.waveformCtx;
 
     ctx.clearRect(0, 0, width, height);
-
-    // Fond bleu sombre
     ctx.fillStyle = '#0b1329';
     ctx.fillRect(0, 0, width, height);
 
-    // Barres de forme d'onde en jaune doré et cyan
     const barWidth = 3 * window.devicePixelRatio;
     const gap = 1 * window.devicePixelRatio;
     const totalBars = Math.floor(width / (barWidth + gap));
@@ -235,7 +281,6 @@ export class SpeechAnalyzer {
       const x = i * (barWidth + gap);
       const y = (height - barHeight) / 2;
 
-      // Dégradé doré
       const grad = ctx.createLinearGradient(0, y, 0, y + barHeight);
       grad.addColorStop(0, '#fef3c7');
       grad.addColorStop(0.5, '#fbbf24');
@@ -248,16 +293,12 @@ export class SpeechAnalyzer {
     }
   }
 
-  /**
-   * Met à jour la position de la tête de lecture sur la timeline
-   */
   updatePlayhead(currentTime, duration) {
     if (!this.playheadEl || duration <= 0) return;
     const progress = Math.min(1, Math.max(0, currentTime / duration));
     const width = this.waveformCanvas ? this.waveformCanvas.clientWidth : 400;
     this.playheadEl.style.transform = `translateX(${progress * width}px)`;
 
-    // Mettre à jour la classe active sur les segments
     if (this.segmentsListEl) {
       const cards = this.segmentsListEl.querySelectorAll('.segment-card');
       this.segments.forEach((seg, idx) => {
@@ -273,32 +314,32 @@ export class SpeechAnalyzer {
     }
   }
 
-  /**
-   * Rendu de la liste interactive des phrases segmentées avec leurs sélecteurs de poses
-   */
   renderSegmentsList() {
     if (!this.segmentsListEl) return;
     this.segmentsListEl.innerHTML = '';
 
     if (this.segmentsCountEl) {
-      this.segmentsCountEl.textContent = `${this.segments.length} phrase${this.segments.length > 1 ? 's' : ''}`;
+      this.segmentsCountEl.textContent = `${this.segments.length} segment${this.segments.length > 1 ? 's' : ''} dynamiques`;
     }
 
     if (this.segments.length === 0) {
       this.segmentsListEl.innerHTML = `
         <div class="timeline-empty">
-          Importez un fichier audio ou générez un texte pour analyser la voix et segmenter les phrases.
+          Chargez ou générez un audio pour afficher le découpage dynamique des émotions et des poses.
         </div>
       `;
       return;
     }
+
+    const mascot = this.mascotManager.getActiveMascot();
+    const availableEmotions = this.mascotManager.getAllEmotionsForMascot(mascot);
 
     this.segments.forEach((seg, idx) => {
       const card = document.createElement('div');
       card.className = 'segment-card';
       card.dataset.index = idx;
 
-      // Affichage du timing
+      // Horodatage
       const timeBox = document.createElement('div');
       timeBox.className = 'segment-time';
       timeBox.innerHTML = `
@@ -312,26 +353,75 @@ export class SpeechAnalyzer {
       textBox.textContent = seg.text;
       textBox.title = seg.text;
 
-      // Sélecteur de pose personnalisable
-      const selectBox = document.createElement('select');
-      selectBox.className = 'segment-pose-select';
+      // Contrôles de sélection d'émotion et de variante de pose
+      const controlsBox = document.createElement('div');
+      controlsBox.style.display = 'flex';
+      controlsBox.style.gap = '6px';
+      controlsBox.style.alignItems = 'center';
 
-      this.availablePoses.forEach(p => {
+      // Sélecteur d'émotion
+      const selectEmo = document.createElement('select');
+      selectEmo.className = 'segment-pose-select';
+
+      availableEmotions.forEach(emoKey => {
+        const baseInfo = BASE_EMOTIONS.find(b => b.id === emoKey) || {
+          id: emoKey,
+          label: emoKey.charAt(0).toUpperCase() + emoKey.slice(1),
+          icon: '🎭'
+        };
         const opt = document.createElement('option');
-        opt.value = p.id;
-        opt.textContent = p.label;
-        if (p.id === seg.pose) opt.selected = true;
-        selectBox.appendChild(opt);
+        opt.value = emoKey;
+        opt.textContent = `${baseInfo.icon} ${baseInfo.label}`;
+        if (emoKey === seg.emotion) opt.selected = true;
+        selectEmo.appendChild(opt);
       });
 
-      selectBox.addEventListener('change', (e) => {
+      // Sélecteur de variante de pose pour cette émotion
+      const selectVariant = document.createElement('select');
+      selectVariant.className = 'segment-pose-select';
+      selectVariant.style.width = '75px';
+
+      const updateVariantsDropdown = () => {
+        selectVariant.innerHTML = '';
+        const poses = this.mascotManager.getPosesForEmotion(mascot, seg.emotion);
+        if (poses.length <= 1) {
+          const opt = document.createElement('option');
+          opt.value = 0;
+          opt.textContent = 'Pose 1';
+          selectVariant.appendChild(opt);
+          selectVariant.disabled = true;
+        } else {
+          selectVariant.disabled = false;
+          poses.forEach((_, pIdx) => {
+            const opt = document.createElement('option');
+            opt.value = pIdx;
+            opt.textContent = `Pose ${pIdx + 1}`;
+            if (pIdx === seg.variantIndex) opt.selected = true;
+            selectVariant.appendChild(opt);
+          });
+        }
+      };
+
+      updateVariantsDropdown();
+
+      selectEmo.addEventListener('change', (e) => {
         e.stopPropagation();
-        seg.pose = e.target.value;
+        seg.emotion = e.target.value;
+        seg.variantIndex = 0;
+        updateVariantsDropdown();
       });
+
+      selectVariant.addEventListener('change', (e) => {
+        e.stopPropagation();
+        seg.variantIndex = parseInt(e.target.value, 10) || 0;
+      });
+
+      controlsBox.appendChild(selectEmo);
+      controlsBox.appendChild(selectVariant);
 
       card.appendChild(timeBox);
       card.appendChild(textBox);
-      card.appendChild(selectBox);
+      card.appendChild(controlsBox);
 
       card.addEventListener('click', () => {
         this.audioManager.seek(seg.start);
@@ -349,9 +439,5 @@ export class SpeechAnalyzer {
     const s = Math.floor(seconds % 60);
     const ms = Math.floor((seconds % 1) * 10);
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}.${ms}`;
-  }
-
-  getSegments() {
-    return this.segments;
   }
 }

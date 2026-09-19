@@ -84,7 +84,7 @@
                 <circle cx="12" cy="8" r="5"></circle>
                 <path d="M20 21a8 8 0 1 0-16 0"></path>
               </svg>
-              Mascottes & Poses
+              Mascottes, Émotions & Poses
             </h2>
             <button id="btn-new-mascot" class="btn btn-outline-gold btn-sm">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -101,8 +101,8 @@
 
           <div class="form-group">
             <div class="form-label">
-              <span>Tester les 5 poses prédéfinies</span>
-              <span style="color: var(--gold-light); font-size: 0.75rem;">Cliquez pour prévisualiser</span>
+              <span>Attitudes & Variantes de la mascotte</span>
+              <span style="color: var(--gold-light); font-size: 0.75rem;">Cliquez pour alterner les poses</span>
             </div>
             <div id="poses-preview-bar" class="poses-preview-bar">
               <!-- Rempli dynamiquement par mascot-manager.js -->
@@ -263,7 +263,7 @@
           </div>
         </div>
 
-        <!-- Timeline & Segmentation Temporelle des Phrases (façon NotebookLM) -->
+        <!-- Timeline & Moteur d'Alternance Anti-Ennui -->
         <div class="studio-card">
           <div class="card-header">
             <h2 class="card-title">
@@ -271,9 +271,9 @@
                 <circle cx="12" cy="12" r="10"></circle>
                 <polyline points="12 6 12 12 16 14"></polyline>
               </svg>
-              Segmentation Temporelle & Rythme des Phrases (NotebookLM)
+              Moteur d'Alternance Anti-Ennui (NotebookLM)
             </h2>
-            <div id="segments-count" class="segments-count">0 phrases détectées</div>
+            <div id="segments-count" class="segments-count">0 segments dynamiques</div>
           </div>
 
           <div class="timeline-container">
@@ -283,15 +283,14 @@
               <div id="timeline-playhead" class="timeline-playhead"></div>
             </div>
 
-            <!-- Liste des phrases détectées et sélection des attitudes -->
             <div class="segments-header">
-              <span class="segments-title">Phrases segmentées & attitudes automatiques</span>
-              <span style="font-size: 0.75rem; color: var(--text-muted);">Personnalisez la pose de chaque phrase ci-dessous :</span>
+              <span class="segments-title">Attitudes alternées & phrases découpées</span>
+              <span style="font-size: 0.75rem; color: var(--text-muted);">Émotion et variante de pose modifiables :</span>
             </div>
 
             <div id="segments-scroll-list" class="segments-scroll-list">
               <div class="timeline-empty">
-                Chargez ou générez un audio pour afficher la timeline et le découpage automatique des poses.
+                Chargez ou générez un audio pour afficher la timeline et l'alternance dynamique des attitudes.
               </div>
             </div>
           </div>
@@ -302,12 +301,12 @@
 
     <!-- Pied de page -->
     <footer class="app-footer">
-      Anime Podcast Studio &bull; PWA Haute Performance avec Export Transparent &bull; Charte Bleu Sombre & Or
+      Anime Podcast Studio &bull; Système Multi-Émotions & Multi-Poses &bull; Charte Bleu Sombre & Or
     </footer>
   </div>
 
   <!-- ========================================================================
-       MODALE 1 : CRÉATION D'UNE NOUVELLE MASCOTTE (5 POSES)
+       MODALE 1 : CRÉATION D'UNE NOUVELLE MASCOTTE (MULTI-ÉMOTIONS & MULTI-POSES)
        ======================================================================== -->
   <div id="modal-new-mascot" class="modal-backdrop">
     <div class="modal-card">
@@ -316,7 +315,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
             <path d="M12 5v14M5 12h14"></path>
           </svg>
-          Créer une Nouvelle Mascotte
+          Créer une Nouvelle Mascotte (Multi-Émotions & Multi-Poses)
         </h3>
         <button id="modal-close-btn" class="modal-close">&times;</button>
       </div>
@@ -329,60 +328,21 @@
 
         <div class="form-group">
           <div class="form-label">
-            <span>Dossier des 5 Poses Prédéfinies</span>
-            <span style="color: var(--gold-light);">Images PNG ou SVG sur fond transparent</span>
+            <span>Émotions & Variantes de Poses (PNG ou SVG transparents)</span>
+            <span style="color: var(--gold-light);">Glissez plusieurs images par émotion</span>
           </div>
           
-          <div class="pose-upload-grid">
-            <!-- Slot 1 : Neutre (Obligatoire) -->
-            <div id="slot-pose-neutre" class="pose-upload-card">
-              <input type="file" id="input-pose-neutre" accept="image/*" style="display: none;">
-              <div class="pose-preview-box">
-                <span style="font-size: 1.4rem; color: #94a3b8;">+</span>
-              </div>
-              <div class="pose-name-tag">Neutre *</div>
-              <div class="pose-hint">Obligatoire</div>
-            </div>
+          <!-- Conteneur dynamique des 12 émotions de base + émotions créées -->
+          <div id="modal-emotions-container" class="modal-emotions-container">
+            <!-- Rempli dynamiquement par mascot-manager.js -->
+          </div>
 
-            <!-- Slot 2 : Enthousiaste -->
-            <div id="slot-pose-enthousiaste" class="pose-upload-card">
-              <input type="file" id="input-pose-enthousiaste" accept="image/*" style="display: none;">
-              <div class="pose-preview-box">
-                <span style="font-size: 1.4rem; color: #94a3b8;">+</span>
-              </div>
-              <div class="pose-name-tag">Enthousiaste</div>
-              <div class="pose-hint">Optionnel</div>
-            </div>
-
-            <!-- Slot 3 : Explicative -->
-            <div id="slot-pose-explicative" class="pose-upload-card">
-              <input type="file" id="input-pose-explicative" accept="image/*" style="display: none;">
-              <div class="pose-preview-box">
-                <span style="font-size: 1.4rem; color: #94a3b8;">+</span>
-              </div>
-              <div class="pose-name-tag">Explicative</div>
-              <div class="pose-hint">Optionnel</div>
-            </div>
-
-            <!-- Slot 4 : Pensive -->
-            <div id="slot-pose-pensive" class="pose-upload-card">
-              <input type="file" id="input-pose-pensive" accept="image/*" style="display: none;">
-              <div class="pose-preview-box">
-                <span style="font-size: 1.4rem; color: #94a3b8;">+</span>
-              </div>
-              <div class="pose-name-tag">Pensive</div>
-              <div class="pose-hint">Optionnel</div>
-            </div>
-
-            <!-- Slot 5 : Surprise -->
-            <div id="slot-pose-surprise" class="pose-upload-card">
-              <input type="file" id="input-pose-surprise" accept="image/*" style="display: none;">
-              <div class="pose-preview-box">
-                <span style="font-size: 1.4rem; color: #94a3b8;">+</span>
-              </div>
-              <div class="pose-name-tag">Surprise</div>
-              <div class="pose-hint">Optionnel</div>
-            </div>
+          <!-- Outil d'ajout d'une émotion personnalisée -->
+          <div class="custom-emotion-adder">
+            <input type="text" id="input-custom-emotion-name" class="form-input" placeholder="Nouvelle émotion personnalisée (ex: Sarcastique, Choquée, Romantique...)">
+            <button type="button" id="btn-add-custom-emotion" class="btn btn-outline-gold btn-sm">
+              + Ajouter l'Émotion
+            </button>
           </div>
         </div>
 

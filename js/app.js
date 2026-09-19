@@ -1,9 +1,9 @@
 /**
  * MAIN APP - ANIME PODCAST STUDIO
  * Orchestrateur principal :
- * - Gestion de l'écran de chargement dynamique (Splash Screen)
- * - Initialisation de la PWA et du Service Worker
- * - Interconnexion des modules (Mascottes, Audio, VAD, Canvas et Export)
+ * - Gestion du Splash Screen
+ * - Initialisation PWA
+ * - Interconnexion des modules avec support multi-émotions et anti-ennui
  */
 
 import { PWAManager } from './pwa.js';
@@ -22,12 +22,12 @@ class AnimePodcastApp {
     this.canvasRenderer = null;
     this.videoExporter = null;
 
-    // Éléments du Splash Screen
+    // Splash Screen
     this.splashScreen = document.getElementById('app-splash-screen');
     this.splashProgressBar = document.getElementById('splash-progress-bar');
     this.splashStatusText = document.getElementById('splash-status-text');
 
-    // Éléments UI Audio
+    // UI Audio
     this.tabImport = document.getElementById('tab-audio-import');
     this.tabTts = document.getElementById('tab-audio-tts');
     this.viewImport = document.getElementById('view-audio-import');
@@ -53,55 +53,63 @@ class AnimePodcastApp {
   }
 
   async init() {
-    // 1. Démarrage de l'animation du Splash Screen
-    this.updateSplashProgress(20, 'Initialisation du Service Worker...');
+    this.updateSplashProgress(20, 'Initialisation du Service Worker PWA...');
     this.pwaManager = new PWAManager();
 
-    this.updateSplashProgress(40, 'Connexion à la base de données IndexedDB...');
+    this.updateSplashProgress(40, 'Connexion IndexedDB...');
     
-    // 2. Initialisation du gestionnaire audio
+    // Audio Manager
     this.audioManager = new AudioManager(
       (currentTime, duration) => this.handleAudioTimeUpdate(currentTime, duration),
       (state) => this.handleAudioStateChange(state)
     );
 
-    // 3. Initialisation de l'analyseur temporel (VAD)
-    this.speechAnalyzer = new SpeechAnalyzer(this.audioManager, (seg) => {
-      this.canvasRenderer.setPose(seg.pose);
-      this.mascotManager.setActivePose(seg.pose);
-    });
-
-    this.updateSplashProgress(65, 'Chargement des mascottes haute définition...');
-
-    // 4. Initialisation du moteur de rendu Canvas
-    this.canvasRenderer = new CanvasRenderer(this.audioManager, this.speechAnalyzer);
-
-    // 5. Initialisation du gestionnaire de mascottes
+    // Mascot Manager
     this.mascotManager = new MascotManager(
-      (mascot, pose) => {
-        this.canvasRenderer.setMascot(mascot);
-        this.canvasRenderer.setPose(pose);
+      async (mascot, emotion, variantIndex) => {
+        if (this.canvasRenderer) {
+          await this.canvasRenderer.setMascot(mascot);
+          this.canvasRenderer.setEmotion(emotion, variantIndex);
+        }
+        if (this.speechAnalyzer) {
+          this.speechAnalyzer.renderSegmentsList();
+        }
       },
-      (pose) => {
-        this.canvasRenderer.setPose(pose);
+      (emotion, variantIndex) => {
+        if (this.canvasRenderer) {
+          this.canvasRenderer.setEmotion(emotion, variantIndex);
+        }
       }
     );
 
-    // Définir la mascotte initiale sur le canevas
+    this.updateSplashProgress(60, 'Initialisation du moteur d\'alternance anti-ennui...');
+
+    // Speech Analyzer (VAD)
+    this.speechAnalyzer = new SpeechAnalyzer(
+      this.audioManager,
+      this.mascotManager,
+      (seg) => {
+        this.canvasRenderer.setEmotion(seg.emotion, seg.variantIndex);
+        this.mascotManager.setActiveEmotion(seg.emotion);
+      }
+    );
+
+    this.updateSplashProgress(75, 'Chargement des mascottes et variantes multi-poses...');
+
+    // Canvas Renderer
+    this.canvasRenderer = new CanvasRenderer(this.audioManager, this.speechAnalyzer);
     await this.canvasRenderer.setMascot(this.mascotManager.getActiveMascot());
 
-    this.updateSplashProgress(85, 'Configuration du moteur d\'export transparent...');
+    this.updateSplashProgress(90, 'Configuration du moteur d\'export vidéo transparent...');
 
-    // 6. Initialisation de l'exporteur vidéo
+    // Video Exporter
     this.videoExporter = new VideoExporter(this.canvasRenderer, this.audioManager);
 
-    // 7. Configuration des écouteurs d'événements UI
     this.setupUIEvents();
     this.populateTtsVoices();
 
-    this.updateSplashProgress(100, 'Studio prêt !');
+    this.updateSplashProgress(100, 'Studio Prêt !');
 
-    // 8. Fondu de sortie du Splash Screen
     setTimeout(() => {
       this.dismissSplashScreen();
     }, 800);
@@ -123,7 +131,6 @@ class AnimePodcastApp {
   }
 
   setupUIEvents() {
-    // Bascule des onglets Audio (Import vs TTS)
     if (this.tabImport && this.tabTts) {
       this.tabImport.addEventListener('click', () => {
         this.tabImport.classList.add('active');
@@ -141,7 +148,6 @@ class AnimePodcastApp {
       });
     }
 
-    // Gestion du Drag & Drop pour l'import audio
     if (this.audioDropzone && this.audioFileInput) {
       this.audioDropzone.addEventListener('click', () => {
         this.audioFileInput.click();
@@ -170,14 +176,12 @@ class AnimePodcastApp {
       });
     }
 
-    // Bouton de génération de synthèse vocale (TTS)
     if (this.btnGenerateTts) {
       this.btnGenerateTts.addEventListener('click', async () => {
         await this.processTtsGeneration();
       });
     }
 
-    // Contrôles de lecture Canvas (Play / Pause)
     if (this.btnPlay) {
       this.btnPlay.addEventListener('click', () => {
         if (!this.audioManager.audioBuffer) {
@@ -198,14 +202,11 @@ class AnimePodcastApp {
     try {
       this.audioDropzone.querySelector('.dropzone-text').textContent = 'Décodage audio en cours...';
       const audioBuffer = await this.audioManager.loadAudioFile(file);
-
-      // Analyse VAD et segmentation en phrases
       this.speechAnalyzer.analyzeAudioBuffer(audioBuffer);
-
       this.audioDropzone.querySelector('.dropzone-text').textContent = file.name;
     } catch (err) {
-      console.error('[App] Erreur lors du chargement du fichier audio:', err);
-      alert('Impossible de décoder ce fichier audio. Formats recommandés : MP3, WAV, OGG, WebM.');
+      console.error('[App] Erreur chargement audio:', err);
+      alert('Impossible de décoder ce fichier audio.');
       this.audioDropzone.querySelector('.dropzone-text').textContent = 'Glissez-déposez un fichier audio ici';
     }
   }
@@ -213,7 +214,7 @@ class AnimePodcastApp {
   async processTtsGeneration() {
     const text = this.textareaTts.value.trim();
     if (!text) {
-      alert('Veuillez saisir un texte à synthétiser pour votre podcast.');
+      alert('Veuillez saisir un texte de podcast.');
       return;
     }
 
@@ -226,10 +227,7 @@ class AnimePodcastApp {
       const pitch = parseFloat(this.sliderPitch.value) || 1.0;
 
       const result = await this.audioManager.synthesizeSpeech(text, voiceIdx, rate, pitch);
-
-      // Analyse VAD avec enrichissement par les phrases textuelles
       this.speechAnalyzer.analyzeAudioBuffer(result.buffer, result.sentences);
-
     } catch (err) {
       console.error('[App] Erreur TTS:', err);
       alert('Erreur lors de la génération vocale : ' + err.message);
@@ -319,7 +317,6 @@ class AnimePodcastApp {
   }
 }
 
-// Initialisation au chargement du DOM
 window.addEventListener('DOMContentLoaded', () => {
   window.animePodcastApp = new AnimePodcastApp();
 });

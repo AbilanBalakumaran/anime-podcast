@@ -1,11 +1,10 @@
 /**
- * IndexedDB Database Manager
- * Permet de stocker et synchroniser les mascottes personnalisées avec leurs 5 poses
- * directement dans le stockage persistant du navigateur.
+ * IndexedDB Database Manager - Anime Podcast Studio
+ * Gère le stockage persistant des mascottes avec support multi-émotions et multi-poses par émotion.
  */
 
 const DB_NAME = 'anime_podcast_db';
-const DB_VERSION = 1;
+const DB_VERSION = 2; // Version 2 pour la migration vers structure multi-émotions
 const STORE_MASCOTS = 'mascots';
 
 export class DBManager {
@@ -47,7 +46,20 @@ export class DBManager {
       const store = transaction.objectStore(STORE_MASCOTS);
       const request = store.getAll();
 
-      request.onsuccess = () => resolve(request.result || []);
+      request.onsuccess = () => {
+        const rawMascots = request.result || [];
+        // Migration à la volée de l'ancien format `poses` vers `emotions`
+        const migrated = rawMascots.map(m => {
+          if (!m.emotions && m.poses) {
+            m.emotions = {};
+            for (const [key, val] of Object.entries(m.poses)) {
+              m.emotions[key] = Array.isArray(val) ? val : [val];
+            }
+          }
+          return m;
+        });
+        resolve(migrated);
+      };
       request.onerror = (e) => reject(e.target.error);
     });
   }
@@ -59,7 +71,16 @@ export class DBManager {
       const store = transaction.objectStore(STORE_MASCOTS);
       const request = store.get(id);
 
-      request.onsuccess = () => resolve(request.result || null);
+      request.onsuccess = () => {
+        const m = request.result || null;
+        if (m && !m.emotions && m.poses) {
+          m.emotions = {};
+          for (const [key, val] of Object.entries(m.poses)) {
+            m.emotions[key] = Array.isArray(val) ? val : [val];
+          }
+        }
+        resolve(m);
+      };
       request.onerror = (e) => reject(e.target.error);
     });
   }
