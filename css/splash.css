@@ -6,14 +6,13 @@
 #app-splash-screen {
   position: fixed;
   inset: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   height: 100dvh;
   background-color: var(--bg-abyss);
-  z-index: 99999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  z-index: 999999;
+  display: grid;
+  place-items: center;
   transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s;
   pointer-events: auto;
   overflow: hidden;
@@ -40,10 +39,8 @@
 }
 
 .splash-logo-icon {
-  width: 120px;
-  height: 120px;
-  max-width: 32vw;
-  max-height: 32vh;
+  width: clamp(220px, 50vw, 300px);
+  height: clamp(220px, 50vw, 300px);
   object-fit: contain;
   display: block;
   margin: 0 auto;
@@ -54,10 +51,10 @@
 @keyframes splashIconPulse {
   0%, 100% {
     transform: scale(1);
-    filter: drop-shadow(0 0 12px rgba(250, 204, 21, 0.25));
+    filter: drop-shadow(0 0 16px rgba(250, 204, 21, 0.3));
   }
   50% {
-    transform: scale(1.04);
-    filter: drop-shadow(0 0 24px rgba(249, 115, 22, 0.45));
+    transform: scale(1.05);
+    filter: drop-shadow(0 0 32px rgba(249, 115, 22, 0.55));
   }
 }
