@@ -206,6 +206,16 @@ export class CanvasRenderer {
       imgToDraw = this.imageCache.get(fallbackKey1) || this.imageCache.get(fallbackKey2);
     }
 
+    if (!imgToDraw) {
+      // Fallback absolu : prendre la première pose disponible de cette mascotte dans le cache
+      for (const [key, val] of this.imageCache.entries()) {
+        if (key.startsWith(`${this.currentMascot.id}_`) && val) {
+          imgToDraw = val;
+          break;
+        }
+      }
+    }
+
     if (!imgToDraw) return;
 
     // 4. Proportions et dimensionnement géant dans le cadre

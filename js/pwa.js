@@ -21,7 +21,7 @@ export class PWAManager {
     if ('caches' in window) {
       caches.keys().then((keys) => {
         keys.forEach((key) => {
-          if (key !== 'anime-podcast-v1.3.0') {
+          if (key !== 'anime-podcast-v1.3.1') {
             console.log('[PWA] Purge du cache obsolète:', key);
             caches.delete(key);
           }
@@ -48,7 +48,7 @@ export class PWAManager {
     });
 
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js?v=1.3.0')
+      navigator.serviceWorker.register('./sw.js?v=1.3.1')
         .then((registration) => {
           console.log('[PWA] Service Worker enregistré avec succès:', registration.scope);
           registration.update().catch(() => {});

@@ -105,9 +105,14 @@ class AnimePodcastApp {
 
     // Canvas Renderer
     this.canvasRenderer = new CanvasRenderer(this.audioManager, this.speechAnalyzer);
+
+    // Initialiser les mascottes depuis IndexedDB maintenant que le canevas est prêt
+    await this.mascotManager.init();
+
     const activeMascot = this.mascotManager.getActiveMascot();
     if (activeMascot) {
       await this.canvasRenderer.setMascot(activeMascot);
+      this.canvasRenderer.setEmotion(this.mascotManager.getActiveEmotion(), this.mascotManager.getActiveVariantIndex());
     }
 
     this.updateSplashProgress(85, 'Préparation de la piste audio par défaut...');

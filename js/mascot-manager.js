@@ -72,8 +72,6 @@ export class MascotManager {
     // Array<{ id, name, dataUrl, assignedEmotion }>
     this.bulkUploadedFiles = [];
     this.customEmotionsList = [];
-
-    this.init();
   }
 
   async init() {
@@ -83,6 +81,10 @@ export class MascotManager {
     this.renderEmotionPills();
     this.setupModalEvents();
     this.setupTuneModalEvents();
+
+    if (this.activeMascot && this.onMascotChange) {
+      this.onMascotChange(this.activeMascot, this.activeEmotion, this.activeVariantIndex);
+    }
   }
 
   async loadMascotsFromDB() {
