@@ -45,7 +45,7 @@ export class AudioManager {
 
     // Clés API par défaut (décodées dynamiquement pour protection des dépôts publics)
     this._kG = 'QVEuQWI4Uk42STM5OV8xTnRPWEV6VUJHLWtBNEhLTWktSktobjdLRHZQWmRfNzVZUzUxU3c=';
-    this._kE = 'c2tfYTYyYzJmZGUwNmMzM2RiMzRhMjhkMDUyZDE2NzAxNWU4ODVkYzRiMjUwOGVmMWI2';
+    this._kE = 'c2tfNjI5YzcwZWRjOTA0NTg4MDRiMDZiYzIyMzg1OTdlNzM5ODhiMDQ1MjdmOTI4NGIy';
 
     // Initialisation des voix disponibles
     this.systemEnglishVoices = [];
