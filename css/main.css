@@ -1,54 +1,60 @@
 /* ==========================================================================
    ANIME PODCAST STUDIO - MAIN CSS
-   Charte graphique stricte : Bleu sombre profond (#070b14, #0b1329, #111d38)
-   Accents : Jaune doré (#f59e0b, #fbbf24, #d97706, #fef3c7)
+   Design System : Style AutoShort.ai & CRM Moderne
+   Palette : Noir Obsidienne Mat (#09090b, #0d0d11, #141417, #18181c, #27272a)
+   Accents : Jaune Cyber Électrique (#facc15, #fde047, #eab308)
+   Typographie : Plus Jakarta Sans & JetBrains Mono
    Exclusion stricte : AUCUNE nuance de rose sur toute l'interface.
    ========================================================================== */
 
 :root {
-  /* Palette Bleu Sombre Profond */
-  --bg-abyss: #070b14;
-  --bg-darker: #0b1329;
-  --bg-surface: #111d38;
-  --bg-card: #162547;
-  --bg-card-hover: #1c2e56;
-  --bg-input: #0a1124;
+  /* Palette Noir Obsidienne Mat (AutoShort) */
+  --bg-abyss: #09090b;
+  --bg-darker: #0d0d11;
+  --bg-surface: #141417;
+  --bg-card: #18181c;
+  --bg-card-hover: #222228;
+  --bg-input: #101014;
   
-  /* Bordures et Séparateurs */
-  --border-subtle: #1c2e56;
-  --border-highlight: #284177;
-  --border-gold: rgba(245, 158, 11, 0.4);
+  /* Bordures et Lignes Précises */
+  --border-subtle: #27272a;
+  --border-highlight: #3f3f46;
+  --border-gold: rgba(250, 204, 21, 0.45);
   
-  /* Accents Jaune Doré */
-  --gold-primary: #f59e0b;
-  --gold-light: #fbbf24;
-  --gold-dark: #d97706;
-  --gold-pale: #fef3c7;
-  --gold-glow: rgba(245, 158, 11, 0.35);
-  --gold-subtle: rgba(245, 158, 11, 0.12);
+  /* Accents Jaune Cyber (AutoShort) */
+  --gold-primary: #facc15;
+  --gold-light: #fde047;
+  --gold-dark: #eab308;
+  --gold-pale: #fef08a;
+  --gold-glow: rgba(250, 204, 21, 0.35);
+  --gold-subtle: rgba(250, 204, 21, 0.12);
 
-  /* Accents Secondaires (Cyan électrique pour audio / statuts) */
-  --accent-cyan: #38bdf8;
-  --cyan-subtle: rgba(56, 189, 248, 0.15);
+  /* Statut / Actif (Vert émeraude pour les indicateurs "En Ligne") */
+  --accent-emerald: #10b981;
+  --emerald-subtle: rgba(16, 185, 129, 0.15);
 
   /* Typographie & Couleurs de Texte */
-  --text-white: #f8fafc;
-  --text-primary: #f1f5f9;
-  --text-muted: #94a3b8;
-  --text-dim: #64748b;
+  --font-main: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', "SFMono-Regular", Consolas, Menlo, monospace;
 
-  /* Rayons et Ombres */
+  --text-white: #ffffff;
+  --text-primary: #f4f4f5;
+  --text-muted: #a1a1aa;
+  --text-dim: #71717a;
+
+  /* Rayons et Ombres CRM */
   --radius-sm: 6px;
   --radius-md: 10px;
-  --radius-lg: 16px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
   --radius-full: 9999px;
-  --shadow-card: 0 8px 24px -4px rgba(0, 0, 0, 0.65), 0 2px 6px -1px rgba(0, 0, 0, 0.4);
-  --shadow-gold: 0 0 20px rgba(245, 158, 11, 0.25);
-  --shadow-gold-hover: 0 0 28px rgba(251, 191, 36, 0.45);
+  --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.8), 0 2px 6px -1px rgba(0, 0, 0, 0.5);
+  --shadow-gold: 0 0 22px rgba(250, 204, 21, 0.28);
+  --shadow-gold-hover: 0 0 32px rgba(253, 224, 71, 0.5);
 
   /* Transitions */
-  --transition-fast: 0.15s ease;
-  --transition-normal: 0.25s ease;
+  --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-slow: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -64,10 +70,11 @@ html, body {
   min-height: 100%;
   background-color: var(--bg-abyss);
   color: var(--text-primary);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--font-main);
   line-height: 1.5;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* App Container */
@@ -75,14 +82,16 @@ html, body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: radial-gradient(circle at 50% 0%, rgba(28, 46, 86, 0.35) 0%, rgba(7, 11, 20, 0.95) 70%, var(--bg-abyss) 100%);
+  background: radial-gradient(circle at 50% 0%, rgba(250, 204, 21, 0.04) 0%, rgba(13, 13, 17, 0.98) 50%, var(--bg-abyss) 100%);
 }
 
-/* App Header */
+/* ==========================================================================
+   NAVBAR SUPÉRIEURE CRM / AUTOSHORT
+   ========================================================================== */
 .app-header {
-  height: 68px;
-  background-color: rgba(11, 19, 41, 0.92);
-  backdrop-filter: blur(12px);
+  height: 64px;
+  background-color: rgba(13, 13, 17, 0.94);
+  backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
@@ -91,55 +100,142 @@ html, body {
   position: sticky;
   top: 0;
   z-index: 100;
+  gap: 20px;
 }
 
+/* Logo & Marque AutoShort */
 .brand-container {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
+  text-decoration: none;
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
 .brand-icon {
-  width: 38px;
-  height: 38px;
+  width: 34px;
+  height: 34px;
   border-radius: var(--radius-sm);
-  box-shadow: 0 0 12px var(--gold-glow);
+  box-shadow: 0 0 14px var(--gold-glow);
 }
 
 .brand-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  letter-spacing: 0.5px;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
   color: var(--text-white);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .brand-title span {
-  color: var(--gold-light);
-  text-shadow: 0 0 12px var(--gold-glow);
+  color: var(--gold-primary);
+  text-shadow: 0 0 14px var(--gold-glow);
 }
 
 .brand-badge {
-  font-size: 0.7rem;
-  font-weight: 600;
+  font-size: 0.65rem;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  background: var(--gold-subtle);
-  color: var(--gold-light);
-  border: 1px solid var(--border-gold);
-  padding: 2px 8px;
-  border-radius: var(--radius-full);
+  letter-spacing: 0.08em;
+  background: var(--gold-primary);
+  color: #000000;
+  padding: 2px 7px;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 0 10px var(--gold-glow);
 }
 
+/* Liens de Navigation CRM (Centre) */
+.navbar-crm {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background-color: var(--bg-surface);
+  padding: 4px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-subtle);
+}
+
+.crm-nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-decoration: none;
+  border-radius: var(--radius-full);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.crm-nav-link svg {
+  width: 15px;
+  height: 15px;
+  color: var(--text-dim);
+  transition: color var(--transition-fast);
+}
+
+.crm-nav-link:hover {
+  color: var(--text-white);
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+.crm-nav-link:hover svg {
+  color: var(--gold-primary);
+}
+
+.crm-nav-link.active {
+  background-color: var(--gold-primary);
+  color: #000000;
+  box-shadow: 0 0 12px var(--gold-glow);
+}
+
+.crm-nav-link.active svg {
+  color: #000000;
+}
+
+/* Actions Droite Navbar */
 .header-actions {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-shrink: 0;
 }
 
-/* Main Studio Layout */
+.crm-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--accent-emerald);
+  box-shadow: 0 0 8px var(--accent-emerald);
+  animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
+}
+
+/* ==========================================================================
+   LAYOUT PRINCIPAL DU STUDIO
+   ========================================================================== */
 .studio-main {
   flex: 1;
   display: grid;
@@ -165,14 +261,15 @@ html, body {
   gap: 20px;
 }
 
-/* Cartes génériques */
+/* Cartes CRM AutoShort */
 .studio-card {
   background-color: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
   padding: 20px;
   box-shadow: var(--shadow-card);
-  transition: border-color var(--transition-normal);
+  transition: all var(--transition-normal);
+  position: relative;
 }
 
 .studio-card:hover {
@@ -184,11 +281,13 @@ html, body {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 16px;
+  gap: 12px;
 }
 
 .card-title {
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
   color: var(--text-white);
   display: flex;
   align-items: center;
@@ -196,19 +295,19 @@ html, body {
 }
 
 .card-title svg {
-  color: var(--gold-light);
-  width: 20px;
-  height: 20px;
+  color: var(--gold-primary);
+  width: 18px;
+  height: 18px;
 }
 
-/* Footer */
+/* Footer CRM */
 .app-footer {
   padding: 16px 24px;
   background-color: var(--bg-darker);
   border-top: 1px solid var(--border-subtle);
   text-align: center;
-  font-size: 0.85rem;
-  color: var(--text-muted);
+  font-size: 0.8rem;
+  color: var(--text-dim);
 }
 
 .app-footer a {

@@ -203,6 +203,24 @@ class AnimePodcastApp {
         }
       });
     }
+
+    this.setupNavbarNavigation();
+  }
+
+  setupNavbarNavigation() {
+    const navLinks = document.querySelectorAll('.crm-nav-link');
+    navLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        navLinks.forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
+        const targetId = link.dataset.target;
+        const targetEl = document.getElementById(targetId);
+        if (targetEl) {
+          targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
   }
 
   async processAudioFile(file) {

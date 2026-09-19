@@ -17,13 +17,9 @@ export class CanvasRenderer {
     this.ctx = this.canvas ? this.canvas.getContext('2d', { alpha: true }) : null;
     this.canvasWrapper = document.querySelector('.canvas-wrapper');
 
-    this.baseWidth = 1920;
-    this.baseHeight = 1080;
-
-    if (this.canvas) {
-      this.canvas.width = this.baseWidth;
-      this.canvas.height = this.baseHeight;
-    }
+    // Format vidéo AutoShort : '9:16' (Shorts/TikTok/Reels) ou '16:9' (YouTube/Paysage)
+    this.currentFormat = '9:16';
+    this.updateCanvasDimensions();
 
     this.currentMascot = null;
     this.currentEmotion = 'neutre';
@@ -38,9 +34,56 @@ export class CanvasRenderer {
     this.init();
   }
 
+  updateCanvasDimensions() {
+    if (this.currentFormat === '9:16') {
+      this.baseWidth = 1080;
+      this.baseHeight = 1920;
+    } else {
+      this.baseWidth = 1920;
+      this.baseHeight = 1080;
+    }
+
+    if (this.canvas) {
+      this.canvas.width = this.baseWidth;
+      this.canvas.height = this.baseHeight;
+    }
+
+    if (this.canvasWrapper) {
+      if (this.currentFormat === '9:16') {
+        this.canvasWrapper.classList.add('format-9-16');
+        this.canvasWrapper.classList.remove('format-16-9');
+      } else {
+        this.canvasWrapper.classList.add('format-16-9');
+        this.canvasWrapper.classList.remove('format-9-16');
+      }
+    }
+  }
+
+  setFormat(format) {
+    if (format !== '9:16' && format !== '16:9') return;
+    this.currentFormat = format;
+    this.updateCanvasDimensions();
+
+    // Mettre à jour l'état actif des boutons de format
+    document.querySelectorAll('.btn-format-switch').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.format === format);
+    });
+  }
+
   init() {
     this.setupTransparencyToggle();
+    this.setupFormatToggle();
     this.start();
+  }
+
+  setupFormatToggle() {
+    const buttons = document.querySelectorAll('.btn-format-switch');
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const format = btn.dataset.format;
+        if (format) this.setFormat(format);
+      });
+    });
   }
 
   setupTransparencyToggle() {
@@ -48,7 +91,7 @@ export class CanvasRenderer {
     if (btnToggleBg && this.canvasWrapper) {
       btnToggleBg.addEventListener('click', () => {
         const isChecker = this.canvasWrapper.classList.toggle('checkerboard');
-        btnToggleBg.textContent = isChecker ? 'Fond : Damier (Alpha)' : 'Fond : Studio Sombre';
+        btnToggleBg.textContent = isChecker ? 'Damier (Alpha)' : 'Studio Noir';
       });
     }
   }
@@ -158,21 +201,8 @@ export class CanvasRenderer {
     const idleTilt = Math.sin(timeSec * 1.5) * 0.008;
     const speakingBounce = isSpeaking ? (Math.sin(timestamp * 0.02) * 6 * mouthAperture) : 0;
 
-    // 5. Positionnement
-    const targetHeight = height * 0.88;
-    const targetWidth = targetHeight * (400 / 500);
-    const posX = (width - targetWidth) / 2;
-    const posY = height - targetHeight + idleY + speakingBounce;
-
-    ctx.save();
-
-    const pivotX = width / 2;
-    const pivotY = height;
-    ctx.translate(pivotX, pivotY);
-    ctx.rotate(idleTilt);
-    ctx.translate(-pivotX, -pivotY);
-
-    // 6. Rendu de l'attitude courante
+    // 5. Calcul des proportions réelles de l'image (préservation intégrale du ratio sans étirement)
+    let imgRatio = 400 / 500;
     const cacheKey = `${this.currentMascot.id}_${this.currentEmotion}_${this.currentVariantIndex}`;
     let imgToDraw = this.imageCache.get(cacheKey);
 
@@ -186,7 +216,38 @@ export class CanvasRenderer {
       imgToDraw = dynamicImg;
     }
 
-    if (imgToDraw && imgToDraw.complete && imgToDraw.naturalWidth > 0) {
+    if (imgToDraw) {
+      const nw = imgToDraw.naturalWidth || imgToDraw.width;
+      const nh = imgToDraw.naturalHeight || imgToDraw.height;
+      if (nw && nh && nh > 0) {
+        imgRatio = nw / nh;
+      }
+    }
+
+    const maxH = height * 0.90;
+    const maxW = width * 0.92;
+
+    let targetHeight = maxH;
+    let targetWidth = targetHeight * imgRatio;
+
+    if (targetWidth > maxW) {
+      targetWidth = maxW;
+      targetHeight = targetWidth / imgRatio;
+    }
+
+    const posX = (width - targetWidth) / 2;
+    const posY = height - targetHeight + idleY + speakingBounce;
+
+    ctx.save();
+
+    const pivotX = width / 2;
+    const pivotY = height;
+    ctx.translate(pivotX, pivotY);
+    ctx.rotate(idleTilt);
+    ctx.translate(-pivotX, -pivotY);
+
+    // 6. Rendu de l'image de la mascotte
+    if (imgToDraw && imgToDraw.complete && (imgToDraw.naturalWidth > 0 || imgToDraw.width > 0)) {
       ctx.drawImage(imgToDraw, posX, posY, targetWidth, targetHeight);
     } else {
       // Fallbacks gracieux
@@ -194,7 +255,21 @@ export class CanvasRenderer {
       const fallbackKey2 = `${this.currentMascot.id}_neutre_0`;
       const fallbackImg = this.imageCache.get(fallbackKey1) || this.imageCache.get(fallbackKey2);
       if (fallbackImg && fallbackImg.complete) {
-        ctx.drawImage(fallbackImg, posX, posY, targetWidth, targetHeight);
+        let fbRatio = imgRatio;
+        const fnw = fallbackImg.naturalWidth || fallbackImg.width;
+        const fnh = fallbackImg.naturalHeight || fallbackImg.height;
+        if (fnw && fnh && fnh > 0) {
+          fbRatio = fnw / fnh;
+        }
+        let fbH = maxH;
+        let fbW = fbH * fbRatio;
+        if (fbW > maxW) {
+          fbW = maxW;
+          fbH = fbW / fbRatio;
+        }
+        const fbX = (width - fbW) / 2;
+        const fbY = height - fbH + idleY + speakingBounce;
+        ctx.drawImage(fallbackImg, fbX, fbY, fbW, fbH);
       }
     }
 

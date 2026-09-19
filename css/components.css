@@ -27,16 +27,17 @@
   flex-shrink: 0;
 }
 
-/* Bouton Primaire Or */
+/* Bouton Primaire Or / Jaune Cyber AutoShort */
 .btn-gold {
-  background: linear-gradient(135deg, var(--gold-light), var(--gold-primary));
-  color: #070b14;
+  background: var(--gold-primary);
+  color: #000000;
+  font-weight: 700;
   box-shadow: var(--shadow-gold);
-  border-color: rgba(254, 243, 199, 0.4);
+  border: 1px solid var(--gold-light);
 }
 
 .btn-gold:hover {
-  background: linear-gradient(135deg, #fde68a, var(--gold-light));
+  background: var(--gold-light);
   box-shadow: var(--shadow-gold-hover);
   transform: translateY(-1px);
 }
@@ -47,34 +48,34 @@
 }
 
 .btn-gold:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
 }
 
-/* Bouton Secondaire Bleu Sombre */
+/* Bouton Secondaire Noir Mat */
 .btn-secondary {
   background-color: var(--bg-surface);
-  color: var(--text-white);
-  border-color: var(--border-highlight);
+  color: var(--text-primary);
+  border-color: var(--border-subtle);
 }
 
 .btn-secondary:hover {
   background-color: var(--bg-card-hover);
-  border-color: var(--gold-primary);
-  color: var(--gold-light);
+  border-color: var(--border-highlight);
+  color: var(--text-white);
 }
 
 .btn-outline-gold {
   background-color: transparent;
-  color: var(--gold-light);
+  color: var(--gold-primary);
   border-color: var(--border-gold);
 }
 
 .btn-outline-gold:hover {
   background-color: var(--gold-subtle);
-  border-color: var(--gold-light);
+  border-color: var(--gold-primary);
   box-shadow: var(--shadow-gold);
 }
 
@@ -82,6 +83,43 @@
   padding: 6px 12px;
   font-size: 0.8rem;
   border-radius: var(--radius-sm);
+}
+
+/* Format Switcher AutoShort (Pills 9:16 / 16:9) */
+.format-switch-group {
+  display: inline-flex;
+  align-items: center;
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  padding: 3px;
+  gap: 3px;
+}
+
+.btn-format-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  border-radius: var(--radius-full);
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-decoration: none;
+}
+
+.btn-format-switch:hover {
+  color: var(--text-white);
+}
+
+.btn-format-switch.active {
+  background-color: var(--gold-primary);
+  color: #000000;
+  box-shadow: 0 0 10px var(--gold-glow);
 }
 
 /* Tabs & Sélecteurs de modes */
@@ -405,11 +443,10 @@
   font-family: monospace;
 }
 
-/* Canevas Vidéo */
+/* Canevas Vidéo AutoShort */
 .canvas-wrapper {
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 9;
   background-color: var(--bg-abyss);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
@@ -417,18 +454,32 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.9);
+  transition: all var(--transition-normal);
+}
+
+.canvas-wrapper.format-9-16 {
+  aspect-ratio: 9 / 16;
+  max-height: 520px;
+  max-width: calc(520px * (9 / 16));
+  margin: 0 auto;
+}
+
+.canvas-wrapper.format-16-9 {
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  max-height: 520px;
 }
 
 .canvas-wrapper.checkerboard {
   background-image: 
-    linear-gradient(45deg, #111a2e 25%, transparent 25%), 
-    linear-gradient(-45deg, #111a2e 25%, transparent 25%), 
-    linear-gradient(45deg, transparent 75%, #111a2e 75%), 
-    linear-gradient(-45deg, transparent 75%, #111a2e 75%);
+    linear-gradient(45deg, #18181c 25%, transparent 25%), 
+    linear-gradient(-45deg, #18181c 25%, transparent 25%), 
+    linear-gradient(45deg, transparent 75%, #18181c 75%), 
+    linear-gradient(-45deg, transparent 75%, #18181c 75%);
   background-size: 24px 24px;
   background-position: 0 0, 0 12px, 12px -12px, -12px 0px;
-  background-color: #0b1222;
+  background-color: #101014;
 }
 
 #preview-canvas {
@@ -442,14 +493,16 @@
   position: absolute;
   top: 14px;
   left: 14px;
-  background: rgba(11, 19, 41, 0.85);
-  backdrop-filter: blur(8px);
+  background: rgba(16, 16, 20, 0.9);
+  backdrop-filter: blur(10px);
   border: 1px solid var(--border-subtle);
   padding: 4px 10px;
   border-radius: var(--radius-full);
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--gold-light);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gold-primary);
   display: flex;
   align-items: center;
   gap: 6px;
