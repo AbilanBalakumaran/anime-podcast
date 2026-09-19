@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad512" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b1329" />
+      <stop offset="100%" stop-color="#070b14" />
+    </linearGradient>
+    <linearGradient id="goldGrad512" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fde68a" />
+      <stop offset="50%" stop-color="#fbbf24" />
+      <stop offset="100%" stop-color="#d97706" />
+    </linearGradient>
+    <radialGradient id="ambientGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#070b14" stop-opacity="0" />
+    </radialGradient>
+    <filter id="goldGlow512" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+  <!-- Background -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad512)" stroke="#1e2f5b" stroke-width="8" />
+  <!-- Center ambient glow -->
+  <circle cx="256" cy="256" r="210" fill="url(#ambientGlow)" />
+  <!-- Golden circular frame -->
+  <circle cx="256" cy="256" r="190" fill="none" stroke="url(#goldGrad512)" stroke-width="12" filter="url(#goldGlow512)" />
+  <!-- Headset headband -->
+  <path d="M 160 256 A 96 96 0 0 1 352 256" fill="none" stroke="url(#goldGrad512)" stroke-width="20" stroke-linecap="round" />
+  <!-- Ear cups -->
+  <rect x="136" y="240" width="44" height="84" rx="22" fill="#fbbf24" stroke="#d97706" stroke-width="4" />
+  <rect x="332" y="240" width="44" height="84" rx="22" fill="#fbbf24" stroke="#d97706" stroke-width="4" />
+  <!-- Audio spectrum waves -->
+  <line x1="216" y1="290" x2="216" y2="222" stroke="#fef3c7" stroke-width="18" stroke-linecap="round" />
+  <line x1="256" y1="320" x2="256" y2="192" stroke="#fbbf24" stroke-width="18" stroke-linecap="round" />
+  <line x1="296" y1="300" x2="296" y2="212" stroke="#fef3c7" stroke-width="18" stroke-linecap="round" />
+  <!-- Microphone boom -->
+  <path d="M 160 300 Q 180 365 240 365" fill="none" stroke="#d97706" stroke-width="15" stroke-linecap="round" />
+  <circle cx="245" cy="365" r="18" fill="#fbbf24" stroke="#fef3c7" stroke-width="3" />
+  <!-- Anime sparkles -->
+  <path d="M 370 140 L 380 165 L 405 175 L 380 185 L 370 210 L 360 185 L 335 175 L 360 165 Z" fill="#fbbf24" opacity="0.9" />
+  <path d="M 130 160 L 136 175 L 151 181 L 136 187 L 130 202 L 124 187 L 109 181 L 124 175 Z" fill="#fde68a" opacity="0.8" />
+</svg>

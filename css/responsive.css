@@ -1,0 +1,79 @@
+/* ==========================================================================
+   RESPONSIVE DESIGN - ANIME PODCAST STUDIO
+   Adaptabilité mobile, tablette et grand écran
+   ========================================================================== */
+
+@media (max-width: 1080px) {
+  .studio-main {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 16px;
+  }
+
+  .config-sidebar {
+    order: 2;
+  }
+
+  .preview-panel {
+    order: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-header {
+    padding: 0 16px;
+    height: 60px;
+  }
+
+  .brand-title {
+    font-size: 1.05rem;
+  }
+
+  .brand-badge {
+    display: none;
+  }
+
+  .studio-card {
+    padding: 14px;
+  }
+
+  .mascot-picker {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .canvas-controls-bar {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+
+  .playback-controls {
+    justify-content: center;
+  }
+
+  .segment-card {
+    grid-template-columns: 70px 1fr 110px;
+    gap: 8px;
+    padding: 8px;
+  }
+
+  .modal-card {
+    padding: 16px;
+    max-height: 95vh;
+  }
+
+  .pose-upload-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Support PWA Standalone Notch / Safe Area */
+@supports (padding-top: env(safe-area-inset-top)) {
+  .app-header {
+    padding-top: env(safe-area-inset-top);
+    height: calc(68px + env(safe-area-inset-top));
+  }
+  .app-footer {
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  }
+}

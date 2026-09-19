@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0b1329">
+  <meta name="description" content="Générateur vidéo de podcast animé avec mascottes interactives et synchronisation vocale">
+  <title>Anime Podcast Studio - Mascottes Animées & Synchronisation Vocale</title>
+
+  <!-- PWA Manifest & Icônes -->
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="./assets/icons/favicon.svg">
+  <link rel="apple-touch-icon" href="./assets/icons/icon-192.svg">
+
+  <!-- Feuilles de Style -->
+  <link rel="stylesheet" href="./css/main.css">
+  <link rel="stylesheet" href="./css/splash.css">
+  <link rel="stylesheet" href="./css/components.css">
+  <link rel="stylesheet" href="./css/timeline.css">
+  <link rel="stylesheet" href="./css/responsive.css">
+</head>
+<body>
+
+  <!-- ========================================================================
+       SPLASH SCREEN DYNAMIQUE (Affiché à chaque ouverture)
+       Thème Bleu Sombre Profond & Or Étincelant
+       ======================================================================== -->
+  <div id="app-splash-screen">
+    <div class="splash-bg-glow"></div>
+    <div class="splash-content">
+      <div class="splash-logo-wrapper">
+        <div class="splash-logo-ring-outer"></div>
+        <div class="splash-logo-ring"></div>
+        <img src="./assets/icons/icon-192.svg" alt="Anime Podcast Studio" class="splash-logo-icon">
+      </div>
+      <h1 class="splash-title">Anime <span>Podcast</span> Studio</h1>
+      <p class="splash-subtitle">Animation vocale dynamique & export transparent</p>
+      
+      <div class="splash-progress-container">
+        <div id="splash-progress-bar" class="splash-progress-bar"></div>
+      </div>
+      <div id="splash-status-text" class="splash-status-text">Initialisation du studio...</div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       APPLICATION PRINCIPALE
+       ======================================================================== -->
+  <div class="app-container">
+    
+    <!-- En-tête de l'application -->
+    <header class="app-header">
+      <div class="brand-container">
+        <img src="./assets/icons/favicon.svg" alt="Logo" class="brand-icon">
+        <div class="brand-title">Anime <span>Podcast</span> Studio</div>
+        <div class="brand-badge">PWA Engine</div>
+      </div>
+
+      <div class="header-actions">
+        <button id="btn-pwa-install" class="btn btn-outline-gold btn-sm" style="display: none;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Installer l'Application
+        </button>
+      </div>
+    </header>
+
+    <!-- Corps du studio -->
+    <main class="studio-main">
+
+      <!-- ====================================================================
+           COLONNE GAUCHE : CONFIGURATION DU PROJET & RESSOURCES
+           ==================================================================== -->
+      <aside class="config-sidebar">
+
+        <!-- Module de gestion des mascottes -->
+        <section class="studio-card">
+          <div class="card-header">
+            <h2 class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="8" r="5"></circle>
+                <path d="M20 21a8 8 0 1 0-16 0"></path>
+              </svg>
+              Mascottes & Poses
+            </h2>
+            <button id="btn-new-mascot" class="btn btn-outline-gold btn-sm">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              Nouvelle Mascotte
+            </button>
+          </div>
+
+          <div id="mascot-picker" class="mascot-picker">
+            <!-- Rempli dynamiquement par mascot-manager.js -->
+          </div>
+
+          <div class="form-group">
+            <div class="form-label">
+              <span>Tester les 5 poses prédéfinies</span>
+              <span style="color: var(--gold-light); font-size: 0.75rem;">Cliquez pour prévisualiser</span>
+            </div>
+            <div id="poses-preview-bar" class="poses-preview-bar">
+              <!-- Rempli dynamiquement par mascot-manager.js -->
+            </div>
+          </div>
+        </section>
+
+        <!-- Module de gestion audio -->
+        <section class="studio-card">
+          <div class="card-header">
+            <h2 class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 18V5l12-2v13"></path>
+                <circle cx="6" cy="18" r="3"></circle>
+                <circle cx="18" cy="16" r="3"></circle>
+              </svg>
+              Gestion Audio
+            </h2>
+          </div>
+
+          <!-- Onglets de sélection du mode audio -->
+          <div class="tab-group">
+            <button id="tab-audio-import" class="tab-btn active">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+              Importer un Fichier
+            </button>
+            <button id="tab-audio-tts" class="tab-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+              </svg>
+              Synthèse Vocale (TTS)
+            </button>
+          </div>
+
+          <!-- Vue 1 : Import de fichier audio -->
+          <div id="view-audio-import">
+            <input type="file" id="audio-file-input" accept="audio/*" style="display: none;">
+            <div id="audio-dropzone" class="audio-dropzone">
+              <svg class="dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="12" y1="18" x2="12" y2="12"></line>
+                <line x1="9" y1="15" x2="12" y2="12"></line>
+                <line x1="15" y1="15" x2="12" y2="12"></line>
+              </svg>
+              <div class="dropzone-text">Glissez-déposez un fichier audio ici</div>
+              <div class="dropzone-sub">Formats acceptés : MP3, WAV, AAC, OGG, WebM</div>
+            </div>
+          </div>
+
+          <!-- Vue 2 : Synthèse Vocale directe (TTS) -->
+          <div id="view-audio-tts" style="display: none;">
+            <div class="form-group">
+              <label for="textarea-tts" class="form-label">
+                <span>Texte du podcast à synthétiser</span>
+                <span style="color: var(--gold-light);">Découpage automatique par phrase</span>
+              </label>
+              <textarea id="textarea-tts" class="form-textarea" placeholder="Entrez le texte de votre podcast ici...">Bienvenue dans ce nouvel épisode d'Anime Podcast ! Aujourd'hui, nous explorons le secret de l'animation japonaise et des mascottes expressives. Avez-vous remarqué comment les transitions de poses rendent un discours captivant ? C'est absolument incroyable ! Explorons ensemble cette technologie dès maintenant.</textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="select-tts-voice" class="form-label">Voix de synthèse</label>
+              <select id="select-tts-voice" class="form-select"></select>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label for="slider-tts-rate" class="form-label">Vitesse de diction</label>
+                <input type="range" id="slider-tts-rate" min="0.7" max="1.5" step="0.05" value="1.0" style="accent-color: var(--gold-primary);">
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label for="slider-tts-pitch" class="form-label">Tonalité vocale</label>
+                <input type="range" id="slider-tts-pitch" min="0.7" max="1.4" step="0.05" value="1.0" style="accent-color: var(--gold-primary);">
+              </div>
+            </div>
+
+            <button id="btn-generate-tts" class="btn btn-gold" style="width: 100%;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+              </svg>
+              Générer la Voix & Segmenter les Phrases
+            </button>
+          </div>
+
+          <!-- Barre d'état audio -->
+          <div id="audio-status-bar" class="audio-status-bar">
+            <div class="audio-info">
+              <div id="audio-icon-pulse" class="audio-icon-pulse"></div>
+              <div id="audio-file-name" class="audio-name">Aucune piste chargée</div>
+            </div>
+            <div id="time-total" class="audio-duration">00:00</div>
+          </div>
+        </section>
+
+      </aside>
+
+      <!-- ====================================================================
+           COLONNE DROITE : PRÉVISUALISATION DU CANEVAS & EXPORT VIDÉO
+           ==================================================================== -->
+      <section class="preview-panel">
+
+        <!-- Canevas Vidéo Transparent -->
+        <div class="studio-card">
+          <div class="card-header">
+            <h2 class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
+                <line x1="7" y1="2" x2="7" y2="22"></line>
+                <line x1="17" y1="2" x2="17" y2="22"></line>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+              </svg>
+              Prévisualisation Vidéo
+            </h2>
+
+            <button id="btn-toggle-bg" class="btn btn-secondary btn-sm" title="Basculer entre l'aperçu studio et le damier de transparence">
+              Fond : Damier (Alpha)
+            </button>
+          </div>
+
+          <!-- Conteneur du canevas -->
+          <div class="canvas-wrapper checkerboard">
+            <canvas id="preview-canvas"></canvas>
+            <div class="canvas-overlay-badge">
+              <span style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--gold-light); box-shadow: 0 0 6px var(--gold-light);"></span>
+              Fond Transparent (Canal Alpha 1080p)
+            </div>
+          </div>
+
+          <!-- Barre de contrôles de lecture et d'export -->
+          <div class="canvas-controls-bar">
+            <div class="playback-controls">
+              <button id="btn-play" class="btn btn-gold btn-play" title="Lecture">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                  <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+              </button>
+              <div style="font-family: monospace; font-size: 0.9rem; color: var(--text-white);">
+                <span id="time-current">00:00</span>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+              <button id="btn-export-video" class="btn btn-gold">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Exporter la Vidéo Transparente (WebM)
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Timeline & Segmentation Temporelle des Phrases (façon NotebookLM) -->
+        <div class="studio-card">
+          <div class="card-header">
+            <h2 class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              Segmentation Temporelle & Rythme des Phrases (NotebookLM)
+            </h2>
+            <div id="segments-count" class="segments-count">0 phrases détectées</div>
+          </div>
+
+          <div class="timeline-container">
+            <!-- Forme d'onde interactive -->
+            <div class="waveform-box">
+              <canvas id="waveform-canvas"></canvas>
+              <div id="timeline-playhead" class="timeline-playhead"></div>
+            </div>
+
+            <!-- Liste des phrases détectées et sélection des attitudes -->
+            <div class="segments-header">
+              <span class="segments-title">Phrases segmentées & attitudes automatiques</span>
+              <span style="font-size: 0.75rem; color: var(--text-muted);">Personnalisez la pose de chaque phrase ci-dessous :</span>
+            </div>
+
+            <div id="segments-scroll-list" class="segments-scroll-list">
+              <div class="timeline-empty">
+                Chargez ou générez un audio pour afficher la timeline et le découpage automatique des poses.
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </main>
+
+    <!-- Pied de page -->
+    <footer class="app-footer">
+      Anime Podcast Studio &bull; PWA Haute Performance avec Export Transparent &bull; Charte Bleu Sombre & Or
+    </footer>
+  </div>
+
+  <!-- ========================================================================
+       MODALE 1 : CRÉATION D'UNE NOUVELLE MASCOTTE (5 POSES)
+       ======================================================================== -->
+  <div id="modal-new-mascot" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
+            <path d="M12 5v14M5 12h14"></path>
+          </svg>
+          Créer une Nouvelle Mascotte
+        </h3>
+        <button id="modal-close-btn" class="modal-close">&times;</button>
+      </div>
+
+      <form id="form-new-mascot">
+        <div class="form-group">
+          <label for="input-mascot-name" class="form-label">Nom de la mascotte *</label>
+          <input type="text" id="input-mascot-name" class="form-input" placeholder="Ex: Hikari, Kenji..." required>
+        </div>
+
+        <div class="form-group">
+          <div class="form-label">
+            <span>Dossier des 5 Poses Prédéfinies</span>
+            <span style="color: var(--gold-light);">Images PNG ou SVG sur fond transparent</span>
+          </div>
+          
+          <div class="pose-upload-grid">
+            <!-- Slot 1 : Neutre (Obligatoire) -->
+            <div id="slot-pose-neutre" class="pose-upload-card">
+              <input type="file" id="input-pose-neutre" accept="image/*" style="display: none;">
+              <div class="pose-preview-box">
+                <span style="font-size: 1.4rem; color: #94a3b8;">+</span>
+              </div>
+              <div class="pose-name-tag">Neutre *</div>
+              <div class="pose-hint">Obligatoire</div>
+            </div>
+
+            <!-- Slot 2 : Enthousiaste -->
+            <div id="slot-pose-enthousiaste" class="pose-upload-card">
+              <input type="file" id="input-pose-enthousiaste" accept="image/*" style="display: none;">
+              <div class="pose-preview-box">
+                <span style="font-size: 1.4rem; color: #94a3b8;">+</span>
+              </div>
+              <div class="pose-name-tag">Enthousiaste</div>
+              <div class="pose-hint">Optionnel</div>
+            </div>
+
+            <!-- Slot 3 : Explicative -->
+            <div id="slot-pose-explicative" class="pose-upload-card">
+              <input type="file" id="input-pose-explicative" accept="image/*" style="display: none;">
+              <div class="pose-preview-box">
+                <span style="font-size: 1.4rem; color: #94a3b8;">+</span>
+              </div>
+              <div class="pose-name-tag">Explicative</div>
+              <div class="pose-hint">Optionnel</div>
+            </div>
+
+            <!-- Slot 4 : Pensive -->
+            <div id="slot-pose-pensive" class="pose-upload-card">
+              <input type="file" id="input-pose-pensive" accept="image/*" style="display: none;">
+              <div class="pose-preview-box">
+                <span style="font-size: 1.4rem; color: #94a3b8;">+</span>
+              </div>
+              <div class="pose-name-tag">Pensive</div>
+              <div class="pose-hint">Optionnel</div>
+            </div>
+
+            <!-- Slot 5 : Surprise -->
+            <div id="slot-pose-surprise" class="pose-upload-card">
+              <input type="file" id="input-pose-surprise" accept="image/*" style="display: none;">
+              <div class="pose-preview-box">
+                <span style="font-size: 1.4rem; color: #94a3b8;">+</span>
+              </div>
+              <div class="pose-name-tag">Surprise</div>
+              <div class="pose-hint">Optionnel</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 14px;">
+          <button type="button" onclick="document.getElementById('modal-new-mascot').classList.remove('open')" class="btn btn-secondary">
+            Annuler
+          </button>
+          <button type="submit" class="btn btn-gold">
+            Enregistrer dans IndexedDB
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODALE 2 : EXPORTATION VIDÉO TRANSPARENTE
+       ======================================================================== -->
+  <div id="modal-export" class="modal-backdrop">
+    <div class="modal-card" style="max-width: 460px;">
+      <div class="modal-header">
+        <h3 class="modal-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          </svg>
+          Export Vidéo Transparent
+        </h3>
+      </div>
+
+      <div class="export-modal-content">
+        <div class="export-progress-ring">
+          <div id="export-progress-value" class="export-progress-value">0%</div>
+        </div>
+        <div id="export-status-text" style="font-size: 0.9rem; color: var(--text-white);">
+          Rendu du canevas en cours...
+        </div>
+        <div style="font-size: 0.78rem; color: var(--text-muted); max-width: 320px;">
+          Le flux vidéo est capturé avec canal alpha transparent (WebM VP9/VP8) et audio synchronisé.
+        </div>
+        <button id="btn-cancel-export" class="btn btn-secondary btn-sm" style="margin-top: 10px;">
+          Annuler l'export
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Point d'Entrée JavaScript (Modules ES6) -->
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>

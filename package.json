@@ -1,0 +1,25 @@
+{
+  "name": "anime-podcast",
+  "version": "1.0.0",
+  "description": "Générateur vidéo PWA de podcast animé avec mascottes interactives et synchronisation vocale",
+  "main": "index.html",
+  "type": "module",
+  "scripts": {
+    "start": "npx serve .",
+    "dev": "npx serve .",
+    "serve": "npx serve ."
+  },
+  "keywords": [
+    "pwa",
+    "canvas",
+    "anime",
+    "podcast",
+    "mascot",
+    "notebooklm",
+    "video-export",
+    "audio-sync",
+    "transparent-video"
+  ],
+  "author": "AbilanBalakumaran",
+  "license": "MIT"
+}

@@ -1,0 +1,592 @@
+/* ==========================================================================
+   COMPONENTS - ANIME PODCAST STUDIO
+   Charte : Bleu sombre & Or uniquement (zéro rose)
+   ========================================================================== */
+
+/* Boutons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all var(--transition-fast);
+  text-decoration: none;
+  user-select: none;
+}
+
+.btn svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* Bouton Primaire Or */
+.btn-gold {
+  background: linear-gradient(135deg, var(--gold-light), var(--gold-primary));
+  color: #070b14;
+  box-shadow: var(--shadow-gold);
+  border-color: rgba(254, 243, 199, 0.4);
+}
+
+.btn-gold:hover {
+  background: linear-gradient(135deg, #fde68a, var(--gold-light));
+  box-shadow: var(--shadow-gold-hover);
+  transform: translateY(-1px);
+}
+
+.btn-gold:active {
+  transform: translateY(0);
+  background: var(--gold-dark);
+}
+
+.btn-gold:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Bouton Secondaire Bleu Sombre */
+.btn-secondary {
+  background-color: var(--bg-surface);
+  color: var(--text-white);
+  border-color: var(--border-highlight);
+}
+
+.btn-secondary:hover {
+  background-color: var(--bg-card-hover);
+  border-color: var(--gold-primary);
+  color: var(--gold-light);
+}
+
+.btn-outline-gold {
+  background-color: transparent;
+  color: var(--gold-light);
+  border-color: var(--border-gold);
+}
+
+.btn-outline-gold:hover {
+  background-color: var(--gold-subtle);
+  border-color: var(--gold-light);
+  box-shadow: var(--shadow-gold);
+}
+
+/* Boutons Petits */
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  border-radius: var(--radius-sm);
+}
+
+/* Tabs & Sélecteurs de modes */
+.tab-group {
+  display: flex;
+  background-color: var(--bg-input);
+  padding: 4px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  gap: 4px;
+  margin-bottom: 16px;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.tab-btn.active {
+  background-color: var(--bg-card);
+  color: var(--gold-light);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border-highlight);
+}
+
+/* Sélecteur de Mascottes */
+.mascot-picker {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.mascot-card {
+  background-color: var(--bg-surface);
+  border: 2px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  position: relative;
+  text-align: center;
+}
+
+.mascot-card:hover {
+  border-color: var(--border-highlight);
+  background-color: var(--bg-card-hover);
+}
+
+.mascot-card.selected {
+  border-color: var(--gold-primary);
+  background-color: rgba(245, 158, 11, 0.08);
+  box-shadow: 0 0 16px var(--gold-subtle);
+}
+
+.mascot-thumbnail {
+  width: 72px;
+  height: 72px;
+  border-radius: var(--radius-sm);
+  background-color: var(--bg-darker);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+}
+
+.mascot-thumbnail img,
+.mascot-thumbnail svg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.mascot-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-white);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.mascot-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--gold-primary);
+  box-shadow: 0 0 8px var(--gold-light);
+}
+
+/* Pose Pills */
+.poses-preview-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.pose-pill {
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: var(--radius-full);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.pose-pill:hover {
+  border-color: var(--border-highlight);
+  color: var(--text-white);
+}
+
+.pose-pill.active {
+  background-color: var(--gold-subtle);
+  border-color: var(--gold-primary);
+  color: var(--gold-light);
+}
+
+/* Formulaires & Entrées */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.form-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  display: flex;
+  justify-content: space-between;
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  color: var(--text-white);
+  outline: none;
+  transition: border-color var(--transition-fast);
+  font-family: inherit;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  border-color: var(--gold-primary);
+  box-shadow: 0 0 10px var(--gold-subtle);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 90px;
+}
+
+/* Zone de Drag & Drop Audio */
+.audio-dropzone {
+  border: 2px dashed var(--border-highlight);
+  border-radius: var(--radius-lg);
+  padding: 24px 16px;
+  text-align: center;
+  cursor: pointer;
+  background-color: rgba(17, 29, 56, 0.3);
+  transition: all var(--transition-normal);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.audio-dropzone:hover,
+.audio-dropzone.dragover {
+  border-color: var(--gold-primary);
+  background-color: rgba(245, 158, 11, 0.05);
+}
+
+.dropzone-icon {
+  width: 44px;
+  height: 44px;
+  color: var(--gold-light);
+}
+
+.dropzone-text {
+  font-size: 0.88rem;
+  color: var(--text-white);
+  font-weight: 600;
+}
+
+.dropzone-sub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Lecteur Audio & Visualiseur */
+.audio-status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  margin-top: 10px;
+}
+
+.audio-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+}
+
+.audio-icon-pulse {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--gold-primary);
+  box-shadow: 0 0 8px var(--gold-light);
+}
+
+.audio-icon-pulse.playing {
+  animation: audioPulse 1.2s infinite ease-in-out;
+}
+
+@keyframes audioPulse {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.4); opacity: 1; }
+}
+
+.audio-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-white);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+}
+
+.audio-duration {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-family: monospace;
+}
+
+/* Visualiseur Canvas / Zone Vidéo */
+.canvas-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background-color: var(--bg-abyss);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.8);
+}
+
+/* Fond damier pour vérifier la transparence */
+.canvas-wrapper.checkerboard {
+  background-image: 
+    linear-gradient(45deg, #111a2e 25%, transparent 25%), 
+    linear-gradient(-45deg, #111a2e 25%, transparent 25%), 
+    linear-gradient(45deg, transparent 75%, #111a2e 75%), 
+    linear-gradient(-45deg, transparent 75%, #111a2e 75%);
+  background-size: 24px 24px;
+  background-position: 0 0, 0 12px, 12px -12px, -12px 0px;
+  background-color: #0b1222;
+}
+
+#preview-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+}
+
+.canvas-overlay-badge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  background: rgba(11, 19, 41, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border-subtle);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--gold-light);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.canvas-controls-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 10px 16px;
+  margin-top: 12px;
+}
+
+.playback-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-play {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  padding: 0;
+}
+
+/* Modale de Gestion des Mascottes */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(7, 11, 20, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  visibility: hidden;
+  transition: all var(--transition-normal);
+}
+
+.modal-backdrop.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-gold);
+  border-radius: var(--radius-lg);
+  max-width: 680px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 30px var(--gold-subtle);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 14px;
+}
+
+.modal-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-white);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-fast);
+}
+
+.modal-close:hover {
+  color: var(--gold-light);
+}
+
+/* Upload Slots pour les 5 poses */
+.pose-upload-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.pose-upload-card {
+  background-color: var(--bg-surface);
+  border: 2px dashed var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  position: relative;
+}
+
+.pose-upload-card:hover {
+  border-color: var(--gold-primary);
+  background-color: var(--gold-subtle);
+}
+
+.pose-upload-card.has-image {
+  border-style: solid;
+  border-color: var(--gold-primary);
+}
+
+.pose-preview-box {
+  width: 70px;
+  height: 70px;
+  background-color: var(--bg-darker);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pose-preview-box img,
+.pose-preview-box svg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.pose-name-tag {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-white);
+  text-transform: capitalize;
+}
+
+.pose-hint {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+}
+
+/* Modale d'Exportation Vidéo */
+.export-modal-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+  padding: 20px 0;
+}
+
+.export-progress-ring {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.export-progress-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--gold-light);
+  font-family: monospace;
+}

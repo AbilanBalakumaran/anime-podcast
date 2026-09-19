@@ -1,0 +1,221 @@
+/* ==========================================================================
+   ANIME PODCAST STUDIO - MAIN CSS
+   Charte graphique stricte : Bleu sombre profond (#070b14, #0b1329, #111d38)
+   Accents : Jaune doré (#f59e0b, #fbbf24, #d97706, #fef3c7)
+   Exclusion stricte : AUCUNE nuance de rose sur toute l'interface.
+   ========================================================================== */
+
+:root {
+  /* Palette Bleu Sombre Profond */
+  --bg-abyss: #070b14;
+  --bg-darker: #0b1329;
+  --bg-surface: #111d38;
+  --bg-card: #162547;
+  --bg-card-hover: #1c2e56;
+  --bg-input: #0a1124;
+  
+  /* Bordures et Séparateurs */
+  --border-subtle: #1c2e56;
+  --border-highlight: #284177;
+  --border-gold: rgba(245, 158, 11, 0.4);
+  
+  /* Accents Jaune Doré */
+  --gold-primary: #f59e0b;
+  --gold-light: #fbbf24;
+  --gold-dark: #d97706;
+  --gold-pale: #fef3c7;
+  --gold-glow: rgba(245, 158, 11, 0.35);
+  --gold-subtle: rgba(245, 158, 11, 0.12);
+
+  /* Accents Secondaires (Cyan électrique pour audio / statuts) */
+  --accent-cyan: #38bdf8;
+  --cyan-subtle: rgba(56, 189, 248, 0.15);
+
+  /* Typographie & Couleurs de Texte */
+  --text-white: #f8fafc;
+  --text-primary: #f1f5f9;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
+
+  /* Rayons et Ombres */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+  --shadow-card: 0 8px 24px -4px rgba(0, 0, 0, 0.65), 0 2px 6px -1px rgba(0, 0, 0, 0.4);
+  --shadow-gold: 0 0 20px rgba(245, 158, 11, 0.25);
+  --shadow-gold-hover: 0 0 28px rgba(251, 191, 36, 0.45);
+
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s ease;
+  --transition-slow: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Reset & Base */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  min-height: 100%;
+  background-color: var(--bg-abyss);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.5;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* App Container */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: radial-gradient(circle at 50% 0%, rgba(28, 46, 86, 0.35) 0%, rgba(7, 11, 20, 0.95) 70%, var(--bg-abyss) 100%);
+}
+
+/* App Header */
+.app-header {
+  height: 68px;
+  background-color: rgba(11, 19, 41, 0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.brand-container {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.brand-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 0 12px var(--gold-glow);
+}
+
+.brand-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--text-white);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.brand-title span {
+  color: var(--gold-light);
+  text-shadow: 0 0 12px var(--gold-glow);
+}
+
+.brand-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: var(--gold-subtle);
+  color: var(--gold-light);
+  border: 1px solid var(--border-gold);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Main Studio Layout */
+.studio-main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 460px 1fr;
+  gap: 24px;
+  padding: 24px;
+  max-width: 1680px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Panneau de configuration (Gauche) */
+.config-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Panneau de visualisation et export (Droite) */
+.preview-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Cartes génériques */
+.studio-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-card);
+  transition: border-color var(--transition-normal);
+}
+
+.studio-card:hover {
+  border-color: var(--border-highlight);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-white);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card-title svg {
+  color: var(--gold-light);
+  width: 20px;
+  height: 20px;
+}
+
+/* Footer */
+.app-footer {
+  padding: 16px 24px;
+  background-color: var(--bg-darker);
+  border-top: 1px solid var(--border-subtle);
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.app-footer a {
+  color: var(--gold-light);
+  text-decoration: none;
+}
+
+.app-footer a:hover {
+  text-decoration: underline;
+}

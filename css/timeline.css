@@ -1,0 +1,165 @@
+/* ==========================================================================
+   TIMELINE CSS - ANIME PODCAST STUDIO
+   Visualisation audio, forme d'onde et segmentation des phrases avec poses
+   ========================================================================== */
+
+.timeline-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+/* Zone d'affichage de la Forme d'Onde */
+.waveform-box {
+  position: relative;
+  width: 100%;
+  height: 80px;
+  background-color: var(--bg-darker);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  cursor: pointer;
+}
+
+#waveform-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Tête de lecture (Playhead) */
+.timeline-playhead {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: var(--gold-light);
+  box-shadow: 0 0 8px var(--gold-light);
+  pointer-events: none;
+  transform: translateX(0);
+  transition: transform 0.05s linear;
+  z-index: 5;
+}
+
+.timeline-playhead::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -4px;
+  width: 10px;
+  height: 10px;
+  background-color: var(--gold-light);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--gold-glow);
+}
+
+/* Liste des Segments / Phrases Détectées */
+.segments-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 6px;
+}
+
+.segments-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-white);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.segments-count {
+  font-size: 0.75rem;
+  background-color: var(--bg-surface);
+  color: var(--gold-light);
+  border: 1px solid var(--border-subtle);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+
+.segments-scroll-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 220px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+/* Carte de Segment */
+.segment-card {
+  display: grid;
+  grid-template-columns: 80px 1fr 130px;
+  align-items: center;
+  gap: 12px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.segment-card:hover {
+  border-color: var(--border-highlight);
+  background-color: var(--bg-card-hover);
+}
+
+.segment-card.active {
+  border-color: var(--gold-primary);
+  background-color: rgba(245, 158, 11, 0.08);
+  box-shadow: 0 0 12px var(--gold-subtle);
+}
+
+.segment-time {
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+}
+
+.segment-time .time-start {
+  color: var(--text-white);
+  font-weight: 600;
+}
+
+.segment-text {
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.segment-pose-select {
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  color: var(--gold-light);
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color var(--transition-fast);
+}
+
+.segment-pose-select:focus,
+.segment-pose-select:hover {
+  border-color: var(--gold-primary);
+}
+
+/* Empty State pour Timeline */
+.timeline-empty {
+  padding: 24px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  background-color: var(--bg-surface);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--border-subtle);
+}

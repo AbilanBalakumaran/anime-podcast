@@ -1,0 +1,167 @@
+/* ==========================================================================
+   DYNAMIC SPLASH SCREEN - ANIME PODCAST STUDIO
+   Affiché à chaque ouverture d'application
+   Thème : Bleu sombre profond (#070b14) & pulsations jaune doré (#fbbf24)
+   ========================================================================== */
+
+#app-splash-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--bg-abyss);
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s;
+  pointer-events: auto;
+  overflow: hidden;
+}
+
+#app-splash-screen.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Fond avec nébuleuse dorée animée */
+.splash-bg-glow {
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.18) 0%, rgba(17, 29, 56, 0.4) 50%, rgba(7, 11, 20, 0) 70%);
+  border-radius: 50%;
+  animation: splashPulse 3s infinite ease-in-out;
+  pointer-events: none;
+}
+
+/* Contenu central du splash */
+.splash-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 20px;
+  max-width: 400px;
+  padding: 20px;
+}
+
+/* Logo animé */
+.splash-logo-wrapper {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.splash-logo-ring {
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 2px dashed rgba(245, 158, 11, 0.4);
+  animation: splashRotate 12s linear infinite;
+}
+
+.splash-logo-ring-outer {
+  position: absolute;
+  inset: -18px;
+  border-radius: 50%;
+  border: 1px solid rgba(251, 191, 36, 0.2);
+  animation: splashRotateRev 18s linear infinite;
+}
+
+.splash-logo-icon {
+  width: 88px;
+  height: 88px;
+  border-radius: 24px;
+  box-shadow: 0 0 35px var(--gold-glow), 0 0 10px rgba(245, 158, 11, 0.5);
+  animation: splashIconFloat 2.5s ease-in-out infinite;
+}
+
+/* Titres */
+.splash-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: var(--text-white);
+  text-transform: uppercase;
+}
+
+.splash-title span {
+  color: var(--gold-light);
+  text-shadow: 0 0 16px var(--gold-glow);
+}
+
+.splash-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+/* Barre de progression */
+.splash-progress-container {
+  width: 240px;
+  height: 6px;
+  background-color: rgba(28, 46, 86, 0.6);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  position: relative;
+  border: 1px solid var(--border-subtle);
+  margin-top: 10px;
+}
+
+.splash-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--gold-dark), var(--gold-light), var(--gold-pale));
+  border-radius: var(--radius-full);
+  box-shadow: 0 0 12px var(--gold-glow);
+  transition: width 0.3s ease;
+}
+
+.splash-status-text {
+  font-size: 0.75rem;
+  color: var(--gold-light);
+  font-family: monospace;
+  letter-spacing: 0.5px;
+  min-height: 16px;
+}
+
+/* Animations */
+@keyframes splashPulse {
+  0%, 100% {
+    transform: scale(0.9);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.95;
+  }
+}
+
+@keyframes splashRotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes splashRotateRev {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+@keyframes splashIconFloat {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    transform: translateY(-6px) scale(1.02);
+  }
+}
