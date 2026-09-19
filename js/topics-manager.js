@@ -43,8 +43,7 @@ const STATUS_FR = {
   HIATUS: 'En pause'
 };
 
-// Icônes SVG (style Feather) réutilisées dans la liste.
-const ICON_PERSON = '<circle cx="12" cy="8" r="5"></circle><path d="M20 21a8 8 0 1 0-16 0"></path>';
+// Icône SVG (style Feather) réutilisée dans la liste.
 const ICON_IMAGE = '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="M21 15l-5-5L5 21"></path>';
 
 function iconSvg(innerPath, size = 26) {
@@ -205,8 +204,6 @@ export class TopicsManager {
     if (!this.gridEl) return;
     if (this.isLoadingTopics) return;
 
-    this.updateActiveMascotLabel();
-
     this.isLoadingTopics = true;
     if (this.btnRefresh) this.btnRefresh.disabled = true;
     this.gridEl.innerHTML = '<div class="empty-state" style="padding: 30px;"><p>Chargement des tendances en direct (AniList)...</p></div>';
@@ -279,15 +276,6 @@ export class TopicsManager {
     row.addEventListener('click', () => this.openTopicPreview(topic));
 
     return row;
-  }
-
-  updateActiveMascotLabel() {
-    const label = document.getElementById('topics-active-mascot');
-    if (!label) return;
-    const mascot = this.app.mascotManager?.activeMascot;
-    label.innerHTML = mascot
-      ? `${iconSvg(ICON_PERSON, 14)} Mascotte active : ${mascot.name} — changez-la depuis la page Mascottes si besoin.`
-      : `${iconSvg(ICON_PERSON, 14)} Aucune mascotte sélectionnée.`;
   }
 
   // ==================== APERÇU INSTANTANÉ (AUCUN APPEL API) ====================
