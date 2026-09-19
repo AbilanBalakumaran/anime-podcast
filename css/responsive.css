@@ -47,17 +47,6 @@ input, textarea, select {
   /* 2. Afficher le Header Mobile compact */
   .app-header-mobile {
     display: flex !important;
-    align-items: center;
-    justify-content: space-between;
-    height: 56px;
-    padding: 0 16px;
-    background-color: rgba(13, 13, 17, 0.96);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-bottom: 1px solid var(--border-subtle);
-    position: sticky;
-    top: 0;
-    z-index: 100;
   }
 
   .brand-title {

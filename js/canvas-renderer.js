@@ -205,18 +205,24 @@ export class CanvasRenderer {
     // 4. Moteur de Marionnette Vivante (Puppet VTuber)
     const timeSec = timestamp * 0.001;
 
-    // A) Balancement pendulaire composé (effet marionnette souple)
-    const swayAngle = Math.sin(timeSec * 1.8) * 0.016 + Math.cos(timeSec * 0.9) * 0.008;
+    // A) Balancement pendulaire composé (effet marionnette souple et visible)
+    const swayAngle = Math.sin(timeSec * 1.8) * 0.028
+                    + Math.cos(timeSec * 0.9) * 0.014
+                    + Math.sin(timeSec * 3.1) * 0.006;
 
     // B) Respiration vivante en squash & stretch (cage thoracique qui respire)
-    const breathScaleY = 1 + Math.sin(timeSec * 2.2) * 0.015;
-    const breathScaleX = 1 - Math.sin(timeSec * 2.2) * 0.010;
+    const breathScaleY = 1 + Math.sin(timeSec * 2.2) * 0.025;
+    const breathScaleX = 1 - Math.sin(timeSec * 2.2) * 0.018;
 
-    // C) Réactivité vocale : hochement de tête et micro-rebonds d'énergie
-    const speechBounce = isSpeaking ? (Math.sin(timestamp * 0.022) * 8 * mouthAperture + mouthAperture * 10) : 0;
-    const speechNod = isSpeaking ? (Math.sin(timestamp * 0.018) * 0.012 * mouthAperture) : 0;
+    // C) Micro-dérive aléatoire (petit mouvement de tête idle pour éviter l'immobilité)
+    const microDriftX = Math.sin(timeSec * 0.7 + 1.3) * 3;
+    const microDriftY = Math.cos(timeSec * 0.5 + 0.7) * 2;
 
-    // D) Détection de changement de pose pour transition fluide (Cross-fade & Pop)
+    // D) Réactivité vocale : hochement de tête et micro-rebonds d'énergie
+    const speechBounce = isSpeaking ? (Math.sin(timestamp * 0.022) * 12 * mouthAperture + mouthAperture * 16) : 0;
+    const speechNod = isSpeaking ? (Math.sin(timestamp * 0.018) * 0.02 * mouthAperture) : 0;
+
+    // E) Détection de changement de pose pour transition fluide (Cross-fade & Pop)
     const currentKey = `${this.currentMascot.id}_${this.currentEmotion}_${this.currentVariantIndex}`;
     if (this.lastRenderKey && this.lastRenderKey !== currentKey) {
       this.prevPoseImg = this.lastRenderImg;
@@ -229,11 +235,11 @@ export class CanvasRenderer {
 
     // Rebond d'anticipation lors d'un changement de pose (pop VTuber)
     const popScale = transitionProgress < 1.0 
-      ? (1.0 + Math.sin(transitionProgress * Math.PI) * 0.035)
+      ? (1.0 + Math.sin(transitionProgress * Math.PI) * 0.05)
       : 1.0;
 
     // 5. Calcul des proportions réelles de l'image (préservation intégrale du ratio sans étirement)
-    let imgRatio = 400 / 500;
+    let imgRatio = 1.0; // Ratio par défaut carré, sera recalculé avec les dimensions réelles
     let imgToDraw = this.imageCache.get(currentKey);
 
     // Si mascotte par défaut avec flap buccal dynamique SVG
@@ -273,8 +279,8 @@ export class CanvasRenderer {
       targetHeight = targetWidth / imgRatio;
     }
 
-    const posX = (width - targetWidth) / 2;
-    const posY = height - targetHeight + speechBounce;
+    const posX = (width - targetWidth) / 2 + microDriftX;
+    const posY = height - targetHeight + speechBounce + microDriftY;
 
     ctx.save();
 
