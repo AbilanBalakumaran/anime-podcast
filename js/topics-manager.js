@@ -1,9 +1,10 @@
 /**
  * TOPICS MANAGER - AUTOPOD STUDIO
- * Panneau "Sujets Vidéo" : génération 100% automatique d'une vidéo longue (5-10 min)
+ * Panneau "Sujets Vidéo" : génération assistée d'une vidéo longue (5-10 min)
  * à partir d'un sujet anime/pop-culture choisi en un clic.
- * Pipeline : script (Gemini texte) -> voix off (ElevenLabs/Gemini TTS) -> segmentation
- * & alternance de poses (existant) -> regroupement en scènes + illustrations par scène
+ * Flux : clic sur un sujet -> script écrit par Gemini -> aperçu éditable ->
+ * validation -> voix off (ElevenLabs/Gemini TTS) -> segmentation & alternance
+ * de poses (existant) -> regroupement en scènes + illustrations par scène
  * (Gemini image) -> export vidéo (existant).
  */
 
@@ -14,10 +15,33 @@ const GEMINI_TEXT_MODEL = 'gemini-2.5-flash';
 const GEMINI_IMAGE_MODEL = 'gemini-2.5-flash-image';
 const SCENE_TARGET_DURATION = 40; // secondes visées par scène/illustration
 
+// Icônes SVG (style Feather, cohérent avec le reste de l'interface) pour
+// chaque sujet, en remplacement des emojis.
+const ICON_FLAG = '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line>';
+const ICON_DOMAIN = '<circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle><path d="M12 3v2M12 19v2M3 12h2M19 12h2"></path>';
+const ICON_SWORDS = '<path d="M4 4l16 16"></path><path d="M20 4L4 20"></path><path d="M4 4l3 0M4 4l0 3M20 4l-3 0M20 4l0 3M4 20l3 0M4 20l0-3M20 20l-3 0M20 20l0-3"></path>';
+const ICON_DAGGER = '<path d="M12 2v12"></path><path d="M8 14h8l-4 8z"></path><path d="M9 6h6"></path>';
+const ICON_FLAME = '<path d="M12 22c4 0 6-3 6-6.5 0-3-2-4.5-3-7-1 2-2 3-2 3-1-2 0-4-1-6-3 2-5 5-5 9 0 4 1.5 7.5 5 7.5z"></path>';
+const ICON_APPLE = '<path d="M12 7c2 0 4.5 2 4.5 6S14 21 12 21s-4.5-3-4.5-8S10 7 12 7z"></path><path d="M12 7c0-1.2 1-2.2 2-2.2"></path><path d="M9.5 4.5c1.2 0 2.2.6 2.5 2"></path>';
+const ICON_EYE = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"></path><circle cx="12" cy="12" r="3"></circle>';
+const ICON_DROPLET = '<path d="M12 2s7 8.5 7 13.5a7 7 0 0 1-14 0C5 10.5 12 2 12 2z"></path>';
+const ICON_ANCHOR = '<circle cx="12" cy="5" r="3"></circle><line x1="12" y1="22" x2="12" y2="8"></line><path d="M5 12H2a10 10 0 0 0 20 0h-3"></path>';
+const ICON_CLOCK = '<circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>';
+const ICON_MASK = '<path d="M6 10c0-4 3-6 6-6s6 2 6 6v4c0 4-3 7-6 7s-6-3-6-7z"></path><path d="M7 8l-2-4M17 8l2-4"></path><circle cx="9" cy="12" r="1"></circle><circle cx="15" cy="12" r="1"></circle>';
+const ICON_SPIRAL = '<path d="M12 2a10 10 0 1 0 7 17"></path><path d="M12 7a5 5 0 1 0 3.5 8.5"></path>';
+const ICON_TOMBSTONE = '<path d="M7 22V11a5 5 0 0 1 10 0v11"></path><line x1="5" y1="22" x2="19" y2="22"></line><line x1="10" y1="8" x2="14" y2="8"></line><line x1="12" y1="6" x2="12" y2="10"></line>';
+const ICON_FIST = '<path d="M7 21V13a3 3 0 0 1 3-3h1V6a2 2 0 0 1 4 0v1.2a2 2 0 0 1 3 1.8v2a2 2 0 0 1 2 2v2a5 5 0 0 1-5 5H9a2 2 0 0 1-2-2z"></path>';
+const ICON_FILM = '<path d="M2 8h20M7 3v5M17 3v5"></path><rect x="2" y="8" width="20" height="13" rx="2" ry="2"></rect><path d="M9 12.5l5 2.5-5 2.5z"></path>';
+const ICON_PERSON = '<circle cx="12" cy="8" r="5"></circle><path d="M20 21a8 8 0 1 0-16 0"></path>';
+
+function iconSvg(innerPath, size = 26) {
+  return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${innerPath}</svg>`;
+}
+
 export const VIDEO_TOPICS = [
   {
     id: 'one-piece-void-century',
-    emoji: '🏴‍☠️',
+    icon: ICON_FLAG,
     title: 'One Piece : Le Secret du Siècle Oublié',
     category: 'Théorie & Lore',
     hook: "Du Grand Line à Joy Boy, on reconstitue le mystère ultime derrière le trésor de Roger.",
@@ -25,7 +49,7 @@ export const VIDEO_TOPICS = [
   },
   {
     id: 'jjk-domain-expansions',
-    emoji: '🤞',
+    icon: ICON_DOMAIN,
     title: 'Jujutsu Kaisen : Le Classement des Domaines',
     category: 'Classement',
     hook: "On classe les Domain Expansions les plus dévastatrices, de Gojo à Sukuna.",
@@ -33,7 +57,7 @@ export const VIDEO_TOPICS = [
   },
   {
     id: 'snk-eren-paradox',
-    emoji: '⚔️',
+    icon: ICON_SWORDS,
     title: "L'Attaque des Titans : Le Paradoxe d'Eren",
     category: 'Analyse',
     hook: "Héros ou monstre ? On décortique la chute tragique d'Eren Jaeger.",
@@ -41,7 +65,7 @@ export const VIDEO_TOPICS = [
   },
   {
     id: 'solo-leveling-rise',
-    emoji: '🗡️',
+    icon: ICON_DAGGER,
     title: "Solo Leveling : L'Éveil du Monarque",
     category: 'Rétrospective',
     hook: "De chasseur rang E à Monarque des Ombres, retour sur l'ascension de Sung Jinwoo.",
@@ -49,7 +73,7 @@ export const VIDEO_TOPICS = [
   },
   {
     id: 'demon-slayer-animation',
-    emoji: '🔥',
+    icon: ICON_FLAME,
     title: "Demon Slayer : Le Secret de l'Animation Ufotable",
     category: 'Making-of',
     hook: "Comment Ufotable a redéfini les standards de l'animation d'action.",
@@ -57,7 +81,7 @@ export const VIDEO_TOPICS = [
   },
   {
     id: 'death-note-duel',
-    emoji: '🍎',
+    icon: ICON_APPLE,
     title: 'Death Note : Le Duel Light vs L',
     category: 'Analyse',
     hook: "La plus grande bataille d'esprits de l'anime, phase par phase.",
@@ -65,7 +89,7 @@ export const VIDEO_TOPICS = [
   },
   {
     id: 'gojo-evolution',
-    emoji: '👁️',
+    icon: ICON_EYE,
     title: "Jujutsu Kaisen : L'Évolution de Gojo",
     category: 'Portrait',
     hook: "Le sorcier le plus fort à travers son passé, sa philosophie et sa chute.",
@@ -73,7 +97,7 @@ export const VIDEO_TOPICS = [
   },
   {
     id: 'chainsaw-man-horror',
-    emoji: '🩸',
+    icon: ICON_DROPLET,
     title: "Chainsaw Man : L'Horreur qui Fascine",
     category: 'Analyse',
     hook: "Pourquoi le body-horror de Chainsaw Man captive autant qu'il dérange.",
@@ -81,7 +105,7 @@ export const VIDEO_TOPICS = [
   },
   {
     id: 'vinland-saga-redemption',
-    emoji: '⚓',
+    icon: ICON_ANCHOR,
     title: 'Vinland Saga : Le Chemin de la Rédemption',
     category: 'Thème',
     hook: "De guerrier sanguinaire à pacifiste, le voyage le plus mature de l'anime.",
@@ -89,7 +113,7 @@ export const VIDEO_TOPICS = [
   },
   {
     id: 'frieren-time',
-    emoji: '🕰️',
+    icon: ICON_CLOCK,
     title: 'Frieren : La Beauté du Temps qui Passe',
     category: 'Thème',
     hook: "Une elfe immortelle face à la fragilité de la vie humaine.",
@@ -97,7 +121,7 @@ export const VIDEO_TOPICS = [
   },
   {
     id: 'jjk-curses-explained',
-    emoji: '👹',
+    icon: ICON_MASK,
     title: 'Jujutsu Kaisen : Les Malédictions Expliquées',
     category: 'Lore',
     hook: "Comment naissent les fléaux, et pourquoi ils sont le vrai miroir de l'humanité.",
@@ -105,7 +129,7 @@ export const VIDEO_TOPICS = [
   },
   {
     id: 'naruto-legacy',
-    emoji: '🍥',
+    icon: ICON_SPIRAL,
     title: "Naruto : L'Héritage d'une Génération",
     category: 'Rétrospective',
     hook: "Comment Naruto a changé l'anime pour toujours, 20 ans après.",
@@ -113,7 +137,7 @@ export const VIDEO_TOPICS = [
   },
   {
     id: 'bleach-return',
-    emoji: '⚰️',
+    icon: ICON_TOMBSTONE,
     title: 'Bleach : Le Retour Triomphant',
     category: 'Rétrospective',
     hook: "Après des années d'attente, la Guerre Sanglante du Millénaire tient enfin ses promesses.",
@@ -121,7 +145,7 @@ export const VIDEO_TOPICS = [
   },
   {
     id: 'mha-all-might-origin',
-    emoji: '💪',
+    icon: ICON_FIST,
     title: "My Hero Academia : Les Origines d'All Might",
     category: 'Portrait',
     hook: "Le Symbole de la Paix n'a pas toujours été invincible.",
@@ -133,9 +157,26 @@ export class TopicsManager {
   constructor(app) {
     this.app = app;
     this.gridEl = document.getElementById('topics-grid');
+
     this.modal = document.getElementById('modal-topic-pipeline');
     this.statusEl = document.getElementById('topic-pipeline-status');
+
+    this.previewModal = document.getElementById('modal-topic-preview');
+    this.previewTitleEl = document.getElementById('topic-preview-title');
+    this.previewScriptEl = document.getElementById('topic-preview-script');
+    this.btnPreviewGenerate = document.getElementById('btn-topic-preview-generate');
+    this.btnPreviewCancel = document.getElementById('btn-topic-preview-cancel');
+    this.previewCloseBtn = document.getElementById('modal-topic-preview-close-btn');
+
+    this.currentPreviewTopic = null;
     this.isGenerating = false;
+
+    this.btnPreviewGenerate?.addEventListener('click', () => this.confirmGenerateFromPreview());
+    this.btnPreviewCancel?.addEventListener('click', () => this.closePreviewModal());
+    this.previewCloseBtn?.addEventListener('click', () => this.closePreviewModal());
+    this.previewModal?.addEventListener('click', (e) => {
+      if (e.target === this.previewModal) this.closePreviewModal();
+    });
   }
 
   // ==================== RENDU DE LA GRILLE ====================
@@ -157,7 +198,7 @@ export class TopicsManager {
 
       const thumb = document.createElement('div');
       thumb.className = 'mascot-full-thumb';
-      thumb.innerHTML = `<span style="font-size:2.6rem;">${topic.emoji}</span>`;
+      thumb.innerHTML = iconSvg(topic.icon, 30);
 
       const nameEl = document.createElement('div');
       nameEl.className = 'mascot-full-name';
@@ -176,28 +217,29 @@ export class TopicsManager {
 
       const durBadge = document.createElement('span');
       durBadge.className = 'mascot-stat-badge';
-      durBadge.textContent = '🎬 5-10 min';
+      durBadge.style.cssText = 'display:inline-flex; align-items:center; gap:4px;';
+      durBadge.innerHTML = `${iconSvg(ICON_FILM, 12)}<span>5-10 min</span>`;
 
       statsEl.appendChild(catBadge);
       statsEl.appendChild(durBadge);
 
-      const btnGenerate = document.createElement('button');
-      btnGenerate.type = 'button';
-      btnGenerate.className = 'btn btn-gold btn-sm';
-      btnGenerate.style.cssText = 'margin-top:10px; width:100%;';
-      btnGenerate.textContent = '▶️ Générer la vidéo';
-      btnGenerate.addEventListener('click', (e) => {
+      const btnPreview = document.createElement('button');
+      btnPreview.type = 'button';
+      btnPreview.className = 'btn btn-gold btn-sm';
+      btnPreview.style.cssText = 'margin-top:10px; width:100%;';
+      btnPreview.textContent = 'Aperçu du script';
+      btnPreview.addEventListener('click', (e) => {
         e.stopPropagation();
-        this.generateFullVideo(topic);
+        this.openTopicPreview(topic);
       });
 
       card.appendChild(thumb);
       card.appendChild(nameEl);
       card.appendChild(hookEl);
       card.appendChild(statsEl);
-      card.appendChild(btnGenerate);
+      card.appendChild(btnPreview);
 
-      card.addEventListener('click', () => this.generateFullVideo(topic));
+      card.addEventListener('click', () => this.openTopicPreview(topic));
 
       this.gridEl.appendChild(card);
     });
@@ -207,14 +249,14 @@ export class TopicsManager {
     const label = document.getElementById('topics-active-mascot');
     if (!label) return;
     const mascot = this.app.mascotManager?.activeMascot;
-    label.textContent = mascot
-      ? `🎭 Mascotte active : ${mascot.name} — changez-la depuis la page Mascottes si besoin.`
-      : '🎭 Aucune mascotte sélectionnée.';
+    label.innerHTML = mascot
+      ? `${iconSvg(ICON_PERSON, 14)} Mascotte active : ${mascot.name} — changez-la depuis la page Mascottes si besoin.`
+      : `${iconSvg(ICON_PERSON, 14)} Aucune mascotte sélectionnée.`;
   }
 
-  // ==================== PIPELINE DE GÉNÉRATION ====================
+  // ==================== ÉTAPE 1 : APERÇU DU SCRIPT ====================
 
-  async generateFullVideo(topic) {
+  async openTopicPreview(topic) {
     if (this.isGenerating) {
       alert('Une génération est déjà en cours, merci de patienter.');
       return;
@@ -222,7 +264,7 @@ export class TopicsManager {
 
     const geminiKey = this.app.audioManager.getGeminiKey();
     if (!geminiKey && !WORKER_BASE_URL) {
-      alert("Veuillez renseigner votre clé API Gemini dans Paramètres avant de générer une vidéo automatique (script et illustrations en dépendent).");
+      alert("Veuillez renseigner votre clé API Gemini dans Paramètres avant de générer un script (script et illustrations en dépendent).");
       this.app.navigateTo('page-settings');
       return;
     }
@@ -232,7 +274,59 @@ export class TopicsManager {
 
     try {
       const script = await this.generateScript(topic);
+      this.hidePipelineModal();
+      this.currentPreviewTopic = topic;
+      this.openPreviewModal(topic, script);
+    } catch (err) {
+      console.error('[TopicsManager] Échec de la génération du script:', err);
+      alert("Erreur lors de l'écriture du script : " + err.message);
+      this.hidePipelineModal();
+    } finally {
+      this.isGenerating = false;
+    }
+  }
 
+  openPreviewModal(topic, script) {
+    if (!this.previewModal) this.previewModal = document.getElementById('modal-topic-preview');
+    if (!this.previewTitleEl) this.previewTitleEl = document.getElementById('topic-preview-title');
+    if (!this.previewScriptEl) this.previewScriptEl = document.getElementById('topic-preview-script');
+
+    if (this.previewTitleEl) this.previewTitleEl.textContent = topic.title;
+    if (this.previewScriptEl) this.previewScriptEl.value = script;
+    this.previewModal?.classList.add('open');
+  }
+
+  closePreviewModal() {
+    this.previewModal?.classList.remove('open');
+    this.currentPreviewTopic = null;
+  }
+
+  // ==================== ÉTAPE 2 : GÉNÉRATION COMPLÈTE (depuis l'aperçu) ====================
+
+  async confirmGenerateFromPreview() {
+    if (this.isGenerating) return;
+    const topic = this.currentPreviewTopic;
+    const script = this.previewScriptEl?.value?.trim();
+
+    if (!topic || !script) {
+      alert('Aucun script à générer.');
+      return;
+    }
+
+    this.closePreviewModal();
+    await this.generateFullVideo(topic, script);
+  }
+
+  async generateFullVideo(topic, script) {
+    if (this.isGenerating) {
+      alert('Une génération est déjà en cours, merci de patienter.');
+      return;
+    }
+
+    this.isGenerating = true;
+    this.showPipelineModal('Préparation de la voix off...');
+
+    try {
       if (this.app.textareaTts) {
         this.app.textareaTts.value = script;
       }
@@ -368,7 +462,7 @@ Requirements:
       .trim();
   }
 
-  // ==================== SCÈNES : REGROUPEMENT + ALTERNANCE DE POSITION ====================
+  // ==================== SCÈNES : REGROUPEMENT POUR LES ILLUSTRATIONS ====================
 
   buildScenes(segments) {
     const scenes = [];
@@ -433,7 +527,7 @@ Requirements:
     return `data:${mimeType};base64,${imgPart.inlineData.data}`;
   }
 
-  // ==================== MODAL DE STATUT ====================
+  // ==================== MODAL DE STATUT (PIPELINE) ====================
 
   showPipelineModal(text) {
     if (!this.modal) this.modal = document.getElementById('modal-topic-pipeline');

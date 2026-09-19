@@ -1,4 +1,4 @@
-const CACHE_NAME = 'autopod-v1.7.0';
+const CACHE_NAME = 'autopod-v1.8.0';
 
 const ASSETS_TO_CACHE = [
   './',
@@ -29,7 +29,18 @@ const ASSETS_TO_CACHE = [
   './assets/icons/apple-touch-icon.png',
   './assets/icons/icon-maskable-192.png',
   './assets/icons/icon-maskable-512.png',
-  './assets/fonts/ObelixPro.ttf'
+  './assets/fonts/ObelixPro.ttf',
+  './assets/mascots/kai/bonjour_0.png',
+  './assets/mascots/kai/neutre_0.png',
+  './assets/mascots/kai/explicative_0.png',
+  './assets/mascots/kai/explicative_1.png',
+  './assets/mascots/kai/pensive_0.png',
+  './assets/mascots/kai/surprise_0.png',
+  './assets/mascots/kai/confiante_0.png',
+  './assets/mascots/kai/joyeuse_0.png',
+  './assets/mascots/kai/ironique_0.png',
+  './assets/mascots/kai/enervee_0.png',
+  './assets/mascots/kai/embarrassee_0.png'
 ];
 
 // Installation : mise en cache immédiate et forçage de l'activation

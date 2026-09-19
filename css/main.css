@@ -146,20 +146,23 @@ input, textarea, select, button {
 }
 
 .brand-title {
-  font-family: var(--font-main);
-  font-weight: 800;
-  font-size: 1.35rem;
-  letter-spacing: -0.01em;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.5rem;
+  letter-spacing: 0.02em;
   color: var(--text-white);
   display: flex;
   align-items: center;
   gap: 6px;
-  text-transform: none;
+  text-transform: uppercase;
+  -webkit-text-stroke: 1px #070b14;
+  text-shadow: 1.5px 1.5px 0 #070b14;
 }
 
 .brand-title span {
   color: var(--gold-primary);
-  text-shadow: 0 0 14px var(--gold-glow);
+  -webkit-text-stroke: 1px #070b14;
+  text-shadow: 1.5px 1.5px 0 #070b14, 0 0 14px var(--gold-glow);
 }
 
 .brand-badge {
@@ -338,18 +341,21 @@ input, textarea, select, button {
 }
 
 .header-title {
-  font-family: var(--font-main);
-  font-weight: 800;
-  font-size: 1.5rem;
-  letter-spacing: -0.01em;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.6rem;
+  letter-spacing: 0.02em;
   color: var(--text-white);
   line-height: 1;
-  text-transform: none;
+  text-transform: uppercase;
+  -webkit-text-stroke: 1px #070b14;
+  text-shadow: 1.5px 1.5px 0 #070b14;
 }
 
 .header-title .gold-text {
   color: var(--gold-primary);
-  text-shadow: 0 0 12px var(--gold-glow);
+  -webkit-text-stroke: 1px #070b14;
+  text-shadow: 1.5px 1.5px 0 #070b14, 0 0 12px var(--gold-glow);
 }
 
 .header-badge {

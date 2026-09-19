@@ -403,27 +403,6 @@ class AnimePodcastApp {
       });
     }
 
-    // Gestion des clés API (Gemini & ElevenLabs)
-    const inputGemini = document.getElementById('settings-gemini-key');
-    const inputEleven = document.getElementById('settings-elevenlabs-key');
-    const btnSaveKeys = document.getElementById('btn-save-keys');
-    const saveStatus = document.getElementById('save-keys-status');
-
-    if (inputGemini) inputGemini.value = this.audioManager.getGeminiKey();
-    if (inputEleven) inputEleven.value = this.audioManager.getElevenLabsKey();
-
-    if (btnSaveKeys) {
-      btnSaveKeys.addEventListener('click', () => {
-        if (inputGemini) this.audioManager.setGeminiKey(inputGemini.value);
-        if (inputEleven) this.audioManager.setElevenLabsKey(inputEleven.value);
-        if (saveStatus) {
-          saveStatus.style.display = 'inline';
-          setTimeout(() => { saveStatus.style.display = 'none'; }, 3000);
-        }
-        console.log('[Settings] Clés API enregistrées dans le navigateur.');
-      });
-    }
-
     const selectVoice = document.getElementById('settings-voice-select');
     if (selectVoice) {
       selectVoice.addEventListener('change', () => {

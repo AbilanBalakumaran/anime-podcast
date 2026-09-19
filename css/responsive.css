@@ -12,6 +12,17 @@ input, textarea, select {
 }
 
 /* ==========================================================================
+   DESKTOP (>= 901px) : la sidebar affiche déjà le logo et le nom du site,
+   on évite la répétition dans le header
+   ========================================================================== */
+@media (min-width: 901px) {
+  .app-top-header .header-brand,
+  .app-top-header .header-divider {
+    display: none;
+  }
+}
+
+/* ==========================================================================
    TABLETTE & GRANDS ÉCRANS INTERMÉDIAIRES (< 1120px)
    ========================================================================== */
 @media (max-width: 1120px) {

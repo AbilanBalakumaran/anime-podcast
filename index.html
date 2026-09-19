@@ -647,47 +647,6 @@
           <h1 class="page-title">⚙️ Paramètres</h1>
         </div>
 
-        <!-- Section Clés API (Gemini & ElevenLabs) -->
-        <section class="studio-card">
-          <div class="card-header">
-            <h2 class="card-title">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-              </svg>
-              Clés API &amp; Moteurs IA (TTS)
-            </h2>
-          </div>
-
-          <div class="form-group">
-            <label for="settings-gemini-key" class="form-label">
-              Clé API Gemini (Google AI Studio)
-              <span style="color: var(--gold-primary); font-size: 0.75rem; margin-left: 6px;">Voix Orbit active</span>
-            </label>
-            <input type="password" id="settings-gemini-key" class="form-control" placeholder="Entrez votre clé API Gemini" autocomplete="off">
-            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
-              Utilisée pour la génération audio HD avec le modèle <code>gemini-3.1-flash-tts-preview</code> (Voix Orbit par défaut).
-            </p>
-          </div>
-
-          <div class="form-group">
-            <label for="settings-elevenlabs-key" class="form-label">Clé API ElevenLabs</label>
-            <input type="password" id="settings-elevenlabs-key" class="form-control" placeholder="Entrez votre clé API ElevenLabs" autocomplete="off">
-            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
-              Permet d'utiliser les voix ElevenLabs (Rachel, Adam, Antoni, Josh).
-            </p>
-          </div>
-
-          <div style="display: flex; gap: 10px; align-items: center;">
-            <button id="btn-save-keys" class="btn btn-primary btn-sm">
-              💾 Enregistrer les clés API
-            </button>
-            <span id="save-keys-status" style="font-size: 0.8rem; color: var(--accent-emerald); display: none;">
-              ✓ Clés enregistrées dans votre navigateur !
-            </span>
-          </div>
-        </section>
-
         <!-- Section Voix Off -->
         <section class="studio-card">
           <div class="card-header">
@@ -1020,7 +979,11 @@
 
       <div class="export-modal-content">
         <div class="export-progress-ring">
-          <div class="export-progress-value" style="font-size: 1.6rem;">🎬</div>
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 8h20M7 3v5M17 3v5"></path>
+            <rect x="2" y="8" width="20" height="13" rx="2" ry="2"></rect>
+            <path d="M9 12.5l5 2.5-5 2.5z"></path>
+          </svg>
         </div>
         <div id="topic-pipeline-status" style="font-size: 0.9rem; color: var(--text-white);">
           Écriture du script...
@@ -1032,7 +995,39 @@
     </div>
   </div>
 
+  <!-- ========================================================================
+       MODALE : APERÇU DU SCRIPT (SUJETS VIDÉO, avant génération complète)
+       ======================================================================== -->
+  <div id="modal-topic-preview" class="modal-backdrop">
+    <div class="modal-card" style="max-width: 640px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="topic-preview-title">Aperçu du script</h3>
+        <button type="button" id="modal-topic-preview-close-btn" class="modal-close">&times;</button>
+      </div>
+
+      <div style="padding: 4px 2px 2px;">
+        <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0 0 10px;">
+          Voici ce que la mascotte va raconter. Modifiez le texte si besoin, puis lancez la génération.
+        </p>
+        <textarea id="topic-preview-script" class="form-textarea" style="min-height: 280px; width: 100%; box-sizing: border-box;"></textarea>
+        <div style="display: flex; gap: 10px; margin-top: 14px;">
+          <button type="button" id="btn-topic-preview-generate" class="btn btn-gold" style="flex: 1;">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 8h20M7 3v5M17 3v5"></path>
+              <rect x="2" y="8" width="20" height="13" rx="2" ry="2"></rect>
+              <path d="M9 12.5l5 2.5-5 2.5z"></path>
+            </svg>
+            Générer la vidéo
+          </button>
+          <button type="button" id="btn-topic-preview-cancel" class="btn btn-secondary">
+            Annuler
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Point d'Entrée JavaScript (Modules ES6) avec cache-busting -->
-  <script type="module" src="./js/app.js?v=1.7.0"></script>
+  <script type="module" src="./js/app.js?v=1.8.0"></script>
 </body>
 </html>
