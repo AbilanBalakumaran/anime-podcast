@@ -3,7 +3,7 @@
  * Panneau "Sujets Vidéo" : génération 100% automatique d'une vidéo longue (5-10 min)
  * à partir d'un sujet anime/pop-culture choisi en un clic.
  * Pipeline : script (Gemini texte) -> voix off (ElevenLabs/Gemini TTS) -> segmentation
- * & alternance de poses (existant) -> alternance de positions + illustrations par scène
+ * & alternance de poses (existant) -> regroupement en scènes + illustrations par scène
  * (Gemini image) -> export vidéo (existant).
  */
 
@@ -13,7 +13,6 @@ import { WORKER_BASE_URL } from './worker-config.js';
 const GEMINI_TEXT_MODEL = 'gemini-2.5-flash';
 const GEMINI_IMAGE_MODEL = 'gemini-2.5-flash-image';
 const SCENE_TARGET_DURATION = 40; // secondes visées par scène/illustration
-const POSITION_CYCLE = ['center', 'left', 'right'];
 
 export const VIDEO_TOPICS = [
   {
@@ -392,14 +391,6 @@ Requirements:
     if (current && current.segmentIds.length) {
       scenes.push(current);
     }
-
-    scenes.forEach((scene, i) => {
-      scene.position = POSITION_CYCLE[i % POSITION_CYCLE.length];
-      scene.segmentIds.forEach(id => {
-        const seg = segments.find(s => s.id === id);
-        if (seg) seg.position = scene.position;
-      });
-    });
 
     return scenes;
   }

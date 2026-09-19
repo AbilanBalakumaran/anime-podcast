@@ -301,17 +301,6 @@ export class SpeechAnalyzer {
     return { emotion: 'neutre', variantIndex: 0, position: 'center', image: null, animationStyle: 'zoom-in' };
   }
 
-  /**
-   * Change la position de la mascotte sur l'ensemble des scènes
-   */
-  setAllMascotPositions(position) {
-    if (!this.segments || this.segments.length === 0) return;
-    this.segments.forEach(seg => {
-      seg.position = position;
-    });
-    this.renderSegmentsList();
-  }
-
   drawWaveform(rmsValues, maxRms) {
     if (!this.waveformCanvas || !this.waveformCtx) return;
 
@@ -497,25 +486,8 @@ export class SpeechAnalyzer {
         seg.variantIndex = parseInt(e.target.value, 10) || 0;
       });
 
-      // Sélecteur de position de la mascotte (Gauche, Centre, Droite, Masquée)
-      const selectPos = document.createElement('select');
-      selectPos.className = 'segment-pos-select';
-      selectPos.title = 'Position de la mascotte dans le cadre 1920×1080';
-      selectPos.innerHTML = `
-        <option value="center" ${seg.position === 'center' ? 'selected' : ''}>⏺️ Centre</option>
-        <option value="left" ${seg.position === 'left' ? 'selected' : ''}>⬅️ Gauche</option>
-        <option value="right" ${seg.position === 'right' ? 'selected' : ''}>➡️ Droite</option>
-        <option value="hidden" ${seg.position === 'hidden' ? 'selected' : ''}>🚫 Masquée</option>
-      `;
-
-      selectPos.addEventListener('change', (e) => {
-        e.stopPropagation();
-        seg.position = e.target.value;
-      });
-
       mascotGroup.appendChild(selectEmo);
       mascotGroup.appendChild(selectVariant);
-      mascotGroup.appendChild(selectPos);
 
       // --- GROUPE ILLUSTRATION ANIMÉE (MONTAGE AUTOMATIQUE) ---
       const illustGroup = document.createElement('div');

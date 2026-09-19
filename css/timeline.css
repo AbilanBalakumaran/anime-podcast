@@ -80,12 +80,6 @@
   flex-wrap: wrap;
 }
 
-.batch-label {
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--text-muted);
-}
-
 .btn-batch-pos {
   background-color: var(--bg-input);
   border: 1px solid var(--border-subtle);
@@ -235,7 +229,6 @@
 }
 
 .segment-pose-select,
-.segment-pos-select,
 .segment-anim-select {
   background-color: var(--bg-input);
   border: 1px solid var(--border-subtle);
@@ -249,11 +242,6 @@
   transition: border-color var(--transition-fast);
 }
 
-.segment-pos-select {
-  color: #38bdf8;
-  border-color: rgba(56, 189, 248, 0.3);
-}
-
 .segment-anim-select {
   color: #34d399;
   border-color: rgba(52, 211, 153, 0.3);
@@ -261,8 +249,6 @@
 
 .segment-pose-select:focus,
 .segment-pose-select:hover,
-.segment-pos-select:focus,
-.segment-pos-select:hover,
 .segment-anim-select:focus,
 .segment-anim-select:hover {
   border-color: var(--gold-primary);

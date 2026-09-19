@@ -344,27 +344,6 @@ class AnimePodcastApp {
       });
     }
 
-    // Boutons de positionnement global de la mascotte
-    const btnPosLeft = document.getElementById('btn-pos-all-left');
-    const btnPosCenter = document.getElementById('btn-pos-all-center');
-    const btnPosRight = document.getElementById('btn-pos-all-right');
-
-    if (btnPosLeft) {
-      btnPosLeft.addEventListener('click', () => {
-        this.speechAnalyzer.setAllMascotPositions('left');
-      });
-    }
-    if (btnPosCenter) {
-      btnPosCenter.addEventListener('click', () => {
-        this.speechAnalyzer.setAllMascotPositions('center');
-      });
-    }
-    if (btnPosRight) {
-      btnPosRight.addEventListener('click', () => {
-        this.speechAnalyzer.setAllMascotPositions('right');
-      });
-    }
-
     // Bouton de toggle des sous-titres incrustés
     const btnToggleSubs = document.getElementById('btn-toggle-subtitles');
     if (btnToggleSubs) {
