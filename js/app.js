@@ -60,6 +60,12 @@ class AnimePodcastApp {
   }
 
   async init() {
+    // Empêcher tout saut de scroll automatique du navigateur au rechargement
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+    window.scrollTo(0, 0);
+
     // Watchdog de sécurité : garantit la disparition du splash screen sous 1.2s max quoi qu'il arrive
     const splashWatchdog = setTimeout(() => {
       this.dismissSplashScreen();
@@ -203,7 +209,7 @@ class AnimePodcastApp {
         if (this.splashScreen) {
           this.splashScreen.style.display = 'none';
         }
-      }, 650);
+      }, 520);
     }
   }
 

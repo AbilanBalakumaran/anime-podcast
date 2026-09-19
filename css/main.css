@@ -76,6 +76,10 @@
   touch-action: manipulation;
 }
 
+html {
+  scrollbar-gutter: stable;
+}
+
 html, body {
   width: 100%;
   max-width: 100%;
@@ -282,8 +286,11 @@ input, textarea, select, button {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 60px;
-  padding: 0 24px;
+  height: calc(60px + env(safe-area-inset-top, 0px));
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-left: calc(24px + env(safe-area-inset-left, 0px));
+  padding-right: calc(24px + env(safe-area-inset-right, 0px));
+  padding-bottom: 0;
   background-color: rgba(13, 13, 17, 0.94);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -292,6 +299,10 @@ input, textarea, select, button {
   top: 0;
   z-index: 100;
   flex-shrink: 0;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: transform;
+  box-sizing: border-box;
 }
 
 .header-left {

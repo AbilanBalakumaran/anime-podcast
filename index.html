@@ -31,9 +31,9 @@
   <!-- ========================================================================
        SPLASH SCREEN DYNAMIQUE (Uniquement l'icône)
        ======================================================================== -->
-  <div id="app-splash-screen">
+  <div id="app-splash-screen" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; background-color: #09090b; z-index: 999999;">
     <div class="splash-content">
-      <img src="./assets/icons/icon-192.svg?v=1.5.1" alt="Autopod" class="splash-logo-icon">
+      <img src="./assets/icons/icon-192.svg?v=1.5.2" alt="Autopod" class="splash-logo-icon" width="192" height="192">
     </div>
   </div>
 
@@ -112,7 +112,7 @@
       <header class="app-top-header">
         <div class="header-left">
           <div class="header-brand">
-            <img src="./assets/icons/favicon.svg" alt="Autopod" class="header-logo">
+            <img src="./assets/icons/favicon.svg" alt="Autopod" class="header-logo" width="32" height="32">
             <div class="header-title-wrap">
               <span class="header-title">Auto<span class="gold-text">pod</span></span>
               <span class="header-badge">STUDIO PRO</span>
@@ -783,6 +783,6 @@
   </div>
 
   <!-- Point d'Entrée JavaScript (Modules ES6) avec cache-busting -->
-  <script type="module" src="./js/app.js?v=1.5.1"></script>
+  <script type="module" src="./js/app.js?v=1.5.2"></script>
 </body>
 </html>

@@ -46,8 +46,12 @@ input, textarea, select {
 
   /* 2. Header Top centré sur mobile (style Sukishort / AutoAMV) */
   .app-top-header {
-    height: 56px;
-    padding: 0 16px;
+    height: calc(56px + env(safe-area-inset-top, 0px));
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-left: calc(16px + env(safe-area-inset-left, 0px));
+    padding-right: calc(16px + env(safe-area-inset-right, 0px));
+    padding-bottom: 0;
+    width: 100%;
     max-width: 100vw;
     box-sizing: border-box;
     overflow: hidden;
@@ -56,6 +60,9 @@ input, textarea, select {
     justify-content: center;
     position: sticky;
     top: 0;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    will-change: transform;
   }
 
   .app-top-header .header-left {
