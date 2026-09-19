@@ -46,10 +46,7 @@ const STATUS_FR = {
 };
 
 // Icônes SVG (style Feather) réutilisées dans la liste.
-const ICON_FILM = '<path d="M2 8h20M7 3v5M17 3v5"></path><rect x="2" y="8" width="20" height="13" rx="2" ry="2"></rect><path d="M9 12.5l5 2.5-5 2.5z"></path>';
 const ICON_PERSON = '<circle cx="12" cy="8" r="5"></circle><path d="M20 21a8 8 0 1 0-16 0"></path>';
-const ICON_STAR = '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>';
-const ICON_TREND = '<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline>';
 const ICON_IMAGE = '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="M21 15l-5-5L5 21"></path>';
 
 function iconSvg(innerPath, size = 26) {
@@ -104,11 +101,11 @@ export class TopicsManager {
     this.modal = document.getElementById('modal-topic-pipeline');
     this.statusEl = document.getElementById('topic-pipeline-status');
 
-    this.previewModal = document.getElementById('modal-topic-preview');
+    this.listView = document.getElementById('topics-list-view');
+    this.detailView = document.getElementById('topics-detail-view');
     this.previewTitleEl = document.getElementById('topic-preview-title');
     this.btnPreviewGenerate = document.getElementById('btn-topic-preview-generate');
-    this.btnPreviewCancel = document.getElementById('btn-topic-preview-cancel');
-    this.previewCloseBtn = document.getElementById('modal-topic-preview-close-btn');
+    this.btnDetailBack = document.getElementById('btn-topic-detail-back');
 
     this.topics = [];
     this.currentPreviewTopic = null;
@@ -119,11 +116,7 @@ export class TopicsManager {
     this.btnRefresh?.addEventListener('click', () => this.renderGrid(true));
 
     this.btnPreviewGenerate?.addEventListener('click', () => this.confirmGenerateFromPreview());
-    this.btnPreviewCancel?.addEventListener('click', () => this.closePreviewModal());
-    this.previewCloseBtn?.addEventListener('click', () => this.closePreviewModal());
-    this.previewModal?.addEventListener('click', (e) => {
-      if (e.target === this.previewModal) this.closePreviewModal();
-    });
+    this.btnDetailBack?.addEventListener('click', () => this.backToList());
   }
 
   // ==================== SOURCE DE DONNÉES DYNAMIQUE (ANILIST) ====================
@@ -251,45 +244,27 @@ export class TopicsManager {
     } else {
       coverEl = document.createElement('div');
       coverEl.className = 'topic-cover';
-      coverEl.innerHTML = iconSvg(ICON_IMAGE, 24);
+      coverEl.innerHTML = iconSvg(ICON_IMAGE, 16);
     }
 
     const contentEl = document.createElement('div');
     contentEl.className = 'topic-row-content';
 
-    const titleEl = document.createElement('div');
+    const titleEl = document.createElement('span');
     titleEl.className = 'topic-row-title';
     titleEl.textContent = topic.title;
-
-    const metaEl = document.createElement('div');
-    metaEl.className = 'topic-row-meta';
-    metaEl.textContent = topic.hook;
-
-    const badgesEl = document.createElement('div');
-    badgesEl.className = 'topic-row-badges';
-
-    if (topic.score) {
-      const scoreBadge = document.createElement('span');
-      scoreBadge.className = 'topic-badge topic-badge-score';
-      scoreBadge.innerHTML = `${iconSvg(ICON_STAR, 11)}<span>${topic.score}/10</span>`;
-      badgesEl.appendChild(scoreBadge);
-    }
-
-    if (topic.trendRank) {
-      const trendBadge = document.createElement('span');
-      trendBadge.className = 'topic-badge topic-badge-trend';
-      trendBadge.innerHTML = `${iconSvg(ICON_TREND, 11)}<span>Tendance #${topic.trendRank}</span>`;
-      badgesEl.appendChild(trendBadge);
-    }
-
-    const durBadge = document.createElement('span');
-    durBadge.className = 'topic-badge topic-badge-neutral';
-    durBadge.innerHTML = `${iconSvg(ICON_FILM, 11)}<span>5-10 min</span>`;
-    badgesEl.appendChild(durBadge);
-
     contentEl.appendChild(titleEl);
-    contentEl.appendChild(metaEl);
-    contentEl.appendChild(badgesEl);
+
+    if (topic.hook) {
+      const sepEl = document.createElement('span');
+      sepEl.className = 'topic-row-sep';
+      sepEl.textContent = ' — ';
+      const metaEl = document.createElement('span');
+      metaEl.className = 'topic-row-meta';
+      metaEl.textContent = topic.hook;
+      contentEl.appendChild(sepEl);
+      contentEl.appendChild(metaEl);
+    }
 
     const actionEl = document.createElement('div');
     actionEl.className = 'topic-row-action';
@@ -345,7 +320,7 @@ export class TopicsManager {
       this.hidePipelineModal();
       this.currentPreviewTopic = topic;
       this.currentBrief = brief;
-      this.openPreviewModal(topic, brief);
+      this.showDetailView(topic, brief);
     } catch (err) {
       console.error('[TopicsManager] Échec de la génération du brief:', err);
       alert("Erreur lors de la génération de l'aperçu : " + err.message);
@@ -355,13 +330,14 @@ export class TopicsManager {
     }
   }
 
-  openPreviewModal(topic, brief) {
-    if (!this.previewModal) this.previewModal = document.getElementById('modal-topic-preview');
+  showDetailView(topic, brief) {
     if (!this.previewTitleEl) this.previewTitleEl = document.getElementById('topic-preview-title');
 
     if (this.previewTitleEl) this.previewTitleEl.textContent = topic.title;
     this.renderBriefView(brief);
-    this.previewModal?.classList.add('open');
+    if (this.listView) this.listView.style.display = 'none';
+    if (this.detailView) this.detailView.style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   renderBriefView(brief) {
@@ -410,8 +386,9 @@ export class TopicsManager {
     addSection('Sources', sourcesWrap);
   }
 
-  closePreviewModal() {
-    this.previewModal?.classList.remove('open');
+  backToList() {
+    if (this.detailView) this.detailView.style.display = 'none';
+    if (this.listView) this.listView.style.display = 'block';
     this.currentPreviewTopic = null;
     this.currentBrief = null;
   }
@@ -428,7 +405,7 @@ export class TopicsManager {
     }
 
     const briefText = this.composeBriefText(topic, brief);
-    this.closePreviewModal();
+    this.backToList();
     this.app.productionWizard.startFromBrief(briefText);
     this.app.navigateTo('page-production');
   }

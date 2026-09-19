@@ -508,33 +508,55 @@
            ================================================================ -->
       <div class="crm-page" id="page-topics">
         <div class="page-header">
-          <div>
-            <h1 class="page-title">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-4px; margin-right:4px;">
-                <path d="M2 8h20M7 3v5M17 3v5"></path>
-                <rect x="2" y="8" width="20" height="13" rx="2" ry="2"></rect>
+          <p class="page-subtitle">Sujets tendances (AniList), cliquez pour prévisualiser puis générer la vidéo.</p>
+        </div>
+
+        <!-- VUE LISTE -->
+        <div id="topics-list-view">
+          <div id="topics-active-mascot" style="font-size: 0.85rem; color: var(--text-muted); margin: 0 24px 4px;"></div>
+
+          <div class="topics-toolbar">
+            <button type="button" id="btn-refresh-topics" class="btn btn-outline-gold btn-sm">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <polyline points="1 20 1 14 7 14"></polyline>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
               </svg>
-              Sujets Vidéo
-            </h1>
-            <p class="page-subtitle">Liste dynamique triée par tendance (AniList) : score, statut de diffusion et image de couverture réels. Cliquez sur un sujet pour un aperçu du script avant de générer la vidéo (1920×1080, 5-10 min).</p>
+              Rafraîchir les tendances
+            </button>
+          </div>
+
+          <div id="topics-grid" class="topics-db-list">
+            <!-- Rempli dynamiquement par topics-manager.js -->
           </div>
         </div>
 
-        <div id="topics-active-mascot" style="font-size: 0.85rem; color: var(--text-muted); margin: 0 24px 4px;"></div>
+        <!-- VUE DÉTAIL (APERÇU PLEINE PAGE) -->
+        <div id="topics-detail-view" style="display: none;">
+          <div class="topic-detail-header">
+            <button type="button" id="btn-topic-detail-back" class="btn btn-secondary btn-sm">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+              Retour
+            </button>
+            <h2 class="topic-detail-title" id="topic-preview-title">Aperçu</h2>
+          </div>
 
-        <div class="topics-toolbar">
-          <button type="button" id="btn-refresh-topics" class="btn btn-outline-gold btn-sm">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="23 4 23 10 17 10"></polyline>
-              <polyline points="1 20 1 14 7 14"></polyline>
-              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-            </svg>
-            Rafraîchir les tendances
-          </button>
-        </div>
+          <div id="topic-preview-brief" class="topic-brief-view topic-brief-view-full">
+            <!-- Rempli dynamiquement par topics-manager.js -->
+          </div>
 
-        <div id="topics-grid" class="topics-db-list">
-          <!-- Rempli dynamiquement par topics-manager.js -->
+          <div class="topic-detail-actions">
+            <button type="button" id="btn-topic-preview-generate" class="btn btn-gold">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 8h20M7 3v5M17 3v5"></path>
+                <rect x="2" y="8" width="20" height="13" rx="2" ry="2"></rect>
+                <path d="M9 12.5l5 2.5-5 2.5z"></path>
+              </svg>
+              Générer en vidéo
+            </button>
+          </div>
         </div>
       </div>
 
@@ -543,10 +565,7 @@
            ================================================================ -->
       <div class="crm-page" id="page-history">
         <div class="page-header">
-          <div>
-            <h1 class="page-title">📜 Historique des Exports</h1>
-            <p class="page-subtitle">Retrouvez le journal de toutes vos vidéos exportées.</p>
-          </div>
+          <p class="page-subtitle">Journal de vos vidéos exportées.</p>
           <button id="btn-clear-history" class="btn btn-secondary btn-sm">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
               <polyline points="3 6 5 6 21 6"></polyline>
@@ -573,11 +592,35 @@
            ================================================================ -->
       <div class="crm-page" id="page-settings">
         <div class="page-header">
-          <h1 class="page-title">⚙️ Paramètres</h1>
+          <p class="page-subtitle">Mascottes, voix off et logs de l'application.</p>
         </div>
 
+        <nav class="settings-subnav">
+          <button type="button" class="settings-subnav-item active" data-settings-tab="mascots">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="8" r="5"></circle>
+              <path d="M20 21a8 8 0 1 0-16 0"></path>
+            </svg>
+            Mascottes
+          </button>
+          <button type="button" class="settings-subnav-item" data-settings-tab="voice">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+            </svg>
+            Voix Off
+          </button>
+          <button type="button" class="settings-subnav-item" data-settings-tab="logs">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="4 17 10 11 4 5"></polyline>
+              <line x1="12" y1="19" x2="20" y2="19"></line>
+            </svg>
+            Logs &amp; Debug
+          </button>
+        </nav>
+
         <!-- Widget Mascottes -->
-        <section class="studio-card">
+        <section class="studio-card settings-tab-panel" data-settings-panel="mascots">
           <div class="card-header">
             <h2 class="card-title">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -603,7 +646,7 @@
         </section>
 
         <!-- Section Voix Off -->
-        <section class="studio-card">
+        <section class="studio-card settings-tab-panel" data-settings-panel="voice" style="display: none;">
           <div class="card-header">
             <h2 class="card-title">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -636,7 +679,7 @@
         </section>
 
         <!-- Section Logs & Debug -->
-        <section class="studio-card">
+        <section class="studio-card settings-tab-panel" data-settings-panel="logs" style="display: none;">
           <div class="card-header">
             <h2 class="card-title">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -953,37 +996,6 @@
         </div>
         <div style="font-size: 0.78rem; color: var(--text-muted); max-width: 320px;">
           Script, voix off et illustrations sont générés automatiquement, puis l'export vidéo démarre (barre de progression dédiée).
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ========================================================================
-       MODALE : APERÇU DU SCRIPT (SUJETS VIDÉO, avant génération complète)
-       ======================================================================== -->
-  <div id="modal-topic-preview" class="modal-backdrop">
-    <div class="modal-card" style="max-width: 640px;">
-      <div class="modal-header">
-        <h3 class="modal-title" id="topic-preview-title">Aperçu</h3>
-        <button type="button" id="modal-topic-preview-close-btn" class="modal-close">&times;</button>
-      </div>
-
-      <div style="padding: 4px 2px 2px;">
-        <div id="topic-preview-brief" class="topic-brief-view">
-          <!-- Rempli dynamiquement par topics-manager.js -->
-        </div>
-        <div style="display: flex; gap: 10px; margin-top: 14px;">
-          <button type="button" id="btn-topic-preview-generate" class="btn btn-gold" style="flex: 1;">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M2 8h20M7 3v5M17 3v5"></path>
-              <rect x="2" y="8" width="20" height="13" rx="2" ry="2"></rect>
-              <path d="M9 12.5l5 2.5-5 2.5z"></path>
-            </svg>
-            Générer en vidéo
-          </button>
-          <button type="button" id="btn-topic-preview-cancel" class="btn btn-secondary">
-            Annuler
-          </button>
         </div>
       </div>
     </div>

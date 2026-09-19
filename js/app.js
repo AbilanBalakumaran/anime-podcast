@@ -288,6 +288,19 @@ class AnimePodcastApp {
   // ==================== PARAMÈTRES ====================
 
   setupSettingsPage() {
+    // Sous-menu Paramètres (Mascottes / Voix Off / Logs & Debug)
+    const subnavItems = document.querySelectorAll('.settings-subnav-item');
+    const tabPanels = document.querySelectorAll('.settings-tab-panel');
+    subnavItems.forEach((item) => {
+      item.addEventListener('click', () => {
+        const tab = item.dataset.settingsTab;
+        subnavItems.forEach(i => i.classList.toggle('active', i === item));
+        tabPanels.forEach(panel => {
+          panel.style.display = panel.dataset.settingsPanel === tab ? 'block' : 'none';
+        });
+      });
+    });
+
     // Boutons Logs
     const btnCopyLogs = document.getElementById('btn-copy-logs');
     const btnClearLogs = document.getElementById('btn-clear-logs');
