@@ -380,9 +380,25 @@
               <!-- Vue 2 : Synthèse Vocale directe (TTS) -->
               <div id="view-audio-tts" style="display: none;">
                 <div class="form-group">
+                  <label for="select-topic-template" class="form-label">
+                    <span>💡 Charger un sujet de vidéo prêt à l'emploi</span>
+                    <span style="color: var(--gold-light); font-size: 0.75rem;">Scénario 16:9 structuré</span>
+                  </label>
+                  <select id="select-topic-template" class="form-select" style="border-color: var(--gold-primary); background-color: var(--bg-card);">
+                    <option value="">-- Sélectionner un sujet de vidéo anime --</option>
+                    <option value="one-piece">🏴‍☠️ One Piece : Le Secret Ultime du Siècle Oublié</option>
+                    <option value="jjk">🤞 Jujutsu Kaisen : Pourquoi le Domaine de Gojo est Inégalé</option>
+                    <option value="snk">⚔️ L'Attaque des Titans : Le Paradoxe d'Eren Jaeger</option>
+                    <option value="solo-leveling">🗡️ Solo Leveling : L'Éveil du Monarque des Ombres</option>
+                    <option value="demon-slayer">🔥 Demon Slayer : Pourquoi l'Animation Brise Internet</option>
+                    <option value="death-note">🍎 Death Note : L'Erreur Fatale de Light Yagami</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
                   <label for="textarea-tts" class="form-label">
                     <span>Texte du podcast à synthétiser</span>
-                    <span style="color: var(--gold-light);">Script calibré ~30 secondes (Anglais)</span>
+                    <span style="color: var(--gold-light);">Script 1920x1080 (Anglais)</span>
                   </label>
                   <textarea id="textarea-tts" class="form-textarea" placeholder="Enter your podcast script here...">Welcome everyone to this new episode of Autopod! Today, we explore the secret of anime animation and expressive mascots. Have you noticed how smooth pose transitions make a story come alive? It is absolutely incredible and immersive! Thank you for joining us today, and see you very soon in our next episode!</textarea>
                   <button type="button" id="btn-load-test-script" class="btn btn-outline-gold btn-sm" style="margin-top: 6px; align-self: flex-start;">
@@ -444,13 +460,8 @@
                 </h2>
 
                 <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                  <div class="format-switch-group">
-                    <button type="button" class="btn-format-switch" data-format="9:16" title="Format Vertical (Shorts, TikTok, Reels)">
-                      📱 9:16 Shorts
-                    </button>
-                    <button type="button" class="btn-format-switch active" data-format="16:9" title="Format Horizontal (YouTube, Paysage)">
-                      🖥️ 16:9
-                    </button>
+                  <div class="format-badge-fixed" title="Résolution fixe 1920x1080 paysage (FHD)">
+                    🖥️ 1920×1080 FHD (16:9)
                   </div>
 
                   <button id="btn-toggle-bg" class="btn btn-secondary btn-sm" title="Basculer entre le fond noir et le damier alpha">
@@ -513,8 +524,19 @@
                 </div>
 
                 <div class="segments-header">
-                  <span class="segments-title">Attitudes alternées &amp; phrases découpées</span>
-                  <span style="font-size: 0.75rem; color: var(--text-muted);">Émotion et variante modifiables :</span>
+                  <div>
+                    <span class="segments-title">🎬 Montage Automatique &amp; Scènes (1920×1080)</span>
+                    <span style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-top: 2px;">
+                      Contrôlez pour chaque scène : voix, pose, position de la mascotte et illustration animée (Ken Burns)
+                    </span>
+                  </div>
+                  <div class="timeline-batch-bar">
+                    <span class="batch-label">Mascotte :</span>
+                    <button type="button" id="btn-pos-all-left" class="btn-batch-pos" title="Placer la mascotte à gauche sur toutes les scènes">⬅️ Gauche</button>
+                    <button type="button" id="btn-pos-all-center" class="btn-batch-pos" title="Placer la mascotte au centre sur toutes les scènes">⏺️ Centre</button>
+                    <button type="button" id="btn-pos-all-right" class="btn-batch-pos" title="Placer la mascotte à droite sur toutes les scènes">➡️ Droite</button>
+                    <button type="button" id="btn-toggle-subtitles" class="btn-batch-pos active" title="Activer / Désactiver les sous-titres incrustés">💬 Sous-titres ON</button>
+                  </div>
                 </div>
 
                 <div id="segments-scroll-list" class="segments-scroll-list">
@@ -940,6 +962,6 @@
   </div>
 
   <!-- Point d'Entrée JavaScript (Modules ES6) avec cache-busting -->
-  <script type="module" src="./js/app.js?v=1.5.5"></script>
+  <script type="module" src="./js/app.js?v=1.6.0"></script>
 </body>
 </html>

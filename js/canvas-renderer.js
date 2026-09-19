@@ -17,8 +17,11 @@ export class CanvasRenderer {
     this.ctx = this.canvas ? this.canvas.getContext('2d', { alpha: true }) : null;
     this.canvasWrapper = document.querySelector('.canvas-wrapper');
 
-    // Format vidéo AutoShort : '16:9' (YouTube/Paysage 1920x1080 par défaut) ou '9:16' (Shorts/TikTok/Reels)
+    // Format vidéo fixe : 1920x1080 FHD (16:9 paysage permanent)
     this.currentFormat = '16:9';
+    this.baseWidth = 1920;
+    this.baseHeight = 1080;
+    this.showSubtitles = true;
     this.updateCanvasDimensions();
 
     this.currentMascot = null;
@@ -35,13 +38,8 @@ export class CanvasRenderer {
   }
 
   updateCanvasDimensions() {
-    if (this.currentFormat === '9:16') {
-      this.baseWidth = 1080;
-      this.baseHeight = 1920;
-    } else {
-      this.baseWidth = 1920;
-      this.baseHeight = 1080;
-    }
+    this.baseWidth = 1920;
+    this.baseHeight = 1080;
 
     if (this.canvas) {
       this.canvas.width = this.baseWidth;
@@ -49,46 +47,30 @@ export class CanvasRenderer {
     }
 
     if (this.canvasWrapper) {
-      if (this.currentFormat === '9:16') {
-        this.canvasWrapper.classList.add('format-9-16');
-        this.canvasWrapper.classList.remove('format-16-9');
-      } else {
-        this.canvasWrapper.classList.add('format-16-9');
-        this.canvasWrapper.classList.remove('format-9-16');
-      }
+      this.canvasWrapper.classList.add('format-16-9');
+      this.canvasWrapper.classList.remove('format-9-16');
     }
 
     const headerFormatLabel = document.getElementById('header-format-label');
     if (headerFormatLabel) {
-      headerFormatLabel.textContent = this.currentFormat === '16:9' ? '1920×1080 (16:9)' : '1080×1920 (9:16)';
+      headerFormatLabel.textContent = '1920×1080 (16:9 FHD)';
     }
   }
 
   setFormat(format) {
-    if (format !== '9:16' && format !== '16:9') return;
-    this.currentFormat = format;
+    // Toujours forcer 1920x1080 16:9
+    this.currentFormat = '16:9';
     this.updateCanvasDimensions();
+  }
 
-    // Mettre à jour l'état actif des boutons de format
-    document.querySelectorAll('.btn-format-switch').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.format === format);
-    });
+  toggleSubtitles() {
+    this.showSubtitles = !this.showSubtitles;
+    return this.showSubtitles;
   }
 
   init() {
     this.setupTransparencyToggle();
-    this.setupFormatToggle();
     this.start();
-  }
-
-  setupFormatToggle() {
-    const buttons = document.querySelectorAll('.btn-format-switch');
-    buttons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const format = btn.dataset.format;
-        if (format) this.setFormat(format);
-      });
-    });
   }
 
   setupTransparencyToggle() {
@@ -186,14 +168,63 @@ export class CanvasRenderer {
     const width = this.canvas.width;
     const height = this.canvas.height;
 
-    // 1. Fond transparent absolu (Canal Alpha RGBA 0,0,0,0)
+    // 1. Fond transparent absolu (ou illustration animée si présente)
     ctx.clearRect(0, 0, width, height);
+
+    const currentTime = this.audioManager ? this.audioManager.getCurrentTime() : 0;
+    const activeSegment = this.speechAnalyzer ? this.speechAnalyzer.getSegmentAtTime(currentTime) : null;
+
+    // 2. Rendu de l'illustration animée (Montage automatique avec effet Ken Burns)
+    if (activeSegment && activeSegment.image && activeSegment.image.complete && activeSegment.image.naturalWidth > 0) {
+      const img = activeSegment.image;
+      const iw = img.naturalWidth;
+      const ih = img.naturalHeight;
+
+      // Progression temporelle dans le segment (0 -> 1)
+      const segDuration = Math.max(0.1, activeSegment.duration || (activeSegment.end - activeSegment.start) || 1);
+      const segElapsed = Math.max(0, currentTime - activeSegment.start);
+      const progress = Math.min(1, Math.max(0, segElapsed / segDuration));
+
+      // Style d'animation (Ken Burns)
+      const animStyle = activeSegment.animationStyle || 'zoom-in';
+      let animScale = 1.0;
+      let panX = 0;
+      let panY = 0;
+
+      if (animStyle === 'zoom-in') {
+        animScale = 1.0 + (progress * 0.12); // Zoom avant fluide
+      } else if (animStyle === 'zoom-out') {
+        animScale = 1.12 - (progress * 0.12); // Zoom arrière fluide
+      } else if (animStyle === 'pan') {
+        animScale = 1.08;
+        panX = (progress - 0.5) * 50; // Balayage panoramique horizontal
+      } else {
+        animScale = 1.0; // Statique
+      }
+
+      // Cadrage 'cover' 16:9 en 1920x1080
+      const scaleCover = Math.max(width / iw, height / ih) * animScale;
+      const dw = iw * scaleCover;
+      const dh = ih * scaleCover;
+      const dx = (width - dw) / 2 + panX;
+      const dy = (height - dh) / 2 + panY;
+
+      ctx.save();
+      ctx.drawImage(img, dx, dy, dw, dh);
+
+      // Dégradé cinématique en bas pour contraster la mascotte et les sous-titres
+      const grad = ctx.createLinearGradient(0, height * 0.55, 0, height);
+      grad.addColorStop(0, 'rgba(0, 0, 0, 0)');
+      grad.addColorStop(1, 'rgba(0, 0, 0, 0.55)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, height * 0.55, width, height * 0.45);
+      ctx.restore();
+    }
 
     if (!this.currentMascot) return;
 
-    // 2. Synchronisation de l'attitude avec la lecture audio en cours
+    // 3. Synchronisation de l'attitude avec la lecture audio en cours
     if (this.audioManager && this.speechAnalyzer && this.audioManager.isPlaying) {
-      const currentTime = this.audioManager.getCurrentTime();
       const attitude = this.speechAnalyzer.getPoseAtTime(currentTime);
       if (attitude) {
         this.currentEmotion = attitude.emotion;
@@ -201,82 +232,115 @@ export class CanvasRenderer {
       }
     }
 
-    // 3. Récupération instantanée de l'image ("brut", coupure anime sans aucun fondu)
-    const currentKey = `${this.currentMascot.id}_${this.currentEmotion}_${this.currentVariantIndex}`;
-    let imgToDraw = this.imageCache.get(currentKey);
+    // 4. Rendu de la mascotte selon sa position (sauf si masquée pour cette scène)
+    const posMode = (activeSegment && activeSegment.position) || 'center';
+    if (posMode !== 'hidden') {
+      const currentKey = `${this.currentMascot.id}_${this.currentEmotion}_${this.currentVariantIndex}`;
+      let imgToDraw = this.imageCache.get(currentKey);
 
-    if (!imgToDraw) {
-      const fallbackKey1 = `${this.currentMascot.id}_${this.currentEmotion}_0`;
-      const fallbackKey2 = `${this.currentMascot.id}_neutre_0`;
-      imgToDraw = this.imageCache.get(fallbackKey1) || this.imageCache.get(fallbackKey2);
-    }
+      if (!imgToDraw) {
+        const fallbackKey1 = `${this.currentMascot.id}_${this.currentEmotion}_0`;
+        const fallbackKey2 = `${this.currentMascot.id}_neutre_0`;
+        imgToDraw = this.imageCache.get(fallbackKey1) || this.imageCache.get(fallbackKey2);
+      }
 
-    if (!imgToDraw) {
-      // Fallback absolu : prendre la première pose disponible de cette mascotte dans le cache
-      for (const [key, val] of this.imageCache.entries()) {
-        if (key.startsWith(`${this.currentMascot.id}_`) && val) {
-          imgToDraw = val;
-          break;
+      if (!imgToDraw) {
+        for (const [key, val] of this.imageCache.entries()) {
+          if (key.startsWith(`${this.currentMascot.id}_`) && val) {
+            imgToDraw = val;
+            break;
+          }
         }
       }
+
+      if (imgToDraw) {
+        // Proportions 16:9 paysage (hauteur ~95%)
+        const nw = imgToDraw.width || imgToDraw.naturalWidth || 1200;
+        const nh = imgToDraw.height || imgToDraw.naturalHeight || 1600;
+        const imgRatio = nw / nh;
+
+        let targetHeight = height * 0.95;
+        let targetWidth = targetHeight * imgRatio;
+        if (targetWidth > width * 0.75) {
+          targetWidth = width * 0.75;
+          targetHeight = targetWidth / imgRatio;
+        }
+
+        const transform = this.currentMascot.transform || {};
+        const scale = (transform.scale !== undefined ? transform.scale : 100) / 100;
+        const offsetX = (transform.offsetX !== undefined ? transform.offsetX : 0);
+        const offsetY = (transform.offsetY !== undefined ? transform.offsetY : 0);
+
+        const finalWidth = targetWidth * scale;
+        const finalHeight = targetHeight * scale;
+
+        // Positionnement horizontal selon le mode choisi (gauche, centre, droite)
+        let posX;
+        if (posMode === 'left') {
+          posX = (width * 0.22) - (targetWidth / 2);
+        } else if (posMode === 'right') {
+          posX = (width * 0.78) - (targetWidth / 2);
+        } else {
+          posX = (width - targetWidth) / 2; // centre
+        }
+
+        const posY = height - targetHeight;
+        const finalPosX = posX + (targetWidth - finalWidth) / 2 + offsetX;
+        const finalPosY = posY + (targetHeight - finalHeight) + offsetY;
+
+        const b = transform.brightness !== undefined ? transform.brightness : 100;
+        const c = transform.contrast !== undefined ? transform.contrast : 100;
+        const h = transform.hue !== undefined ? transform.hue : 0;
+        const s = transform.saturation !== undefined ? transform.saturation : 100;
+
+        ctx.save();
+        if (b !== 100 || c !== 100 || h !== 0 || s !== 100) {
+          ctx.filter = `brightness(${b}%) contrast(${c}%) hue-rotate(${h}deg) saturate(${s}%)`;
+        }
+        ctx.drawImage(imgToDraw, finalPosX, finalPosY, finalWidth, finalHeight);
+        ctx.restore();
+      }
     }
 
-    if (!imgToDraw) return;
-
-    // 4. Proportions et dimensionnement géant dans le cadre
-    const nw = imgToDraw.width || imgToDraw.naturalWidth || 1200;
-    const nh = imgToDraw.height || imgToDraw.naturalHeight || 1600;
-    const imgRatio = nw / nh;
-
-    let targetHeight, targetWidth;
-    if (this.currentFormat === '9:16') {
-      // En vertical (Shorts), le personnage occupe ~90% de la hauteur
-      targetHeight = height * 0.90;
-      targetWidth = targetHeight * imgRatio;
-      if (targetWidth > width * 1.15) {
-        targetWidth = width * 1.15;
-        targetHeight = targetWidth / imgRatio;
-      }
-    } else {
-      // En horizontal (16:9), le personnage occupe ~95% de la hauteur
-      targetHeight = height * 0.95;
-      targetWidth = targetHeight * imgRatio;
-      if (targetWidth > width * 0.75) {
-        targetWidth = width * 0.75;
-        targetHeight = targetWidth / imgRatio;
-      }
+    // 5. Rendu des sous-titres incrustés (si activés)
+    if (this.showSubtitles && activeSegment && activeSegment.text) {
+      this.drawSubtitles(ctx, activeSegment.text, width, height);
     }
+  }
 
-    // Récupération des réglages personnalisés de la mascotte (transform)
-    const transform = this.currentMascot.transform || {};
-    const scale = (transform.scale !== undefined ? transform.scale : 100) / 100;
-    const offsetX = (transform.offsetX !== undefined ? transform.offsetX : 0);
-    const offsetY = (transform.offsetY !== undefined ? transform.offsetY : 0);
-
-    const finalWidth = targetWidth * scale;
-    const finalHeight = targetHeight * scale;
-
-    // Ancrage au bas du canevas avec application des décalages personnalisés
-    const posX = (width - targetWidth) / 2;
-    const posY = height - targetHeight;
-
-    const finalPosX = posX + (targetWidth - finalWidth) / 2 + offsetX;
-    const finalPosY = posY + (targetHeight - finalHeight) + offsetY;
-
-    // Filtres colorimétriques personnalisés (luminosité, contraste, teinte, saturation)
-    const b = transform.brightness !== undefined ? transform.brightness : 100;
-    const c = transform.contrast !== undefined ? transform.contrast : 100;
-    const h = transform.hue !== undefined ? transform.hue : 0;
-    const s = transform.saturation !== undefined ? transform.saturation : 100;
+  drawSubtitles(ctx, text, width, height) {
+    if (!text) return;
+    const cleanText = text.replace(/\s*\(Partie \d+\)$/, '').trim();
+    if (!cleanText) return;
 
     ctx.save();
+    ctx.font = 'bold 32px "Inter", "Segoe UI", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
 
-    if (b !== 100 || c !== 100 || h !== 0 || s !== 100) {
-      ctx.filter = `brightness(${b}%) contrast(${c}%) hue-rotate(${h}deg) saturate(${s}%)`;
-    }
+    const textMetrics = ctx.measureText(cleanText);
+    const textWidth = textMetrics.width;
+    const paddingX = 26;
+    const paddingY = 12;
+    const boxWidth = Math.min(width * 0.88, textWidth + paddingX * 2);
+    const boxHeight = 56;
+    const boxX = (width - boxWidth) / 2;
+    const boxY = height - 85;
 
-    // 5. Rendu brut instantané (Anime Cut direct) avec cadrage et colorimétrie personnalisés
-    ctx.drawImage(imgToDraw, finalPosX, finalPosY, finalWidth, finalHeight);
+    // Boîte sombre translucide avec liseré doré
+    ctx.fillStyle = 'rgba(11, 15, 25, 0.82)';
+    ctx.strokeStyle = 'rgba(245, 158, 11, 0.5)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.roundRect(boxX, boxY, boxWidth, boxHeight, 14);
+    ctx.fill();
+    ctx.stroke();
+
+    // Texte blanc haute netteté avec ombre douce
+    ctx.fillStyle = '#ffffff';
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
+    ctx.shadowBlur = 8;
+    ctx.fillText(cleanText, width / 2, boxY + boxHeight / 2);
 
     ctx.restore();
   }

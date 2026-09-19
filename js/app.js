@@ -316,6 +316,58 @@ class AnimePodcastApp {
       });
     }
 
+    // Gestion des modèles de sujets de vidéos anime
+    const selectTopic = document.getElementById('select-topic-template');
+    if (selectTopic && this.textareaTts) {
+      const TOPIC_SCRIPTS = {
+        'one-piece': "Welcome to our anime breakdown! Today, we dive deep into the ultimate mystery of One Piece: the Void Century and Joy Boy. What if the treasure was not gold, but a story that united the world? Let us uncover every hidden clue left behind by Gol D. Roger! Subscribe and share your theories in the comments below!",
+        'jjk': "Welcome back Jujutsu sorcerers! Satoru Gojo's Domain Expansion, Unlimited Void, is considered the peak of sorcery. But what really happens inside an opponent's brain when infinite information floods their senses? Today, we break down the physics and cursed energy mechanics of Gojo versus Sukuna! Stay tuned for more cursed revelations!",
+        'snk': "Was Eren Jaeger truly a villain, or the tragic victim of a predetermined fate? In Attack on Titan, freedom comes at the heaviest cost imaginable. From the basement reveal to the Rumbling, every decision led to one inevitable conclusion. Let us analyze the psychological depth of Eren's final choice!",
+        'solo-leveling': "From the weakest E-rank hunter to the almighty Shadow Monarch! Sung Jinwoo's evolution redefined modern action manhwa and anime. But what makes his journey so deeply satisfying to watch? Arise, and let us dissect the secrets behind Jinwoo's unstoppable rise to power!",
+        'demon-slayer': "Demon Slayer shattered every animation benchmark in anime history! Studio Ufotable merged 3D environments with traditional hand-drawn action like never before. From Hinokami Kagura to the Entertainment District, here is how they achieved visual perfection!",
+        'death-note': "Light Yagami thought he was a god, but his hubris was his ultimate downfall. From the Lind L. Tailor broadcast to the final warehouse showdown, what was Light's single most fatal error? Let us examine the psychological chess match between Kira and L!"
+      };
+
+      selectTopic.addEventListener('change', () => {
+        const script = TOPIC_SCRIPTS[selectTopic.value];
+        if (script) {
+          this.textareaTts.value = script;
+          console.log(`[App] Sujet de vidéo chargé: ${selectTopic.value}`);
+        }
+      });
+    }
+
+    // Boutons de positionnement global de la mascotte
+    const btnPosLeft = document.getElementById('btn-pos-all-left');
+    const btnPosCenter = document.getElementById('btn-pos-all-center');
+    const btnPosRight = document.getElementById('btn-pos-all-right');
+
+    if (btnPosLeft) {
+      btnPosLeft.addEventListener('click', () => {
+        this.speechAnalyzer.setAllMascotPositions('left');
+      });
+    }
+    if (btnPosCenter) {
+      btnPosCenter.addEventListener('click', () => {
+        this.speechAnalyzer.setAllMascotPositions('center');
+      });
+    }
+    if (btnPosRight) {
+      btnPosRight.addEventListener('click', () => {
+        this.speechAnalyzer.setAllMascotPositions('right');
+      });
+    }
+
+    // Bouton de toggle des sous-titres incrustés
+    const btnToggleSubs = document.getElementById('btn-toggle-subtitles');
+    if (btnToggleSubs) {
+      btnToggleSubs.addEventListener('click', () => {
+        const isShown = this.canvasRenderer.toggleSubtitles();
+        btnToggleSubs.classList.toggle('active', isShown);
+        btnToggleSubs.textContent = isShown ? '💬 Sous-titres ON' : '💬 Sous-titres OFF';
+      });
+    }
+
     if (this.btnGenerateTts) {
       this.btnGenerateTts.addEventListener('click', async () => {
         // Enlever le focus actif pour empêcher tout auto-zoom iOS Safari

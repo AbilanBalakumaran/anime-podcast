@@ -54,12 +54,14 @@
   box-shadow: 0 0 10px var(--gold-glow);
 }
 
-/* Liste des Segments / Phrases Détectées */
+/* Barre d'en-tête de la timeline & Contrôles par lot */
 .segments-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-top: 6px;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .segments-title {
@@ -69,6 +71,42 @@
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.timeline-batch-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.batch-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.btn-batch-pos {
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-batch-pos:hover {
+  color: var(--text-white);
+  border-color: var(--gold-primary);
+}
+
+.btn-batch-pos.active {
+  background-color: rgba(245, 158, 11, 0.15);
+  border-color: var(--gold-primary);
+  color: var(--gold-light);
 }
 
 .segments-count {
@@ -83,22 +121,21 @@
 .segments-scroll-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  max-height: 220px;
+  gap: 10px;
+  max-height: 400px;
   overflow-y: auto;
   padding-right: 4px;
 }
 
-/* Carte de Segment */
+/* Carte de Scène / Segment Vidéo */
 .segment-card {
-  display: grid;
-  grid-template-columns: 80px 1fr 130px;
-  align-items: center;
-  gap: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   background-color: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  padding: 8px 12px;
+  padding: 10px 12px;
   transition: all var(--transition-fast);
   cursor: pointer;
 }
@@ -114,12 +151,39 @@
   box-shadow: 0 0 12px var(--gold-subtle);
 }
 
+.segment-card.drag-target {
+  border: 2px dashed var(--gold-primary);
+  background-color: rgba(245, 158, 11, 0.18);
+}
+
+/* Ligne supérieure de la carte : Numéro de scène, durée et texte de la voix off */
+.segment-top-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.segment-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  color: var(--gold-light);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
 .segment-time {
   font-family: monospace;
   font-size: 0.75rem;
   color: var(--text-muted);
   display: flex;
-  flex-direction: column;
+  gap: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .segment-time .time-start {
@@ -127,31 +191,132 @@
   font-weight: 600;
 }
 
-.segment-text {
+.segment-text-input {
+  flex: 1;
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-white);
   font-size: 0.82rem;
-  color: var(--text-primary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  padding: 5px 9px;
+  border-radius: var(--radius-sm);
+  outline: none;
+  transition: border-color var(--transition-fast);
+  width: 100%;
 }
 
-.segment-pose-select {
+.segment-text-input:focus {
+  border-color: var(--gold-primary);
+  box-shadow: 0 0 6px var(--gold-subtle);
+}
+
+/* Ligne inférieure de la carte : Contrôles Mascotte & Illustration animée */
+.segment-controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.segment-mascot-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.segment-illustration-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.segment-pose-select,
+.segment-pos-select,
+.segment-anim-select {
   background-color: var(--bg-input);
   border: 1px solid var(--border-subtle);
   color: var(--gold-light);
-  font-size: 16px !important;
+  font-size: 0.78rem;
   font-weight: 600;
   border-radius: var(--radius-sm);
-  padding: 4px 8px;
+  padding: 4px 6px;
   outline: none;
   cursor: pointer;
   transition: border-color var(--transition-fast);
-  max-width: 100%;
+}
+
+.segment-pos-select {
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+.segment-anim-select {
+  color: #34d399;
+  border-color: rgba(52, 211, 153, 0.3);
 }
 
 .segment-pose-select:focus,
-.segment-pose-select:hover {
+.segment-pose-select:hover,
+.segment-pos-select:focus,
+.segment-pos-select:hover,
+.segment-anim-select:focus,
+.segment-anim-select:hover {
   border-color: var(--gold-primary);
+}
+
+/* Boutons et miniatures d'illustrations */
+.btn-segment-image {
+  background-color: var(--bg-input);
+  border: 1px dashed var(--border-subtle);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all var(--transition-fast);
+}
+
+.btn-segment-image:hover {
+  border-color: var(--gold-primary);
+  color: var(--gold-light);
+}
+
+.segment-img-preview-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 2px 5px 2px 2px;
+}
+
+.segment-img-thumb {
+  width: 32px;
+  height: 22px;
+  object-fit: cover;
+  border-radius: 2px;
+}
+
+.btn-delete-img {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 0 2px;
+}
+
+.btn-delete-img:hover {
+  color: #ef4444;
 }
 
 /* Empty State pour Timeline */

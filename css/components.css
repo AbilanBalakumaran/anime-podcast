@@ -85,41 +85,20 @@
   border-radius: var(--radius-sm);
 }
 
-/* Format Switcher AutoShort (Pills 9:16 / 16:9) */
-.format-switch-group {
+/* Format Fixe 1920x1080 FHD */
+.format-badge-fixed {
   display: inline-flex;
   align-items: center;
-  background-color: var(--bg-input);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-full);
-  padding: 3px;
-  gap: 3px;
-}
-
-.btn-format-switch {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 12px;
-  font-size: 0.78rem;
+  gap: 6px;
+  padding: 5px 14px;
+  font-size: 0.8rem;
   font-weight: 700;
   border-radius: var(--radius-full);
-  border: none;
-  background: transparent;
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  text-decoration: none;
-}
-
-.btn-format-switch:hover {
-  color: var(--text-white);
-}
-
-.btn-format-switch.active {
-  background-color: var(--gold-primary);
-  color: #000000;
-  box-shadow: 0 0 10px var(--gold-glow);
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid var(--gold-primary);
+  color: var(--gold-light);
+  box-shadow: 0 0 12px var(--gold-subtle);
+  letter-spacing: 0.02em;
 }
 
 /* Tabs & Sélecteurs de modes */

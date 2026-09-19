@@ -21,7 +21,7 @@ export class PWAManager {
     if ('caches' in window) {
       caches.keys().then((keys) => {
         keys.forEach((key) => {
-          if (key !== 'autopod-v1.5.5') {
+          if (key !== 'autopod-v1.6.0') {
             console.log('[PWA] Purge du cache obsolète:', key);
             caches.delete(key);
           }
@@ -44,7 +44,7 @@ export class PWAManager {
     });
 
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js?v=1.5.5')
+      navigator.serviceWorker.register('./sw.js?v=1.6.0')
         .then((registration) => {
           console.log('[PWA] Service Worker enregistré avec succès:', registration.scope);
           registration.update().catch(() => {});

@@ -243,29 +243,51 @@ export class SpeechAnalyzer {
       return {
         ...seg,
         emotion: chosenEmotion,
-        variantIndex: chosenVariant
+        variantIndex: chosenVariant,
+        position: 'center', // 'left' | 'center' | 'right' | 'hidden'
+        image: null,
+        imageData: null,
+        animationStyle: 'zoom-in' // 'zoom-in' | 'zoom-out' | 'pan' | 'static'
       };
     });
   }
 
   /**
-   * Retourne l'attitude active { emotion, variantIndex } pour le timestamp en cours
+   * Retourne le segment complet pour le timestamp en cours
+   */
+  getSegmentAtTime(currentTime) {
+    if (!this.segments || this.segments.length === 0) return null;
+    return this.segments.find(seg => currentTime >= seg.start && currentTime <= seg.end) || this.segments[0] || null;
+  }
+
+  /**
+   * Retourne l'attitude active { emotion, variantIndex, position, image, animationStyle } pour le timestamp en cours
    */
   getPoseAtTime(currentTime) {
-    if (!this.segments || this.segments.length === 0) {
-      return { emotion: 'neutre', variantIndex: 0 };
-    }
-
-    const activeSegment = this.segments.find(seg => currentTime >= seg.start && currentTime <= seg.end);
-    if (activeSegment) {
+    const seg = this.getSegmentAtTime(currentTime);
+    if (seg) {
       return {
-        emotion: activeSegment.emotion,
-        variantIndex: activeSegment.variantIndex
+        emotion: seg.emotion,
+        variantIndex: seg.variantIndex,
+        position: seg.position || 'center',
+        image: seg.image || null,
+        animationStyle: seg.animationStyle || 'zoom-in'
       };
     }
 
     // Pendant les silences : retour en posture neutre variante 0
-    return { emotion: 'neutre', variantIndex: 0 };
+    return { emotion: 'neutre', variantIndex: 0, position: 'center', image: null, animationStyle: 'zoom-in' };
+  }
+
+  /**
+   * Change la position de la mascotte sur l'ensemble des scènes
+   */
+  setAllMascotPositions(position) {
+    if (!this.segments || this.segments.length === 0) return;
+    this.segments.forEach(seg => {
+      seg.position = position;
+    });
+    this.renderSegmentsList();
   }
 
   drawWaveform(rmsValues, maxRms) {
@@ -331,13 +353,13 @@ export class SpeechAnalyzer {
     this.segmentsListEl.innerHTML = '';
 
     if (this.segmentsCountEl) {
-      this.segmentsCountEl.textContent = `${this.segments.length} segment${this.segments.length > 1 ? 's' : ''} dynamiques`;
+      this.segmentsCountEl.textContent = `${this.segments.length} scène${this.segments.length > 1 ? 's' : ''} (1080p)`;
     }
 
     if (this.segments.length === 0) {
       this.segmentsListEl.innerHTML = `
         <div class="timeline-empty">
-          Chargez ou générez un audio pour afficher le découpage dynamique des émotions et des poses.
+          Chargez ou générez un audio pour afficher le montage automatique des scènes, illustrations et positions.
         </div>
       `;
       return;
@@ -351,29 +373,53 @@ export class SpeechAnalyzer {
       card.className = 'segment-card';
       card.dataset.index = idx;
 
-      // Horodatage
+      // 1. LIGNE SUPÉRIEURE : Badge de scène, timecode et texte de la voix off
+      const topRow = document.createElement('div');
+      topRow.className = 'segment-top-row';
+
+      const badge = document.createElement('div');
+      badge.className = 'segment-badge';
+      badge.textContent = `Scène #${idx + 1}`;
+
       const timeBox = document.createElement('div');
       timeBox.className = 'segment-time';
       timeBox.innerHTML = `
         <span class="time-start">${this.formatTime(seg.start)}</span>
         <span>→ ${this.formatTime(seg.end)}</span>
+        <span style="opacity: 0.6; font-size: 0.7rem;">(${seg.duration.toFixed(1)}s)</span>
       `;
 
-      // Texte de la phrase
-      const textBox = document.createElement('div');
-      textBox.className = 'segment-text';
-      textBox.textContent = seg.text;
-      textBox.title = seg.text;
+      const textInput = document.createElement('input');
+      textInput.type = 'text';
+      textInput.className = 'segment-text-input';
+      textInput.value = seg.text;
+      textInput.placeholder = 'Texte de la voix off pour cette scène...';
+      textInput.title = 'Texte de la voix off pour cette scène (éditable)';
 
-      // Contrôles de sélection d'émotion et de variante de pose
-      const controlsBox = document.createElement('div');
-      controlsBox.style.display = 'flex';
-      controlsBox.style.gap = '6px';
-      controlsBox.style.alignItems = 'center';
+      textInput.addEventListener('input', (e) => {
+        seg.text = e.target.value;
+      });
+
+      textInput.addEventListener('click', (e) => {
+        e.stopPropagation();
+      });
+
+      topRow.appendChild(badge);
+      topRow.appendChild(timeBox);
+      topRow.appendChild(textInput);
+
+      // 2. LIGNE INFÉRIEURE : Contrôles Mascotte & Illustration Animée
+      const controlsRow = document.createElement('div');
+      controlsRow.className = 'segment-controls-row';
+
+      // --- GROUPE MASCOTTE ---
+      const mascotGroup = document.createElement('div');
+      mascotGroup.className = 'segment-mascot-controls';
 
       // Sélecteur d'émotion
       const selectEmo = document.createElement('select');
       selectEmo.className = 'segment-pose-select';
+      selectEmo.title = 'Émotion de la mascotte';
 
       availableEmotions.forEach(emoKey => {
         const baseInfo = BASE_EMOTIONS.find(b => b.id === emoKey) || {
@@ -391,7 +437,8 @@ export class SpeechAnalyzer {
       // Sélecteur de variante de pose pour cette émotion
       const selectVariant = document.createElement('select');
       selectVariant.className = 'segment-pose-select';
-      selectVariant.style.width = '75px';
+      selectVariant.style.width = '70px';
+      selectVariant.title = 'Variante de pose';
 
       const updateVariantsDropdown = () => {
         selectVariant.innerHTML = '';
@@ -428,13 +475,148 @@ export class SpeechAnalyzer {
         seg.variantIndex = parseInt(e.target.value, 10) || 0;
       });
 
-      controlsBox.appendChild(selectEmo);
-      controlsBox.appendChild(selectVariant);
+      // Sélecteur de position de la mascotte (Gauche, Centre, Droite, Masquée)
+      const selectPos = document.createElement('select');
+      selectPos.className = 'segment-pos-select';
+      selectPos.title = 'Position de la mascotte dans le cadre 1920×1080';
+      selectPos.innerHTML = `
+        <option value="center" ${seg.position === 'center' ? 'selected' : ''}>⏺️ Centre</option>
+        <option value="left" ${seg.position === 'left' ? 'selected' : ''}>⬅️ Gauche</option>
+        <option value="right" ${seg.position === 'right' ? 'selected' : ''}>➡️ Droite</option>
+        <option value="hidden" ${seg.position === 'hidden' ? 'selected' : ''}>🚫 Masquée</option>
+      `;
 
-      card.appendChild(timeBox);
-      card.appendChild(textBox);
-      card.appendChild(controlsBox);
+      selectPos.addEventListener('change', (e) => {
+        e.stopPropagation();
+        seg.position = e.target.value;
+      });
 
+      mascotGroup.appendChild(selectEmo);
+      mascotGroup.appendChild(selectVariant);
+      mascotGroup.appendChild(selectPos);
+
+      // --- GROUPE ILLUSTRATION ANIMÉE (MONTAGE AUTOMATIQUE) ---
+      const illustGroup = document.createElement('div');
+      illustGroup.className = 'segment-illustration-controls';
+
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = 'image/*';
+      fileInput.style.display = 'none';
+
+      const handleImageFile = (file) => {
+        if (!file || !file.type.startsWith('image/')) return;
+        const reader = new FileReader();
+        reader.onload = (re) => {
+          const dataUrl = re.target.result;
+          const img = new Image();
+          img.onload = () => {
+            seg.image = img;
+            seg.imageData = dataUrl;
+            this.renderSegmentsList();
+          };
+          img.src = dataUrl;
+        };
+        reader.readAsDataURL(file);
+      };
+
+      fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) handleImageFile(file);
+      });
+
+      if (seg.imageData) {
+        const previewBox = document.createElement('div');
+        previewBox.className = 'segment-img-preview-box';
+
+        const thumb = document.createElement('img');
+        thumb.className = 'segment-img-thumb';
+        thumb.src = seg.imageData;
+        thumb.title = 'Cliquer pour changer l\'illustration';
+        thumb.addEventListener('click', (e) => {
+          e.stopPropagation();
+          fileInput.click();
+        });
+
+        const btnDel = document.createElement('button');
+        btnDel.type = 'button';
+        btnDel.className = 'btn-delete-img';
+        btnDel.textContent = '✕';
+        btnDel.title = 'Supprimer l\'illustration';
+        btnDel.addEventListener('click', (e) => {
+          e.stopPropagation();
+          seg.image = null;
+          seg.imageData = null;
+          this.renderSegmentsList();
+        });
+
+        previewBox.appendChild(thumb);
+        previewBox.appendChild(btnDel);
+
+        // Sélecteur d'effet d'animation (Ken Burns)
+        const selectAnim = document.createElement('select');
+        selectAnim.className = 'segment-anim-select';
+        selectAnim.title = 'Animation de l\'illustration (Effet Ken Burns)';
+        selectAnim.innerHTML = `
+          <option value="zoom-in" ${seg.animationStyle === 'zoom-in' ? 'selected' : ''}>🔍 Zoom In</option>
+          <option value="zoom-out" ${seg.animationStyle === 'zoom-out' ? 'selected' : ''}>🔎 Zoom Out</option>
+          <option value="pan" ${seg.animationStyle === 'pan' ? 'selected' : ''}>↔️ Panoramique</option>
+          <option value="static" ${seg.animationStyle === 'static' ? 'selected' : ''}>⏹️ Statique</option>
+        `;
+
+        selectAnim.addEventListener('change', (e) => {
+          e.stopPropagation();
+          seg.animationStyle = e.target.value;
+        });
+
+        illustGroup.appendChild(previewBox);
+        illustGroup.appendChild(selectAnim);
+      } else {
+        const btnAddImg = document.createElement('button');
+        btnAddImg.type = 'button';
+        btnAddImg.className = 'btn-segment-image';
+        btnAddImg.innerHTML = `🖼️ + Illustration`;
+        btnAddImg.title = 'Ajouter une image d\'illustration pour cette scène';
+
+        btnAddImg.addEventListener('click', (e) => {
+          e.stopPropagation();
+          fileInput.click();
+        });
+
+        illustGroup.appendChild(btnAddImg);
+      }
+
+      illustGroup.appendChild(fileInput);
+
+      controlsRow.appendChild(mascotGroup);
+      controlsRow.appendChild(illustGroup);
+
+      card.appendChild(topRow);
+      card.appendChild(controlsRow);
+
+      // Drag & Drop d'image directement sur la carte de scène
+      card.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        card.classList.add('drag-target');
+      });
+
+      card.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        card.classList.remove('drag-target');
+      });
+
+      card.addEventListener('drop', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        card.classList.remove('drag-target');
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+          handleImageFile(e.dataTransfer.files[0]);
+        }
+      });
+
+      // Clic sur la carte pour chercher dans l'audio
       card.addEventListener('click', () => {
         this.audioManager.seek(seg.start);
         if (this.onSegmentSelect) {

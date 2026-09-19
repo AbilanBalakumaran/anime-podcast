@@ -160,7 +160,7 @@ export class VideoExporter {
 
     // Enregistrement dans l'historique IndexedDB
     const duration = this.audioManager.getDuration() || 0;
-    const format = this.canvasRenderer.currentFormat || '9:16';
+    const format = '16:9 (1920×1080)';
     dbManager.saveHistoryEntry({
       filename: filename,
       mascotName: activeMascot ? activeMascot.name : 'Mascotte',
@@ -176,7 +176,7 @@ export class VideoExporter {
       URL.revokeObjectURL(url);
       this.closeModal();
       this.isExporting = false;
-      alert(`Vidéo exportée avec succès : ${filename}\nLe fichier WebM conserve la transparence intégrale pour votre logiciel de montage.`);
+      alert(`Vidéo 1920×1080 FHD exportée avec succès : ${filename}\nLe fichier WebM inclut vos scènes, votre voix off, vos illustrations animées et votre mascotte synchronisée.`);
     }, 800);
   }
 
