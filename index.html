@@ -32,7 +32,7 @@
       height: 100% !important;
       background-color: #09090b !important;
       z-index: 2147483647 !important;
-      display: flex !important;
+      display: flex;
       align-items: center !important;
       justify-content: center !important;
       pointer-events: auto;
@@ -193,6 +193,20 @@
       </svg>
     </div>
   </div>
+  <script>
+    // Splash screen réservé au lancement en PWA installée (standalone) :
+    // masquage immédiat et synchrone en navigation web classique pour éviter tout flash.
+    (function () {
+      var isStandalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
+        || window.navigator.standalone === true;
+      if (!isStandalone) {
+        var splash = document.getElementById('app-splash-screen');
+        if (splash) {
+          splash.style.setProperty('display', 'none', 'important');
+        }
+      }
+    })();
+  </script>
 
   <!-- ========================================================================
        APPLICATION PRINCIPALE - INTERFACE CRM 4 PAGES
@@ -206,7 +220,6 @@
       <div class="crm-sidebar-brand">
         <img src="./assets/icons/favicon.svg" alt="Logo Autopod" class="brand-icon">
         <div class="brand-title">Auto<span>pod</span></div>
-        <div class="brand-badge">STUDIO PRO</div>
       </div>
 
       <div class="crm-sidebar-section-title">NAVIGATION</div>
