@@ -19,6 +19,7 @@ const ASSETS_TO_CACHE = [
   './js/canvas-renderer.js',
   './js/video-exporter.js',
   './js/topics-manager.js',
+  './js/worker-config.js',
   './assets/icons/favicon.svg',
   './assets/icons/favicon-32.png',
   './assets/icons/icon-192.svg',

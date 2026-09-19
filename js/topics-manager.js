@@ -8,6 +8,7 @@
  */
 
 import { PRESET_ENGLISH_VOICES } from './audio-manager.js';
+import { WORKER_BASE_URL } from './worker-config.js';
 
 const GEMINI_TEXT_MODEL = 'gemini-2.5-flash';
 const GEMINI_IMAGE_MODEL = 'gemini-2.5-flash-image';
@@ -221,7 +222,7 @@ export class TopicsManager {
     }
 
     const geminiKey = this.app.audioManager.getGeminiKey();
-    if (!geminiKey) {
+    if (!geminiKey && !WORKER_BASE_URL) {
       alert("Veuillez renseigner votre clé API Gemini dans Paramètres avant de générer une vidéo automatique (script et illustrations en dépendent).");
       this.app.navigateTo('page-settings');
       return;
@@ -283,13 +284,19 @@ export class TopicsManager {
 
   async generateScript(topic) {
     const apiKey = this.app.audioManager.getGeminiKey();
+    const useWorker = !apiKey && !!WORKER_BASE_URL;
     const mascotName = this.app.mascotManager?.activeMascot?.name || 'the host';
+
+    const groundingContext = WORKER_BASE_URL ? await this.fetchGroundingContext(topic) : '';
+    const groundingBlock = groundingContext
+      ? `\nHere is real reference context to keep facts accurate (weave it naturally into the narration, never read it out as a list):\n${groundingContext}\n`
+      : '';
 
     const prompt = `You are writing a spoken-word narration script for an anime & pop-culture video essay hosted by a mascot named ${mascotName}.
 
 Topic: ${topic.title}
 Angle: ${topic.angle}
-
+${groundingBlock}
 Write ONLY the narration text the host will speak out loud — no markdown, no headers, no stage directions, no bullet points, just flowing spoken sentences.
 Requirements:
 - Length: approximately 1200 to 1450 words (about 8 minutes of natural spoken pace).
@@ -300,7 +307,9 @@ Requirements:
 - Written entirely in English, aimed at an enthusiastic anime/pop-culture fan audience.
 - Do not use any markdown formatting, asterisks, or headers — plain narration text only.`;
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_TEXT_MODEL}:generateContent?key=${apiKey}`;
+    const url = useWorker
+      ? `${WORKER_BASE_URL}/proxy/gemini/${GEMINI_TEXT_MODEL}`
+      : `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_TEXT_MODEL}:generateContent?key=${apiKey}`;
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -324,6 +333,32 @@ Requirements:
     }
 
     return this.cleanScriptText(rawText);
+  }
+
+  /**
+   * Récupère quelques faits réels via Tavily (search grounding) pour rendre le
+   * script plus factuellement fiable. Passe toujours par le Worker (la clé
+   * Tavily n'existe que côté serveur) ; retourne '' silencieusement en cas
+   * d'échec ou si aucun Worker n'est configuré, sans jamais bloquer le pipeline.
+   */
+  async fetchGroundingContext(topic) {
+    if (!WORKER_BASE_URL) return '';
+    try {
+      const response = await fetch(`${WORKER_BASE_URL}/proxy/tavily/search`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: `${topic.title} ${topic.angle}`, max_results: 4 })
+      });
+      if (!response.ok) return '';
+      const json = await response.json();
+      const results = json.results || [];
+      return results
+        .map(r => `- ${r.title}: ${(r.content || '').slice(0, 300)}`)
+        .join('\n');
+    } catch (err) {
+      console.warn('[TopicsManager] Contexte Tavily indisponible, poursuite sans grounding:', err);
+      return '';
+    }
   }
 
   cleanScriptText(text) {
@@ -373,11 +408,14 @@ Requirements:
 
   async generateSceneImage(scene, topic) {
     const apiKey = this.app.audioManager.getGeminiKey();
+    const useWorker = !apiKey && !!WORKER_BASE_URL;
     const excerpt = scene.texts.join(' ').slice(0, 300);
 
     const prompt = `Cinematic anime-style digital illustration for a video essay about "${topic.title}" (${topic.angle}). Scene context: ${excerpt}. Style: dramatic anime key visual, deep navy blue and gold accent lighting, dynamic composition, high detail, no text, no watermark, no logo, 16:9 widescreen.`;
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_IMAGE_MODEL}:generateContent?key=${apiKey}`;
+    const url = useWorker
+      ? `${WORKER_BASE_URL}/proxy/gemini/${GEMINI_IMAGE_MODEL}`
+      : `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_IMAGE_MODEL}:generateContent?key=${apiKey}`;
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

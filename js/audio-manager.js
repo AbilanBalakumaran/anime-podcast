@@ -8,6 +8,8 @@
  * - Décodage AudioBuffer, tracking temporel et export vidéo transparent avec piste audio
  */
 
+import { WORKER_BASE_URL } from './worker-config.js';
+
 export const PRESET_ENGLISH_VOICES = [
   // 1. Voix Gemini AI (Haute Définition - Modèle gemini-3.1-flash-tts-preview)
   { id: 'gemini-Orbit', name: 'Gemini - Orbit', provider: 'Gemini AI', desc: 'English Male (Deep & Engaging) [Défaut]', default: true },
@@ -177,11 +179,15 @@ export class AudioManager {
     if (typeof voiceId === 'string' && voiceId.startsWith('gemini-')) {
       const voiceName = voiceId.replace('gemini-', '');
       const apiKey = this.getGeminiKey();
+      const useWorker = !apiKey && !!WORKER_BASE_URL;
 
+      if (apiKey || useWorker) {
       console.log(`[AudioManager] Génération TTS Gemini avec la voix '${voiceName}'...`);
 
       try {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-tts-preview:generateContent?key=${apiKey}`;
+        const url = useWorker
+          ? `${WORKER_BASE_URL}/proxy/gemini/gemini-3.1-flash-tts-preview`
+          : `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-tts-preview:generateContent?key=${apiKey}`;
         const response = await fetch(url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -245,6 +251,7 @@ export class AudioManager {
         console.warn('[AudioManager] Échec de l\'appel Gemini TTS, bascule de secours:', geminiErr);
         // Fallback gracieux sur le système
       }
+      }
     }
 
     // =========================================================================
@@ -254,17 +261,20 @@ export class AudioManager {
       const preset = PRESET_ENGLISH_VOICES.find(v => v.id === voiceId);
       const elVoiceId = preset?.voiceId || '21m00Tcm4TlvDq8ikWAM';
       const apiKey = this.getElevenLabsKey();
+      const useWorker = !apiKey && !!WORKER_BASE_URL;
 
+      if (apiKey || useWorker) {
       console.log(`[AudioManager] Génération TTS ElevenLabs (${preset?.name || elVoiceId})...`);
 
       try {
-        const url = `https://api.elevenlabs.io/v1/text-to-speech/${elVoiceId}?output_format=mp3_44100_128`;
+        const url = useWorker
+          ? `${WORKER_BASE_URL}/proxy/elevenlabs/${elVoiceId}`
+          : `https://api.elevenlabs.io/v1/text-to-speech/${elVoiceId}?output_format=mp3_44100_128`;
         const response = await fetch(url, {
           method: 'POST',
-          headers: {
-            'xi-api-key': apiKey,
-            'Content-Type': 'application/json'
-          },
+          headers: useWorker
+            ? { 'Content-Type': 'application/json' }
+            : { 'xi-api-key': apiKey, 'Content-Type': 'application/json' },
           body: JSON.stringify({
             text: cleanText,
             model_id: 'eleven_flash_v2_5'
@@ -273,7 +283,7 @@ export class AudioManager {
 
         if (!response.ok) {
           const errData = await response.json().catch(() => ({}));
-          throw new Error(errData.detail?.message || `Erreur HTTP ${response.status}`);
+          throw new Error(errData.detail?.message || errData.error?.message || `Erreur HTTP ${response.status}`);
         }
 
         const arrayBuffer = await response.arrayBuffer();
@@ -293,6 +303,7 @@ export class AudioManager {
         };
       } catch (elErr) {
         console.warn('[AudioManager] Échec ElevenLabs, bascule de secours:', elErr);
+      }
       }
     }
 
