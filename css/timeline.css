@@ -139,13 +139,14 @@
   background-color: var(--bg-input);
   border: 1px solid var(--border-subtle);
   color: var(--gold-light);
-  font-size: 0.78rem;
+  font-size: 16px !important;
   font-weight: 600;
   border-radius: var(--radius-sm);
   padding: 4px 8px;
   outline: none;
   cursor: pointer;
   transition: border-color var(--transition-fast);
+  max-width: 100%;
 }
 
 .segment-pose-select:focus,

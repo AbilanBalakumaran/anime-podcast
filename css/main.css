@@ -68,6 +68,7 @@
 
 html, body {
   width: 100%;
+  max-width: 100%;
   min-height: 100%;
   background-color: var(--bg-abyss);
   color: var(--text-primary);
@@ -76,7 +77,9 @@ html, body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  touch-action: manipulation;
+  touch-action: pan-y;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 /* Protection anti-zoom iOS : 16px minimum pour tous les champs */

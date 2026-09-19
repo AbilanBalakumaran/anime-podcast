@@ -536,6 +536,45 @@ class AnimePodcastApp {
 
 window.addEventListener('DOMContentLoaded', () => {
   window.animePodcastApp = new AnimePodcastApp();
-  // Empêcher le zoom par pincement/double-tap sur iOS
-  document.addEventListener('gesturestart', (e) => e.preventDefault());
+
+  // 1. Empêcher les gestes de pincement (pinch-to-zoom) sur iOS Safari
+  document.addEventListener('gesturestart', (e) => e.preventDefault(), { passive: false });
+  document.addEventListener('gesturechange', (e) => e.preventDefault(), { passive: false });
+  document.addEventListener('gestureend', (e) => e.preventDefault(), { passive: false });
+
+  // 2. Empêcher le zoom multi-touch
+  document.addEventListener('touchstart', (e) => {
+    if (e.touches && e.touches.length > 1) {
+      e.preventDefault();
+    }
+  }, { passive: false });
+
+  document.addEventListener('touchmove', (e) => {
+    if (e.touches && e.touches.length > 1) {
+      e.preventDefault();
+    }
+  }, { passive: false });
+
+  // 3. Empêcher le zoom par double-tap sur iOS
+  let lastTouchEnd = 0;
+  document.addEventListener('touchend', (e) => {
+    const now = Date.now();
+    if (now - lastTouchEnd <= 300) {
+      e.preventDefault();
+      const clickable = e.target.closest('button, a, input, select, textarea');
+      if (clickable) {
+        clickable.click();
+      }
+    }
+    lastTouchEnd = now;
+  }, { passive: false });
+
+  // 4. Retirer le focus avant tout clic bouton pour éviter le zoom automatique d'iOS
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('button, [role="button"], .btn')) {
+      if (document.activeElement && document.activeElement.tagName !== 'BUTTON') {
+        document.activeElement.blur();
+      }
+    }
+  }, true);
 });
