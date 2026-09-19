@@ -574,14 +574,31 @@
       <div class="crm-page" id="page-topics">
         <div class="page-header">
           <div>
-            <h1 class="page-title">🎬 Sujets Vidéo</h1>
-            <p class="page-subtitle">Cliquez sur un sujet : script, voix off, illustrations et montage sont générés automatiquement (vidéo 1920×1080, 5-10 min).</p>
+            <h1 class="page-title">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-4px; margin-right:4px;">
+                <path d="M2 8h20M7 3v5M17 3v5"></path>
+                <rect x="2" y="8" width="20" height="13" rx="2" ry="2"></rect>
+              </svg>
+              Sujets Vidéo
+            </h1>
+            <p class="page-subtitle">Liste dynamique triée par tendance (AniList) : score, statut de diffusion et image de couverture réels. Cliquez sur un sujet pour un aperçu du script avant de générer la vidéo (1920×1080, 5-10 min).</p>
           </div>
         </div>
 
-        <div id="topics-active-mascot" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;"></div>
+        <div id="topics-active-mascot" style="font-size: 0.85rem; color: var(--text-muted); margin: 0 24px 4px;"></div>
 
-        <div id="topics-grid" class="mascots-full-grid">
+        <div class="topics-toolbar">
+          <button type="button" id="btn-refresh-topics" class="btn btn-outline-gold btn-sm">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <polyline points="1 20 1 14 7 14"></polyline>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+            </svg>
+            Rafraîchir les tendances
+          </button>
+        </div>
+
+        <div id="topics-grid" class="topics-db-list">
           <!-- Rempli dynamiquement par topics-manager.js -->
         </div>
       </div>
@@ -1028,6 +1045,6 @@
   </div>
 
   <!-- Point d'Entrée JavaScript (Modules ES6) avec cache-busting -->
-  <script type="module" src="./js/app.js?v=1.8.0"></script>
+  <script type="module" src="./js/app.js?v=1.9.0"></script>
 </body>
 </html>
