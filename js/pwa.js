@@ -14,6 +14,20 @@ export class PWAManager {
   init() {
     this.registerServiceWorker();
     this.setupInstallPrompt();
+    this.purgeOldCaches();
+  }
+
+  purgeOldCaches() {
+    if ('caches' in window) {
+      caches.keys().then((keys) => {
+        keys.forEach((key) => {
+          if (key !== 'anime-podcast-v1.2.0') {
+            console.log('[PWA] Purge du cache obsolète:', key);
+            caches.delete(key);
+          }
+        });
+      });
+    }
   }
 
   registerServiceWorker() {
@@ -34,9 +48,10 @@ export class PWAManager {
     });
 
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js')
+      navigator.serviceWorker.register('./sw.js?v=1.2.0')
         .then((registration) => {
           console.log('[PWA] Service Worker enregistré avec succès:', registration.scope);
+          registration.update().catch(() => {});
 
           // Vérification des mises à jour toutes les 30 secondes
           setInterval(() => {

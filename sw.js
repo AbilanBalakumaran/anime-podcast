@@ -1,4 +1,4 @@
-const CACHE_NAME = 'anime-podcast-v1.0.0';
+const CACHE_NAME = 'anime-podcast-v1.2.0';
 
 const ASSETS_TO_CACHE = [
   './',
@@ -35,7 +35,7 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Activation : suppression des anciens caches et prise de contrôle immédiate
+// Activation : suppression de tous les anciens caches et prise de contrôle immédiate
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -53,7 +53,7 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Stratégie réseau : Network-First avec fallback Cache pour garantir la mise à jour immédiate
+// Stratégie réseau : Network-First systématique pour garantir le code le plus récent
 self.addEventListener('fetch', (event) => {
   // Ignorer les requêtes non-GET et les schémas spéciaux (data, blob, chrome-extension)
   if (event.request.method !== 'GET' || !event.request.url.startsWith('http')) {
@@ -61,7 +61,7 @@ self.addEventListener('fetch', (event) => {
   }
 
   event.respondWith(
-    fetch(event.request)
+    fetch(event.request, { cache: 'reload' })
       .then((networkResponse) => {
         if (networkResponse && networkResponse.status === 200) {
           const responseToCache = networkResponse.clone();

@@ -104,6 +104,7 @@ export class CanvasRenderer {
     this.currentMascot = mascot;
     this.currentEmotion = 'neutre';
     this.currentVariantIndex = 0;
+    this.imageCache.clear();
     await this.preloadAllMascotPoses(mascot);
   }
 
