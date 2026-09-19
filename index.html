@@ -33,7 +33,7 @@
        ======================================================================== -->
   <div id="app-splash-screen">
     <div class="splash-content">
-      <img src="./assets/icons/icon-192.svg?v=1.4.9" alt="Autopod" class="splash-logo-icon">
+      <img src="./assets/icons/icon-192.svg?v=1.5.0" alt="Autopod" class="splash-logo-icon">
     </div>
   </div>
 
@@ -225,16 +225,16 @@
                 <div class="form-group">
                   <label for="textarea-tts" class="form-label">
                     <span>Texte du podcast à synthétiser</span>
-                    <span style="color: var(--gold-light);">Script calibré ~30 secondes</span>
+                    <span style="color: var(--gold-light);">Script calibré ~30 secondes (Anglais)</span>
                   </label>
-                  <textarea id="textarea-tts" class="form-textarea" placeholder="Entrez le texte de votre podcast ici...">Bonjour à tous et bienvenue dans ce nouvel épisode d'Anime Podcast ! Aujourd'hui, nous explorons le secret de l'animation japonaise et des mascottes expressives. Avez-vous remarqué comment les transitions de poses rendent un discours captivant ? C'est absolument incroyable et immersif ! Merci d'avoir partagé ce moment avec nous, et à très bientôt pour le prochain épisode !</textarea>
+                  <textarea id="textarea-tts" class="form-textarea" placeholder="Enter your podcast script here...">Welcome everyone to this new episode of Autopod! Today, we explore the secret of anime animation and expressive mascots. Have you noticed how smooth pose transitions make a story come alive? It is absolutely incredible and immersive! Thank you for joining us today, and see you very soon in our next episode!</textarea>
                   <button type="button" id="btn-load-test-script" class="btn btn-outline-gold btn-sm" style="margin-top: 6px; align-self: flex-start;">
                     ↺ Recharger le script test (30s)
                   </button>
                 </div>
 
                 <div class="form-group">
-                  <label for="select-tts-voice" class="form-label">Voix de synthèse</label>
+                  <label for="select-tts-voice" class="form-label">Voix de synthèse (Anglais uniquement)</label>
                   <select id="select-tts-voice" class="form-select"></select>
                 </div>
 
@@ -433,6 +433,47 @@
           <h1 class="page-title">⚙️ Paramètres</h1>
         </div>
 
+        <!-- Section Clés API (Gemini & ElevenLabs) -->
+        <section class="studio-card">
+          <div class="card-header">
+            <h2 class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+              Clés API &amp; Moteurs IA (TTS)
+            </h2>
+          </div>
+
+          <div class="form-group">
+            <label for="settings-gemini-key" class="form-label">
+              Clé API Gemini (Google AI Studio)
+              <span style="color: var(--gold-primary); font-size: 0.75rem; margin-left: 6px;">Voix Orbit active</span>
+            </label>
+            <input type="password" id="settings-gemini-key" class="form-control" placeholder="Entrez votre clé API Gemini" autocomplete="off">
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
+              Utilisée pour la génération audio HD avec le modèle <code>gemini-3.1-flash-tts-preview</code> (Voix Orbit par défaut).
+            </p>
+          </div>
+
+          <div class="form-group">
+            <label for="settings-elevenlabs-key" class="form-label">Clé API ElevenLabs</label>
+            <input type="password" id="settings-elevenlabs-key" class="form-control" placeholder="Entrez votre clé API ElevenLabs" autocomplete="off">
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
+              Permet d'utiliser les voix ElevenLabs (Rachel, Adam, Antoni, Josh).
+            </p>
+          </div>
+
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <button id="btn-save-keys" class="btn btn-primary btn-sm">
+              💾 Enregistrer les clés API
+            </button>
+            <span id="save-keys-status" style="font-size: 0.8rem; color: var(--accent-emerald); display: none;">
+              ✓ Clés enregistrées dans votre navigateur !
+            </span>
+          </div>
+        </section>
+
         <!-- Section Voix Off -->
         <section class="studio-card">
           <div class="card-header">
@@ -441,12 +482,12 @@
                 <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
                 <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
               </svg>
-              Voix Off par Défaut
+              Voix Off Anglaises (English Voices)
             </h2>
           </div>
 
           <div class="form-group">
-            <label for="settings-voice-select" class="form-label">Voix de synthèse par défaut</label>
+            <label for="settings-voice-select" class="form-label">Voix de synthèse par défaut (Anglais)</label>
             <select id="settings-voice-select" class="form-select"></select>
           </div>
 
@@ -742,6 +783,6 @@
   </div>
 
   <!-- Point d'Entrée JavaScript (Modules ES6) avec cache-busting -->
-  <script type="module" src="./js/app.js?v=1.4.9"></script>
+  <script type="module" src="./js/app.js?v=1.5.0"></script>
 </body>
 </html>

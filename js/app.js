@@ -149,20 +149,20 @@ class AnimePodcastApp {
    * L'utilisateur n'a plus besoin de cliquer manuellement sur "Générer la Voix"
    */
   async prepareDefaultAudio() {
-    const defaultText = "Bonjour à tous et bienvenue dans ce nouvel épisode d'Autopod ! Aujourd'hui, nous explorons le secret de l'animation japonaise et des mascottes expressives. Avez-vous remarqué comment les transitions de poses rendent un discours captivant ? C'est absolument incroyable et immersif ! Merci d'avoir partagé ce moment avec nous, et à très bientôt pour le prochain épisode !";
+    const defaultText = "Welcome everyone to this new episode of Autopod! Today, we explore the secret of anime animation and expressive mascots. Have you noticed how smooth pose transitions make a story come alive? It is absolutely incredible and immersive! Thank you for joining us today, and see you very soon in our next episode!";
 
     if (this.textareaTts) {
       this.textareaTts.value = defaultText;
     }
 
     try {
-      const voiceIdx = parseInt(this.selectVoice ? this.selectVoice.value : 0, 10) || 0;
+      const voiceId = this.selectVoice?.value || localStorage.getItem('autopod_default_voice') || 'gemini-Orbit';
       const rate = parseFloat(this.sliderRate ? this.sliderRate.value : 1.0) || 1.0;
       const pitch = parseFloat(this.sliderPitch ? this.sliderPitch.value : 1.0) || 1.0;
 
-      const result = await this.audioManager.synthesizeSpeech(defaultText, voiceIdx, rate, pitch);
+      const result = await this.audioManager.synthesizeSpeech(defaultText, voiceId, rate, pitch);
       this.speechAnalyzer.analyzeAudioBuffer(result.buffer, result.sentences);
-      console.log('[App] Audio par défaut prêt et disponible immédiatement.');
+      console.log(`[App] Audio par défaut prêt et disponible immédiatement (${voiceId}).`);
     } catch (err) {
       console.warn('[App] Préparation automatique de l\'audio différée:', err);
     }
@@ -282,7 +282,7 @@ class AnimePodcastApp {
         if (document.activeElement && typeof document.activeElement.blur === 'function') {
           document.activeElement.blur();
         }
-        this.textareaTts.value = "Bonjour à tous et bienvenue dans ce nouvel épisode d'Autopod ! Aujourd'hui, nous explorons le secret de l'animation japonaise et des mascottes expressives. Avez-vous remarqué comment les transitions de poses rendent un discours captivant ? C'est absolument incroyable et immersif ! Merci d'avoir partagé ce moment avec nous, et à très bientôt pour le prochain épisode !";
+        this.textareaTts.value = "Welcome everyone to this new episode of Autopod! Today, we explore the secret of anime animation and expressive mascots. Have you noticed how smooth pose transitions make a story come alive? It is absolutely incredible and immersive! Thank you for joining us today, and see you very soon in our next episode!";
       });
     }
 
@@ -335,29 +335,61 @@ class AnimePodcastApp {
       });
     }
 
+    // Gestion des clés API (Gemini & ElevenLabs)
+    const inputGemini = document.getElementById('settings-gemini-key');
+    const inputEleven = document.getElementById('settings-elevenlabs-key');
+    const btnSaveKeys = document.getElementById('btn-save-keys');
+    const saveStatus = document.getElementById('save-keys-status');
+
+    if (inputGemini) inputGemini.value = this.audioManager.getGeminiKey();
+    if (inputEleven) inputEleven.value = this.audioManager.getElevenLabsKey();
+
+    if (btnSaveKeys) {
+      btnSaveKeys.addEventListener('click', () => {
+        if (inputGemini) this.audioManager.setGeminiKey(inputGemini.value);
+        if (inputEleven) this.audioManager.setElevenLabsKey(inputEleven.value);
+        if (saveStatus) {
+          saveStatus.style.display = 'inline';
+          setTimeout(() => { saveStatus.style.display = 'none'; }, 3000);
+        }
+        console.log('[Settings] Clés API enregistrées dans le navigateur.');
+      });
+    }
+
+    const selectVoice = document.getElementById('settings-voice-select');
+    if (selectVoice) {
+      selectVoice.addEventListener('change', () => {
+        localStorage.setItem('autopod_default_voice', selectVoice.value);
+        if (this.selectVoice) this.selectVoice.value = selectVoice.value;
+        console.log('[Settings] Voix par défaut mise à jour:', selectVoice.value);
+      });
+    }
+
     // Test de voix
     const btnTestVoice = document.getElementById('btn-test-voice');
     if (btnTestVoice) {
-      btnTestVoice.addEventListener('click', () => {
-        const select = document.getElementById('settings-voice-select');
+      btnTestVoice.addEventListener('click', async () => {
+        const voiceId = selectVoice ? selectVoice.value : (localStorage.getItem('autopod_default_voice') || 'gemini-Orbit');
         const rate = document.getElementById('settings-voice-rate');
         const pitch = document.getElementById('settings-voice-pitch');
 
-        const voiceIdx = select ? parseInt(select.value, 10) : 0;
         const rateVal = rate ? parseFloat(rate.value) : 1.0;
         const pitchVal = pitch ? parseFloat(pitch.value) : 1.0;
 
-        const utterance = new SpeechSynthesisUtterance('Bonjour, ceci est un test de la voix sélectionnée pour votre podcast animé.');
-        const voices = speechSynthesis.getVoices();
-        if (voices[voiceIdx]) utterance.voice = voices[voiceIdx];
-        utterance.rate = rateVal;
-        utterance.pitch = pitchVal;
-        utterance.lang = 'fr-FR';
+        btnTestVoice.disabled = true;
+        btnTestVoice.textContent = '🔊 Génération du test...';
 
-        speechSynthesis.cancel();
-        speechSynthesis.speak(utterance);
-
-        console.log(`[Settings] Test voix: index=${voiceIdx}, rate=${rateVal}, pitch=${pitchVal}`);
+        try {
+          const testText = "Hello! This is a test of your selected English voice for Autopod.";
+          await this.audioManager.synthesizeSpeech(testText, voiceId, rateVal, pitchVal);
+          this.audioManager.play();
+          console.log(`[Settings] Test voix réussi: id=${voiceId}, rate=${rateVal}, pitch=${pitchVal}`);
+        } catch (err) {
+          alert('Erreur lors du test de voix : ' + err.message);
+        } finally {
+          btnTestVoice.disabled = false;
+          btnTestVoice.textContent = '🔊 Tester la voix sélectionnée';
+        }
       });
     }
   }
@@ -366,22 +398,42 @@ class AnimePodcastApp {
     const select = document.getElementById('settings-voice-select');
     if (!select) return;
 
-    const voices = speechSynthesis.getVoices();
+    const voices = this.audioManager.getVoices();
     select.innerHTML = '';
 
-    voices.forEach((voice, index) => {
+    const geminiGroup = document.createElement('optgroup');
+    geminiGroup.label = '🌟 Gemini AI (Haute Définition)';
+
+    const elevenGroup = document.createElement('optgroup');
+    elevenGroup.label = '🎙️ ElevenLabs AI';
+
+    const systemGroup = document.createElement('optgroup');
+    systemGroup.label = '💻 Voix Système Anglaises';
+
+    const savedVoice = localStorage.getItem('autopod_default_voice') || 'gemini-Orbit';
+
+    voices.forEach(voice => {
       const option = document.createElement('option');
-      option.value = index;
-      option.textContent = `${voice.name} (${voice.lang})${voice.default ? ' [Défaut]' : ''}`;
-      select.appendChild(option);
+      option.value = voice.id;
+      option.textContent = `${voice.name} — ${voice.desc}`;
+      if (voice.id === savedVoice) {
+        option.selected = true;
+      }
+
+      if (voice.id.startsWith('gemini-')) {
+        geminiGroup.appendChild(option);
+      } else if (voice.id.startsWith('elevenlabs-')) {
+        elevenGroup.appendChild(option);
+      } else {
+        systemGroup.appendChild(option);
+      }
     });
 
-    if (voices.length === 0) {
-      const option = document.createElement('option');
-      option.value = 0;
-      option.textContent = 'Voix par défaut du système';
-      select.appendChild(option);
-    }
+    if (geminiGroup.children.length > 0) select.appendChild(geminiGroup);
+    if (elevenGroup.children.length > 0) select.appendChild(elevenGroup);
+    if (systemGroup.children.length > 0) select.appendChild(systemGroup);
+
+    select.value = savedVoice;
   }
 
   // ==================== HISTORIQUE ====================
@@ -474,11 +526,11 @@ class AnimePodcastApp {
     this.btnGenerateTts.textContent = 'Génération vocale...';
 
     try {
-      const voiceIdx = parseInt(this.selectVoice.value, 10) || 0;
+      const voiceId = this.selectVoice?.value || localStorage.getItem('autopod_default_voice') || 'gemini-Orbit';
       const rate = parseFloat(this.sliderRate.value) || 1.0;
       const pitch = parseFloat(this.sliderPitch.value) || 1.0;
 
-      const result = await this.audioManager.synthesizeSpeech(text, voiceIdx, rate, pitch);
+      const result = await this.audioManager.synthesizeSpeech(text, voiceId, rate, pitch);
       this.speechAnalyzer.analyzeAudioBuffer(result.buffer, result.sentences);
     } catch (err) {
       console.error('[App] Erreur TTS:', err);
@@ -500,19 +552,39 @@ class AnimePodcastApp {
     const voices = this.audioManager.getVoices();
     this.selectVoice.innerHTML = '';
 
-    voices.forEach((voice, index) => {
+    const geminiGroup = document.createElement('optgroup');
+    geminiGroup.label = '🌟 Gemini AI (Haute Définition)';
+
+    const elevenGroup = document.createElement('optgroup');
+    elevenGroup.label = '🎙️ ElevenLabs AI';
+
+    const systemGroup = document.createElement('optgroup');
+    systemGroup.label = '💻 Voix Système Anglaises';
+
+    const savedVoice = localStorage.getItem('autopod_default_voice') || 'gemini-Orbit';
+
+    voices.forEach(voice => {
       const option = document.createElement('option');
-      option.value = index;
-      option.textContent = `${voice.name} (${voice.lang})${voice.default ? ' [Défaut]' : ''}`;
-      this.selectVoice.appendChild(option);
+      option.value = voice.id;
+      option.textContent = `${voice.name} — ${voice.desc}`;
+      if (voice.id === savedVoice) {
+        option.selected = true;
+      }
+
+      if (voice.id.startsWith('gemini-')) {
+        geminiGroup.appendChild(option);
+      } else if (voice.id.startsWith('elevenlabs-')) {
+        elevenGroup.appendChild(option);
+      } else {
+        systemGroup.appendChild(option);
+      }
     });
 
-    if (voices.length === 0) {
-      const option = document.createElement('option');
-      option.value = 0;
-      option.textContent = 'Voix par défaut du système';
-      this.selectVoice.appendChild(option);
-    }
+    if (geminiGroup.children.length > 0) this.selectVoice.appendChild(geminiGroup);
+    if (elevenGroup.children.length > 0) this.selectVoice.appendChild(elevenGroup);
+    if (systemGroup.children.length > 0) this.selectVoice.appendChild(systemGroup);
+
+    this.selectVoice.value = savedVoice;
   }
 
   handleAudioTimeUpdate(currentTime, duration) {

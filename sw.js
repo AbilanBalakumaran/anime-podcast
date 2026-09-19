@@ -1,4 +1,4 @@
-const CACHE_NAME = 'autopod-v1.4.9';
+const CACHE_NAME = 'autopod-v1.5.0';
 
 const ASSETS_TO_CACHE = [
   './',
