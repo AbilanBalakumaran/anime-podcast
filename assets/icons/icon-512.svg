@@ -1,18 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
-    <!-- Background Gradient (Noir Obsidienne) -->
-    <linearGradient id="bgGrad512" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#141417" />
-      <stop offset="100%" stop-color="#09090b" />
-    </linearGradient>
-
-    <!-- Flame Ambient Glow -->
-    <radialGradient id="flameAura512" cx="54%" cy="38%" r="48%">
-      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.4" />
-      <stop offset="45%" stop-color="#ea580c" stop-opacity="0.18" />
-      <stop offset="100%" stop-color="#09090b" stop-opacity="0" />
-    </radialGradient>
-
     <!-- Metallic Gold Lighter Body Gradient -->
     <linearGradient id="lighterGold512" x1="0%" y1="0%" x2="100%" y2="0%">
       <stop offset="0%" stop-color="#b45309" />
@@ -59,91 +46,83 @@
     </filter>
   </defs>
 
-  <!-- Base Squircle -->
-  <rect width="512" height="512" rx="112" fill="url(#bgGrad512)" stroke="#27272a" stroke-width="4" />
-
-  <!-- Ambient Light Reflection from Flame -->
-  <rect width="512" height="512" rx="112" fill="url(#flameAura512)" />
-
-  <!-- Outer Cyber Ring -->
-  <circle cx="256" cy="256" r="202" fill="none" stroke="#facc15" stroke-width="4" opacity="0.3" stroke-dasharray="16 20" />
-
   <!-- ======================================================================
-       SANJI'S OPEN LIGHTER (High-Res 512x512)
+       SANJI'S OPEN LIGHTER (Transparent, no box or circle halo)
        ====================================================================== -->
+  <g transform="translate(26, 20)">
+    <!-- FLAME (Rising from the Chimney) -->
+    <g filter="url(#flameGlow512)">
+      <!-- Outer Flame Body -->
+      <path d="M 277 203 C 256 197, 235 171, 237 139 C 240 107, 264 80, 272 48 C 288 80, 320 112, 315 149 C 312 176, 296 197, 277 203 Z" fill="url(#flameOuter512)" />
 
-  <!-- FLAME (Rising from the Chimney) -->
-  <g filter="url(#flameGlow512)">
-    <!-- Outer Flame Body -->
-    <path d="M 277 203 C 256 197, 235 171, 237 139 C 240 107, 264 80, 272 48 C 288 80, 320 112, 315 149 C 312 176, 296 197, 277 203 Z" fill="url(#flameOuter512)" />
+      <!-- Inner Hot Flame Body -->
+      <path d="M 277 197 C 261 192, 248 171, 251 144 C 253 117, 269 96, 275 69 C 285 96, 304 117, 301 149 C 299 173, 288 192, 277 197 Z" fill="url(#flameCore512)" />
 
-    <!-- Inner Hot Flame Body -->
-    <path d="M 277 197 C 261 192, 248 171, 251 144 C 253 117, 269 96, 275 69 C 285 96, 304 117, 301 149 C 299 173, 288 192, 277 197 Z" fill="url(#flameCore512)" />
+      <!-- Pure White-Hot Core Teardrop -->
+      <path d="M 277 192 C 267 189, 259 176, 261 155 C 264 133, 275 117, 277 96 C 283 117, 291 133, 291 155 C 291 176, 285 189, 277 192 Z" fill="#ffffff" opacity="0.95" />
 
-    <!-- Pure White-Hot Core Teardrop -->
-    <path d="M 277 192 C 267 189, 259 176, 261 155 C 264 133, 275 117, 277 96 C 283 117, 291 133, 291 155 C 291 176, 285 189, 277 192 Z" fill="#ffffff" opacity="0.95" />
-
-    <!-- Embers / Sparks -->
-    <circle cx="283" cy="37" r="4" fill="#fef08a" />
-    <circle cx="301" cy="59" r="3" fill="#f97316" />
-    <circle cx="253" cy="67" r="2.5" fill="#facc15" />
-  </g>
-
-  <!-- CHIMNEY / BURNER -->
-  <g id="chimney512">
-    <!-- Chimney Body -->
-    <rect x="243" y="197" width="69" height="64" rx="5" fill="url(#chimneyGrad512)" stroke="#ca8a04" stroke-width="3" />
-    <!-- Chimney Ventilation Holes -->
-    <circle cx="256" cy="213" r="4.5" fill="#18181c" />
-    <circle cx="277" cy="213" r="4.5" fill="#18181c" />
-    <circle cx="299" cy="213" r="4.5" fill="#18181c" />
-    <circle cx="256" cy="235" r="4.5" fill="#18181c" />
-    <circle cx="277" cy="235" r="4.5" fill="#18181c" />
-    <circle cx="299" cy="235" r="4.5" fill="#18181c" />
-
-    <!-- Flint Striker Wheel on Right -->
-    <rect x="312" y="213" width="16" height="40" rx="4" fill="#d4d4d8" stroke="#71717a" stroke-width="2.5" />
-    <line x1="312" y1="224" x2="328" y2="224" stroke="#52525b" stroke-width="2" />
-    <line x1="312" y1="232" x2="328" y2="232" stroke="#52525b" stroke-width="2" />
-    <line x1="312" y1="240" x2="328" y2="240" stroke="#52525b" stroke-width="2" />
-  </g>
-
-  <!-- OPEN LID (Flipped back left) -->
-  <g id="open-lid512">
-    <!-- Hinge Pin -->
-    <circle cx="200" cy="261" r="9" fill="#ca8a04" stroke="#78350f" stroke-width="2.5" />
-    <circle cx="200" cy="261" r="4" fill="#fef08a" />
-
-    <!-- Angled Open Lid Shell -->
-    <polygon points="195,256 96,197 123,149 221,208" fill="url(#lidGold512)" stroke="#ca8a04" stroke-width="4" stroke-linejoin="round" />
-    <!-- Lid Interior Shadow -->
-    <polygon points="189,251 104,200 120,168 205,219" fill="#27272a" opacity="0.85" />
-    <!-- Highlight edge on lid lip -->
-    <line x1="123" y1="149" x2="221" y2="208" stroke="#fef08a" stroke-width="4" stroke-linecap="round" />
-  </g>
-
-  <!-- MAIN LIGHTER BODY (Solid Gold Casing) -->
-  <g id="lighter-body512">
-    <!-- Main Box -->
-    <rect x="197" y="259" width="149" height="176" rx="10" fill="url(#lighterGold512)" stroke="#ca8a04" stroke-width="4.5" />
-
-    <!-- Beveled Edge Highlight -->
-    <path d="M 203 429 L 203 264 L 341 264" fill="none" stroke="#fef9c3" stroke-width="4" stroke-linecap="round" />
-
-    <!-- Dark Shadow on Right Edge -->
-    <line x1="344" y1="264" x2="344" y2="429" stroke="#78350f" stroke-width="4.5" stroke-linecap="round" />
-
-    <!-- Elegant Sanji Vertical Engraved Stripe Detail -->
-    <line x1="235" y1="288" x2="235" y2="413" stroke="#ca8a04" stroke-width="3" />
-    <line x1="240" y1="288" x2="240" y2="413" stroke="#fef08a" stroke-width="3" />
-
-    <!-- Sanji's Signature Spiral Eyebrow Emblem Engraved on the Lighter Face -->
-    <g transform="translate(277, 349) scale(1.6)">
-      <path d="M -12 0 C -12 -8, -4 -12, 4 -12 C 12 -12, 16 -6, 16 2 C 16 10, 8 14, 0 14 C -6 14, -10 10, -10 4 C -10 -2, -6 -6, 0 -6 C 4 -6, 6 -3, 6 0" fill="none" stroke="#78350f" stroke-width="3" stroke-linecap="round" />
-      <path d="M -12 0 C -12 -8, -4 -12, 4 -12 C 12 -12, 16 -6, 16 2 C 16 10, 8 14, 0 14 C -6 14, -10 10, -10 4 C -10 -2, -6 -6, 0 -6 C 4 -6, 6 -3, 6 0" fill="none" stroke="#fef08a" stroke-width="1.6" stroke-linecap="round" />
+      <!-- Embers / Sparks -->
+      <circle cx="283" cy="37" r="4" fill="#fef08a" />
+      <circle cx="301" cy="59" r="3" fill="#f97316" />
+      <circle cx="253" cy="67" r="2.5" fill="#facc15" />
     </g>
 
-    <!-- Bottom edge reflection -->
-    <line x1="205" y1="432" x2="339" y2="432" stroke="#b45309" stroke-width="3.5" />
+    <!-- CHIMNEY / BURNER -->
+    <g id="chimney512">
+      <!-- Chimney Body -->
+      <rect x="243" y="197" width="69" height="64" rx="5" fill="url(#chimneyGrad512)" stroke="#ca8a04" stroke-width="3" />
+      <!-- Chimney Ventilation Holes -->
+      <circle cx="256" cy="213" r="4.5" fill="#18181c" />
+      <circle cx="277" cy="213" r="4.5" fill="#18181c" />
+      <circle cx="299" cy="213" r="4.5" fill="#18181c" />
+      <circle cx="256" cy="235" r="4.5" fill="#18181c" />
+      <circle cx="277" cy="235" r="4.5" fill="#18181c" />
+      <circle cx="299" cy="235" r="4.5" fill="#18181c" />
+
+      <!-- Flint Striker Wheel on Right -->
+      <rect x="312" y="213" width="16" height="40" rx="4" fill="#d4d4d8" stroke="#71717a" stroke-width="2.5" />
+      <line x1="312" y1="224" x2="328" y2="224" stroke="#52525b" stroke-width="2" />
+      <line x1="312" y1="232" x2="328" y2="232" stroke="#52525b" stroke-width="2" />
+      <line x1="312" y1="240" x2="328" y2="240" stroke="#52525b" stroke-width="2" />
+    </g>
+
+    <!-- OPEN LID (Flipped back left) -->
+    <g id="open-lid512">
+      <!-- Hinge Pin -->
+      <circle cx="200" cy="261" r="9" fill="#ca8a04" stroke="#78350f" stroke-width="2.5" />
+      <circle cx="200" cy="261" r="4" fill="#fef08a" />
+
+      <!-- Angled Open Lid Shell -->
+      <polygon points="195,256 96,197 123,149 221,208" fill="url(#lidGold512)" stroke="#ca8a04" stroke-width="4" stroke-linejoin="round" />
+      <!-- Lid Interior Shadow -->
+      <polygon points="189,251 104,200 120,168 205,219" fill="#27272a" opacity="0.85" />
+      <!-- Highlight edge on lid lip -->
+      <line x1="123" y1="149" x2="221" y2="208" stroke="#fef08a" stroke-width="4" stroke-linecap="round" />
+    </g>
+
+    <!-- MAIN LIGHTER BODY (Solid Gold Casing) -->
+    <g id="lighter-body512">
+      <!-- Main Box -->
+      <rect x="197" y="259" width="149" height="176" rx="10" fill="url(#lighterGold512)" stroke="#ca8a04" stroke-width="4.5" />
+
+      <!-- Beveled Edge Highlight -->
+      <path d="M 203 429 L 203 264 L 341 264" fill="none" stroke="#fef9c3" stroke-width="4" stroke-linecap="round" />
+
+      <!-- Dark Shadow on Right Edge -->
+      <line x1="344" y1="264" x2="344" y2="429" stroke="#78350f" stroke-width="4.5" stroke-linecap="round" />
+
+      <!-- Elegant Sanji Vertical Engraved Stripe Detail -->
+      <line x1="235" y1="288" x2="235" y2="413" stroke="#ca8a04" stroke-width="3" />
+      <line x1="240" y1="288" x2="240" y2="413" stroke="#fef08a" stroke-width="3" />
+
+      <!-- Sanji's Signature Spiral Eyebrow Emblem Engraved on the Lighter Face -->
+      <g transform="translate(277, 349) scale(1.6)">
+        <path d="M -12 0 C -12 -8, -4 -12, 4 -12 C 12 -12, 16 -6, 16 2 C 16 10, 8 14, 0 14 C -6 14, -10 10, -10 4 C -10 -2, -6 -6, 0 -6 C 4 -6, 6 -3, 6 0" fill="none" stroke="#78350f" stroke-width="3" stroke-linecap="round" />
+        <path d="M -12 0 C -12 -8, -4 -12, 4 -12 C 12 -12, 16 -6, 16 2 C 16 10, 8 14, 0 14 C -6 14, -10 10, -10 4 C -10 -2, -6 -6, 0 -6 C 4 -6, 6 -3, 6 0" fill="none" stroke="#fef08a" stroke-width="1.6" stroke-linecap="round" />
+      </g>
+
+      <!-- Bottom edge reflection -->
+      <line x1="205" y1="432" x2="339" y2="432" stroke="#b45309" stroke-width="3.5" />
+    </g>
   </g>
 </svg>

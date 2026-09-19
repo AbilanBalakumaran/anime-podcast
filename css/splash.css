@@ -61,27 +61,15 @@
   justify-content: center;
 }
 
-.splash-logo-ring {
-  position: absolute;
-  inset: -8px;
-  border-radius: 50%;
-  border: 2px dashed rgba(245, 158, 11, 0.4);
-  animation: splashRotate 12s linear infinite;
-}
-
+.splash-logo-ring,
 .splash-logo-ring-outer {
-  position: absolute;
-  inset: -18px;
-  border-radius: 50%;
-  border: 1px solid rgba(251, 191, 36, 0.2);
-  animation: splashRotateRev 18s linear infinite;
+  display: none !important;
 }
 
 .splash-logo-icon {
-  width: 88px;
-  height: 88px;
-  border-radius: 24px;
-  box-shadow: 0 0 35px var(--gold-glow), 0 0 10px rgba(245, 158, 11, 0.5);
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
   animation: splashIconFloat 2.5s ease-in-out infinite;
 }
 

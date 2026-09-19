@@ -135,10 +135,10 @@ input, textarea, select, button {
 }
 
 .brand-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-sm);
-  box-shadow: 0 0 14px var(--gold-glow);
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 .brand-title {
@@ -308,18 +308,18 @@ input, textarea, select, button {
 }
 
 .header-logo {
-  width: 34px;
-  height: 34px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-gold);
-  background-color: var(--bg-card);
-  box-shadow: 0 0 12px var(--gold-glow);
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
   flex-shrink: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
   transition: transform var(--transition-fast);
 }
 
 .header-logo:hover {
-  transform: scale(1.06);
+  transform: scale(1.08);
 }
 
 .header-title-wrap {
