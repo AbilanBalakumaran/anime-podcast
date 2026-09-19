@@ -847,7 +847,7 @@
        MODALE : RÉGLAGE DE LA MASCOTTE (POSITION, ZOOM & TEINTE)
        ======================================================================== -->
   <div id="modal-mascot-tune" class="modal-backdrop">
-    <div class="modal-card" style="max-width: 680px;">
+    <div class="modal-card" style="max-width: 760px;">
       <div class="modal-header">
         <h3 class="modal-title">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
@@ -931,6 +931,20 @@
           </div>
         </div>
       </div>
+
+      <div class="tune-section-title" style="margin-top: 18px;">Gestion des Poses</div>
+      <p style="font-size: 0.75rem; color: var(--text-muted); margin: 2px 0 10px;">
+        Changez l'émotion associée à chaque pose, remplacez son image, ou réutilisez une autre pose déjà importée comme référence.
+      </p>
+      <div id="tune-poses-list" class="tune-poses-list"></div>
+      <button type="button" id="btn-tune-add-pose" class="btn btn-outline-gold btn-sm" style="margin-top: 10px;">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        Ajouter une pose
+      </button>
+      <input type="file" id="input-tune-add-pose" accept="image/*" style="display: none;">
 
       <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px;">
         <button type="button" id="btn-tune-reset" class="btn btn-secondary btn-sm">

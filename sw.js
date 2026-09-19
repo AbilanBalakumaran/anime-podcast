@@ -30,17 +30,17 @@ const ASSETS_TO_CACHE = [
   './assets/icons/icon-maskable-192.png',
   './assets/icons/icon-maskable-512.png',
   './assets/fonts/ObelixPro.ttf',
-  './assets/mascots/kai/bonjour_0.png',
-  './assets/mascots/kai/neutre_0.png',
-  './assets/mascots/kai/explicative_0.png',
-  './assets/mascots/kai/explicative_1.png',
-  './assets/mascots/kai/pensive_0.png',
-  './assets/mascots/kai/surprise_0.png',
-  './assets/mascots/kai/confiante_0.png',
-  './assets/mascots/kai/joyeuse_0.png',
-  './assets/mascots/kai/ironique_0.png',
-  './assets/mascots/kai/enervee_0.png',
-  './assets/mascots/kai/embarrassee_0.png'
+  './assets/mascots/suki/bonjour_0.png',
+  './assets/mascots/suki/explicative_0.png',
+  './assets/mascots/suki/explicative_1.png',
+  './assets/mascots/suki/explicative_2.png',
+  './assets/mascots/suki/pensive_0.png',
+  './assets/mascots/suki/pensive_1.png',
+  './assets/mascots/suki/confiante_0.png',
+  './assets/mascots/suki/confiante_1.png',
+  './assets/mascots/suki/joyeuse_0.png',
+  './assets/mascots/suki/enervee_0.png',
+  './assets/mascots/suki/embarrassee_0.png'
 ];
 
 // Installation : mise en cache immédiate et forçage de l'activation

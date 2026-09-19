@@ -50,6 +50,11 @@ export class MascotManager {
     this.tuneMascotName = document.getElementById('tune-mascot-name');
     this.tunePreviewImg = document.getElementById('tune-preview-img');
 
+    // Gestion des poses (existantes) dans la modale de réglage
+    this.tunePosesList = document.getElementById('tune-poses-list');
+    this.btnTuneAddPose = document.getElementById('btn-tune-add-pose');
+    this.inputTuneAddPose = document.getElementById('input-tune-add-pose');
+
     // Sliders de réglage
     this.tuneScale = document.getElementById('tune-scale');
     this.tuneOffsetX = document.getElementById('tune-offset-x');
@@ -81,6 +86,7 @@ export class MascotManager {
     this.renderEmotionPills();
     this.setupModalEvents();
     this.setupTuneModalEvents();
+    this.setupPosesListEvents();
 
     if (this.activeMascot && this.onMascotChange) {
       this.onMascotChange(this.activeMascot, this.activeEmotion, this.activeVariantIndex);
@@ -90,7 +96,18 @@ export class MascotManager {
   async loadMascotsFromDB() {
     try {
       const customMascots = await dbManager.getAllMascots();
-      this.mascots = [...DEFAULT_MASCOTS, ...customMascots];
+      // Fusionne par id : une mascotte par défaut sauvegardée (transform, poses
+      // retouchées...) remplace la version d'origine au lieu de la dupliquer.
+      const merged = [...DEFAULT_MASCOTS];
+      customMascots.forEach(custom => {
+        const idx = merged.findIndex(m => m.id === custom.id);
+        if (idx >= 0) {
+          merged[idx] = custom;
+        } else {
+          merged.push(custom);
+        }
+      });
+      this.mascots = merged;
 
       // Récupérer la dernière mascotte ouverte enregistrée dans localStorage
       const lastMascotId = localStorage.getItem('last_active_mascot_id');
@@ -599,7 +616,184 @@ export class MascotManager {
       this.tunePreviewImg.style.filter = `brightness(${brightness}%) contrast(${contrast}%) hue-rotate(${hue}deg) saturate(${saturation}%)`;
     }
 
+    this.renderPosesList();
     this.modalTune.classList.add('open');
+  }
+
+  /**
+   * Construit la liste éditable de toutes les poses de la mascotte active :
+   * réassignation d'émotion, remplacement par une nouvelle image ou par une
+   * autre pose déjà importée (référence), et suppression.
+   */
+  renderPosesList() {
+    if (!this.tunePosesList || !this.activeMascot) return;
+    const mascot = this.activeMascot;
+    this.tunePosesList.innerHTML = '';
+
+    const allEmotions = this.getAllAvailableEmotions();
+    const allEmotionIds = new Set(allEmotions.map(e => e.id));
+
+    // Liste à plat de toutes les poses existantes, pour le sélecteur "référence".
+    const flatPoses = [];
+    Object.entries(mascot.emotions || {}).forEach(([emoId, urls]) => {
+      (urls || []).forEach((url, i) => {
+        const emoMeta = allEmotions.find(e => e.id === emoId);
+        flatPoses.push({ emoId, index: i, url, label: `${emoMeta ? emoMeta.label : emoId} #${i + 1}` });
+      });
+    });
+
+    if (flatPoses.length === 0) {
+      this.tunePosesList.innerHTML = '<p style="font-size:0.78rem; color: var(--text-muted); padding: 8px 0;">Aucune pose pour cette mascotte. Ajoutez-en une ci-dessous.</p>';
+      return;
+    }
+
+    flatPoses.forEach(pose => {
+      const row = document.createElement('div');
+      row.className = 'tune-pose-row';
+
+      const thumb = document.createElement('img');
+      thumb.className = 'tune-pose-thumb';
+      thumb.src = pose.url;
+      thumb.alt = pose.label;
+
+      const selectsWrap = document.createElement('div');
+      selectsWrap.className = 'tune-pose-selects';
+
+      // Sélecteur 1 : émotion associée à cette pose (corrigeable pour CHAQUE pose,
+      // pas seulement au moment de l'import).
+      const emoSelect = document.createElement('select');
+      emoSelect.title = 'Émotion associée à cette pose';
+      allEmotions.forEach(emo => {
+        const opt = document.createElement('option');
+        opt.value = emo.id;
+        opt.textContent = `${emo.icon} ${emo.label}`;
+        if (emo.id === pose.emoId) opt.selected = true;
+        emoSelect.appendChild(opt);
+      });
+      emoSelect.addEventListener('change', () => {
+        this.reassignPoseEmotion(pose.emoId, pose.index, emoSelect.value);
+      });
+
+      // Sélecteur 2 : remplacer par un nouveau fichier, ou réutiliser une autre
+      // pose déjà importée comme référence pour cette même image.
+      const refSelect = document.createElement('select');
+      refSelect.title = 'Remplacer cette pose';
+      const keepOpt = document.createElement('option');
+      keepOpt.value = '';
+      keepOpt.textContent = '— Garder cette image —';
+      refSelect.appendChild(keepOpt);
+
+      const uploadOpt = document.createElement('option');
+      uploadOpt.value = '__upload__';
+      uploadOpt.textContent = '📤 Importer une nouvelle image...';
+      refSelect.appendChild(uploadOpt);
+
+      flatPoses
+        .filter(p => !(p.emoId === pose.emoId && p.index === pose.index))
+        .forEach(p => {
+          const opt = document.createElement('option');
+          opt.value = `${p.emoId}::${p.index}`;
+          opt.textContent = `🔁 Utiliser : ${p.label}`;
+          refSelect.appendChild(opt);
+        });
+
+      refSelect.addEventListener('change', () => {
+        const value = refSelect.value;
+        if (value === '__upload__') {
+          this.pendingReplaceTarget = { emoId: pose.emoId, index: pose.index };
+          this.inputTuneAddPose.dataset.mode = 'replace';
+          this.inputTuneAddPose.click();
+        } else if (value) {
+          const [srcEmo, srcIdx] = value.split('::');
+          this.replacePoseImage(pose.emoId, pose.index, mascot.emotions[srcEmo][parseInt(srcIdx, 10)]);
+        }
+        refSelect.value = '';
+      });
+
+      selectsWrap.appendChild(emoSelect);
+      selectsWrap.appendChild(refSelect);
+
+      const btnRemove = document.createElement('button');
+      btnRemove.type = 'button';
+      btnRemove.className = 'tune-pose-remove';
+      btnRemove.innerHTML = '&times;';
+      btnRemove.title = 'Supprimer cette pose';
+      btnRemove.addEventListener('click', () => this.removePose(pose.emoId, pose.index));
+
+      row.appendChild(thumb);
+      row.appendChild(selectsWrap);
+      row.appendChild(btnRemove);
+
+      this.tunePosesList.appendChild(row);
+    });
+  }
+
+  reassignPoseEmotion(fromEmoId, index, toEmoId) {
+    if (!this.activeMascot || fromEmoId === toEmoId) { this.renderPosesList(); return; }
+    const mascot = this.activeMascot;
+    const url = mascot.emotions[fromEmoId][index];
+    mascot.emotions[fromEmoId].splice(index, 1);
+    if (mascot.emotions[fromEmoId].length === 0) delete mascot.emotions[fromEmoId];
+    if (!mascot.emotions[toEmoId]) mascot.emotions[toEmoId] = [];
+    mascot.emotions[toEmoId].push(url);
+    this.renderPosesList();
+    this.renderFullGrid();
+    this.renderEmotionPills();
+  }
+
+  replacePoseImage(emoId, index, newUrl) {
+    if (!this.activeMascot) return;
+    this.activeMascot.emotions[emoId][index] = newUrl;
+    this.renderPosesList();
+    if (this.onMascotChange) {
+      this.onMascotChange(this.activeMascot, this.activeEmotion, this.activeVariantIndex);
+    }
+  }
+
+  removePose(emoId, index) {
+    if (!this.activeMascot) return;
+    const total = Object.values(this.activeMascot.emotions).reduce((sum, arr) => sum + arr.length, 0);
+    if (total <= 1) {
+      alert('Impossible de supprimer la dernière pose de la mascotte.');
+      return;
+    }
+    if (!confirm('Supprimer définitivement cette pose ?')) return;
+    this.activeMascot.emotions[emoId].splice(index, 1);
+    if (this.activeMascot.emotions[emoId].length === 0) delete this.activeMascot.emotions[emoId];
+    this.renderPosesList();
+    this.renderFullGrid();
+    this.renderEmotionPills();
+  }
+
+  setupPosesListEvents() {
+    if (this.btnTuneAddPose && this.inputTuneAddPose) {
+      this.btnTuneAddPose.addEventListener('click', () => {
+        this.pendingReplaceTarget = null;
+        this.inputTuneAddPose.dataset.mode = 'add';
+        this.inputTuneAddPose.click();
+      });
+
+      this.inputTuneAddPose.addEventListener('change', async (e) => {
+        const file = e.target.files && e.target.files[0];
+        e.target.value = '';
+        if (!file || !file.type.startsWith('image/') || !this.activeMascot) return;
+
+        const dataUrl = await this.readFileAsDataURL(file);
+        const mode = this.inputTuneAddPose.dataset.mode;
+
+        if (mode === 'replace' && this.pendingReplaceTarget) {
+          this.replacePoseImage(this.pendingReplaceTarget.emoId, this.pendingReplaceTarget.index, dataUrl);
+          this.pendingReplaceTarget = null;
+        } else {
+          const defaultEmo = this.getAllEmotionsForMascot(this.activeMascot)[0] || 'neutre';
+          if (!this.activeMascot.emotions[defaultEmo]) this.activeMascot.emotions[defaultEmo] = [];
+          this.activeMascot.emotions[defaultEmo].push(dataUrl);
+          this.renderPosesList();
+          this.renderFullGrid();
+          this.renderEmotionPills();
+        }
+      });
+    }
   }
 
   closeTuneModal() {

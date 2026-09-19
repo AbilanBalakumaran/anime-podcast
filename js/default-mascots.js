@@ -2,7 +2,8 @@
  * DEFAULT MASCOTS - ANIME PODCAST STUDIO
  * Catalogue étendu de 14 émotions de base (incluant Bonjour/Salutation et Au revoir/Outro)
  * avec multiples variantes de poses par émotion.
- * Mascotte par défaut : Kai (illustrations PNG détourées fournies par l'utilisateur).
+ * Mascotte par défaut : Suki (illustrations PNG détourées fournies par l'utilisateur,
+ * chaque pose nommée d'après le type de phrase qu'elle accompagne).
  * Charte : Bleu sombre profond (#070b14, #0b1329), accents or (#f59e0b, #fbbf24). ZÉRO ROSE.
  */
 
@@ -23,24 +24,33 @@ export const BASE_EMOTIONS = [
   { id: 'embarrassee', label: 'Timide', icon: '😳', hint: 'Regard fuyant, main derrière la tête, modestie' }
 ];
 
-const KAI_BASE_PATH = './assets/mascots/kai';
+const SUKI_BASE_PATH = './assets/mascots/suki';
 
 export const DEFAULT_MASCOTS = [
   {
-    id: 'kai',
-    name: 'Kai',
+    id: 'suki',
+    name: 'Suki',
     isDefault: true,
     emotions: {
-      bonjour: [`${KAI_BASE_PATH}/bonjour_0.png`],
-      neutre: [`${KAI_BASE_PATH}/neutre_0.png`],
-      explicative: [`${KAI_BASE_PATH}/explicative_0.png`, `${KAI_BASE_PATH}/explicative_1.png`],
-      pensive: [`${KAI_BASE_PATH}/pensive_0.png`],
-      surprise: [`${KAI_BASE_PATH}/surprise_0.png`],
-      confiante: [`${KAI_BASE_PATH}/confiante_0.png`],
-      joyeuse: [`${KAI_BASE_PATH}/joyeuse_0.png`],
-      ironique: [`${KAI_BASE_PATH}/ironique_0.png`],
-      enervee: [`${KAI_BASE_PATH}/enervee_0.png`],
-      embarrassee: [`${KAI_BASE_PATH}/embarrassee_0.png`]
+      // "Hey salut, à plus !" — sert d'accueil ET d'au revoir (geste de main universel).
+      bonjour: [`${SUKI_BASE_PATH}/bonjour_0.png`],
+      au_revoir: [`${SUKI_BASE_PATH}/bonjour_0.png`],
+      // "Laissez-moi vous expliquer..." / "...(2)" / "les choses sont comme ça, laissez-moi vous expliquer (3)"
+      explicative: [
+        `${SUKI_BASE_PATH}/explicative_0.png`,
+        `${SUKI_BASE_PATH}/explicative_1.png`,
+        `${SUKI_BASE_PATH}/explicative_2.png`
+      ],
+      // "C'était très intéressant..." / "Je me demande si... maintenant que j'y pense"
+      pensive: [`${SUKI_BASE_PATH}/pensive_0.png`, `${SUKI_BASE_PATH}/pensive_1.png`],
+      // "C'était vraiment bien, likez la vidéo" / "N'hésitez pas à liker, à vous abonner"
+      confiante: [`${SUKI_BASE_PATH}/confiante_0.png`, `${SUKI_BASE_PATH}/confiante_1.png`],
+      // "C'était vraiment drôle"
+      joyeuse: [`${SUKI_BASE_PATH}/joyeuse_0.png`],
+      // "Ça me rend en colère"
+      enervee: [`${SUKI_BASE_PATH}/enervee_0.png`],
+      // "J'ai eu tellement peur"
+      embarrassee: [`${SUKI_BASE_PATH}/embarrassee_0.png`]
     }
   }
 ];

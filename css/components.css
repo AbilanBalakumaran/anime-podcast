@@ -821,7 +821,7 @@
 
 .tune-preview-box {
   width: 100%;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 16 / 9;
   background-color: var(--bg-abyss);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
@@ -839,6 +839,76 @@
   object-fit: contain;
   transform-origin: bottom center;
   transition: transform 0.05s ease-out, filter 0.05s ease-out;
+}
+
+.tune-poses-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 280px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.tune-pose-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 8px;
+}
+
+.tune-pose-thumb {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-sm);
+  object-fit: contain;
+  background: var(--bg-abyss);
+  border: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.tune-pose-selects {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+
+.tune-pose-selects select {
+  flex: 1;
+  min-width: 130px;
+  font-size: 0.75rem;
+  padding: 5px 6px;
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-white);
+  border-radius: var(--radius-sm);
+}
+
+.tune-pose-remove {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  transition: all var(--transition-fast);
+}
+
+.tune-pose-remove:hover {
+  background: #ef4444;
+  color: #fff;
+  border-color: #ef4444;
 }
 
 .tune-controls-column {
